@@ -4,7 +4,8 @@
 # Best regression models for one dataset using R methods
 # Developed as tool for nano-toxicity QSAR models
 # NTUA and UM groups
-# contact: Cristian R Munteanu | BiGCaT - UM | muntisa@gmail.com
+# contact: Cristian R Munteanu | BiGCaT - UM | muntisa@gmail.com,
+# 	   Georgia Tsiliki | ChemEng - NTUA | g_tsiliki@hotmail.com
 # ======================================================================
 # Main input file: CSV
 # ----------------------------------------------------------------------
