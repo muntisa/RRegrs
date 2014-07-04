@@ -15,7 +15,9 @@ DsSplit <- function(ds,trainFrac=3/4,fDet=FALSE,PathDataSet="") {
   my.datf<- ds
   # create TRAIN and TEST sets to build a model
   set.seed(1)
-  inTrain <- createDataPartition(1:dim(my.datf)[1],p = trainFrac,list = FALSE)
+  inTrain <- createDataPartition(1:dim(my.datf)[1],p = trainFrac,list = FALSE,groups=2)
+							     # groups==2 forces to NOT partition
+							     # based on quantiles of numeric values
   my.datf.train<- my.datf[inTrain,]            # TRAIN dataset frame         
   my.datf.test <- my.datf[-inTrain,]           # TEST dataset frame
 
