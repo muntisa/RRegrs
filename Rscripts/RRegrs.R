@@ -4,8 +4,9 @@
 # Best regression models for one dataset using R methods
 # Developed as tool for nano-toxicity QSAR models
 # NTUA and UM groups
-# contact: Cristian R Munteanu | BiGCaT - UM | muntisa@gmail.com,
-# 	   Georgia Tsiliki | ChemEng - NTUA | g_tsiliki@hotmail.com
+# ----------------------------------------------------------------------
+# contact: Cristian R Munteanu | BiGCaT - UM    | muntisa@gmail.com
+# 	       Georgia Tsiliki     | ChemEng - NTUA | g_tsiliki@hotmail.com
 # ======================================================================
 # Main input file: CSV
 # ----------------------------------------------------------------------
@@ -30,6 +31,12 @@
 # - it generates PNG plots for the correlation matrix
 # before and after the correlation removal
 # - all the input and output files are placed into the same folder
+
+#==========================================================================================
+# (1) Load dataset and parameters
+#     (these parameters will be read from an input file! TO BE IMPLEMENTED at the end)
+#==========================================================================================
+# (1.1) PARAMETERS
 # -----------------------------------------------------------------------
 # Option to run any step
 # -----------------------------------------------------------------------
@@ -38,34 +45,40 @@ fFilters=TRUE        # flag to apply filters                          (2)
 fScaling=TRUE        # flag for dataset Scaling                       (3)
 fRemNear0Var=TRUE    # flag for Removal of near zero variance columns (4)
 fRemCorr=TRUE        # flag for Removal of correlated columns         (5)
-fFeatureSel=TRUE     # flag for selection before the regression       (7)
-cutoff=0.7           # cut off for corralations
-# -----------------------------------------------------------------------
-iScaling = 1 # 1 = standardization; 2 = normalization, 3 = other; any other: no scaling
-iScalCol = 1 # 1: including dependent variable in scaling; 2: only all features; etc.
-# -----------------------------------------------------------------------
+fFeatureSel=TRUE     # flag for wrapper methods for feature selection (7)
+
+cutoff=0.9           # cut off for correlated features
+
+fGLM = TRUE          # flag to run GLM (8.2)
+
+# ----------------------------------------------------------------------------------------
+iScaling = 1 # 1 = normalization; 2 = standardization, 3 = other; any other: no scaling
+iScalCol = 1 # 1 = including dependent variable in scaling; 2: only all features; etc.
+# ----------------------------------------------------------------------------------------
 trainFrac  = 3/4 # the fraction of training set from the entire dataset
 #                # 1 - trainFrac = the rest of dataset, the test set
-# -----------------------------------------------------------------------
-# (1) Load dataset and parameters
-# -----------------------------------------------------------------------
-# (1.1) PARAMETERS
-PathDataSet    = "DataResults"            # dataset folder
+iSplitTimes = 10 # time to split the data in train and test (steps 6-11); report each step + average
+
+# -------------------------------------------------------------------------------------------------------
+# Files
+# -------------------------------------------------------------------------------------------------------
+PathDataSet    = "DataResults"            # dataset folder for input and output files
 DataFileName   = "ds.csv"                 # input step 1 = ds original file name
 No0NearVarFile = "ds3.No0Var.csv"         # output step 3 = ds without zero near vars
 ScaledFile     = "ds4.scaled.csv"         # output step 4 = scaled ds file name (in the same folder)
 NoCorrFile     = "ds5.scaled.NoCorrs.csv" # output step 5 = dataset after correction removal
-ResFile        = "RRegresRezults.txt"     # the common output file! 
+ResFile        = "RRegresRezults.txt"     # the main output file
 
-glmFile        = "glm.res.txt"
+glmFile        = "8.2.GLM.details.txt"
 
 # Generate path + file name = original dataset
 inFile <- file.path(PathDataSet, DataFileName)
-# Set the file with results (append data using: sink(outRegrFile, append = TRUE) !!!)
+# Main result file (append data using: sink(outRegrFile, append = TRUE) !!!)
 outRegrFile <- file.path(PathDataSet,ResFile) # the same folder as the input 
 
+# -----------------------------------
 # (1.2) Load the ORIGINAL DATASET
-# -----------------------------
+# -----------------------------------
 # (it can contain errors, correlations, near zero variance columns)
 ds.dat0 <- read.csv(inFile,header=T)                              # original dataset frame
 
@@ -80,9 +93,14 @@ net.c<- as.numeric(as.character(net.c)) # values
 # full ds frame with training and test
 ds<- as.data.frame(cbind(net.c,t(ds.dat1)))
 
-# -----------------------------------------------------------------------
+#========================================================
 # (2) FILTERS
-# -----------------------------------------------------------------------
+#     (it will be implemented in the future versions)
+#========================================================
+# 2.1 Outlier removal
+# 2.2 Custom filter (percentage threshold)
+# 2.3 Processing of missing values - use of preProcess();
+#     caret employs knnImpute algorithm to impute values from a neighborhood of k
 
 # -----------------------------------------------------------------------
 # (3) Remove near zero variance columns
@@ -97,7 +115,7 @@ if (fRemNear0Var==TRUE) {
 }
 
 # -----------------------------------------------------------------------
-# (4) Scaling dataset: standardization, normalization, other
+# (4) Scaling dataset: normalization (default), standardization, other
 # -----------------------------------------------------------------------
 if (fScaling==TRUE) {
   print("-> [4] Scaling original dataset ...")
@@ -120,35 +138,118 @@ if (fRemCorr==TRUE) {
   ds <- RemCorrs(ds,fDet,cutoff,outFile)
 }
 
-# -----------------------------------------------------------------------
-# (6) Dataset split: Training and Test sets
-# -----------------------------------------------------------------------
-print("-> [6] Splitting dataset in Training and Test sets ...")
+#=================================================================================================
+# Steps 6 - 11 will be repeated 10 times for reporting each result and average
+#                  (iSplitTimes = 10, default)
+#=================================================================================================
 
-source("s6.DsSplit.R")                   # add function
-dsList <- DsSplit(ds,trainFrac,fDet,PathDataSet)   # return a list with 2 datasets = dsList$train, dsList$test
-# get train and test from the resulted list
-ds.train <- dsList$train
-ds.test <- dsList$test
+for (i in 1:iSplitTimes) {
+  # -----------------------------------------------------------------------
+  # (6) Dataset split: Training and Test sets
+  # -----------------------------------------------------------------------
+  print("-> [6] Splitting dataset in Training and Test sets ...")
+  
+  source("s6.DsSplit.R")  # add external function
+  iSeed=i                 # to reapeat the ds splitting, different values of seed will be used
+  dsList <- DsSplit(ds,trainFrac,fDet,PathDataSet,iSeed) # return a list with 2 datasets = dsList$train, dsList$test
+  # get train and test from the resulted list
+  ds.train <- dsList$train
+  ds.test <- dsList$test
+  
+  # -----------------------------------------------------------------------
+  # (7) Feature selection
+  # -----------------------------------------------------------------------
+  # Two types of regression funtions:
+  # -> without wrapper methods (no feature selection excepts the built-in feature selection: Lasso, PLS)
+  # -> with wrapper methods (all the functions without built-in feature selection)
+  # ===>>>> if fFeatureSel = TRUE, the wrapper versions will be used in step 8
+  
+  # Note: additional feature selection could be implemented in the future
+  
+  # -----------------------------------------------------------------------
+  # (8) Regressions
+  # -----------------------------------------------------------------------
+  #
+  print("-> [8] Run Regressions ...")
+  
+  # --------------------------------------------
+  # 8.1. Basic LM : default
+  # --------------------------------------------
+  
+  # -----------------------------------------------------------------------------------------
+  # (8.2) GLM - based on AIC - Generalized Linear Model with Stepwise Feature Selection
+  # -----------------------------------------------------------------------------------------
+  if (fGLM==TRUE) {
+    print("-> [8.2] GLM stepwise - based on AIC ...")
+    outFile <- file.path(PathDataSet,glmFile)   # the same folder as the input
+  
+    source("s8.2.GLM.R")  # add external functions
+    # both wrapper and nont-wrapper function in the same external file
+    
+    if (fFeatureSel=TRUE) {
+      my.stats<- GLMreg(ds,ds.train,ds.test,fDet,outFile)   # run GLM
+    } else {
+      my.stats<- GLMregW(ds,ds.train,ds.test,fDet,outFile)  # run GLM with wrapper method
+    }
+    
+    # Output from GLM
+    str(my.stats)      # to be modified
+  }
+  
+  # --------------------------------------------
+  # 8.3. PLS
+  # --------------------------------------------
+  
+  # --------------------------------------------
+  # 8.4. Lasso
+  # --------------------------------------------
+  
+  # --------------------------------------------
+  # 8.5. RBF
+  # --------------------------------------------
+  
+  # --------------------------------------------
+  # 8.6. SVM radial
+  # --------------------------------------------
+  
+  # --------------------------------------------
+  # 8.7. SVM linear
+  # --------------------------------------------
+  
+  # --------------------------------------------
+  # 8.8. Neural Networks : default
+  # --------------------------------------------
+  
+  # --------------------------------------------
+  # 8.9. SOM
+  # --------------------------------------------
+  
+  # END OF REGRESSION Functions !!!
+  
+  #------------------------------------------------------------------------------
+  # 9. Results from all models - ordered by 10 fold CV adjR2 (averaged values)
+  #                             (if require, additional plots will be created)
+  #-------------------------------------------------------------------------------
+  
+  #------------------------------------------------------------------------------
+  # 10. Best model selection - detailed statistics
+  #-------------------------------------------------------------------------------
+  
+  #------------------------------------------------------------------------------
+  # 11. Test best model with test dataset
+  #                   (+ Y randomization 100 times, bootstaping)
+  #-------------------------------------------------------------------------------
+  
+}
 
-# -----------------------------------------------------------------------
-# (7) Feature selection
-# -----------------------------------------------------------------------
+#------------------------------------------------------------------------------
+# 12. Report all results for 10 splittings
+#-------------------------------------------------------------------------------
 
-# -----------------------------------------------------------------------
-# (8) Regressions
-# -----------------------------------------------------------------------
-#
-print("-> [8] Run Regressions ...")
+#------------------------------------------------------------------------------
+# 13. Assessment of Applicability Domain (plot leverage)
+#-------------------------------------------------------------------------------
 
-# (8.1) glm stepwise - based on AIC
-#       Generalized Linear Model with Stepwise Feature Selection
-# ----------------------------------------------------------------------
-print("-> [8.1] glm stepwise - based on AIC ...")
-outFile <- file.path(PathDataSet,glmFile)             # the same folder as the input
-
-source("s8.1.GLM.R")                                  # add function
-my.stats<- GLMreg(ds,ds.train,ds.test,fDet,outFile) 
-
-# test the output from GLM
-str(my.stats)
+#------------------------------------------------------------------------------
+# 14. Output regression model as QMFR (to be implemented in the future)
+#-------------------------------------------------------------------------------

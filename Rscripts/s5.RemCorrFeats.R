@@ -1,11 +1,13 @@
-# ============================================================
+# =======================================================================
 # Remove the correlated columns from a file
-# ============================================================
-# contact: Cristian R Munteanu | BiGCaT - UM | muntisa@gmail.com
+# =======================================================================
+# contact: Cristian R Munteanu | BiGCaT - UM    | muntisa@gmail.com
+#          Georgia Tsiliki     | ChemEng - NTUA | g_tsiliki@hotmail.com
+#------------------------------------------------------------------------
 #
 # ds = dataset frame
 # fDet = flag fro details (TRUE/FALSE)
-# cutoff = correlation cut off (ex: 0.65)
+# cutoff = correlation cut off (ex: 0.9)
 # outFileName = new file name  (it could include the path)
 
 # Generates 5 file results:
@@ -13,7 +15,11 @@
 # - generate initial correlation matrix 
 #   and the one after removing the correlated features (2 files)
 # - plots for the before and after correlation removal (2 files)
-# ------------------------------------------------------------
+# ------------------------------------------------------------------------
+
+# another version of this function should be implemented using
+# pairwise test between i and j descriptors- if(r2>=0.9){remove the j descriptor}
+# using findCorelations() from caret
 
 RemCorrs <- function(ds,fDet,cutoff,outFile) {
   

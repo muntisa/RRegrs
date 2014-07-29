@@ -1,8 +1,9 @@
-# ==========================================
+#=======================================================================
 # Removal of near zero variance columns
-# ==========================================
-# contact: Cristian R Munteanu | BiGCaT - UM | muntisa@gmail.com
-#
+#=======================================================================
+# contact: Cristian R Munteanu | BiGCaT - UM    | muntisa@gmail.com
+#          Georgia Tsiliki     | ChemEng - NTUA | g_tsiliki@hotmail.com
+#-----------------------------------------------------------------------
 # inputs:
 # - ds = dataset frame
 # - fDet = flag for detais (TRUE/FALSE)
@@ -10,11 +11,10 @@
 
 # output = ds.Rem0NearVar  (ds without columns with near zero variance)
 # if datails = TRUE, output the new ds as a file
-
 # ------------------------------------------
 
-RemNear0VarCols <- function(ds,fDet=FALSE,outFile="") {
-  # default parameters are no details, without a file name
+RemNear0VarCols <- function(ds,fDet=FALSE,outFile="ds3.No0Var.csv") {
+  # default parameters are no details, with a CSV file name
   ds.Rem0NearVar <- ds # default output without any modification
   
   library(caret)
@@ -25,5 +25,5 @@ RemNear0VarCols <- function(ds,fDet=FALSE,outFile="") {
     # write the corrected ds file
     write.csv(ds.Rem0NearVar, outFile,row.names=F, quote=F)
   }
-  return(as.data.frame(ds.Rem0NearVar)) # return the new ds 
+  return(as.data.frame(ds.Rem0NearVar)) # return the new data frame without near zero variance
 }

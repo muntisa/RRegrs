@@ -1,14 +1,16 @@
-# ==========================================
+# ======================================================================
 # GLM stepwise - based on AIC (caret)
 # Generalized Linear Model with Stepwise Feature Selection
-# ==========================================
-# contact: Cristian R Munteanu | BiGCaT - UM | muntisa@gmail.com
+# ----------------------------------------------------------------------
+# contact: Cristian R Munteanu | BiGCaT - UM    | muntisa@gmail.com
+#          Georgia Tsiliki     | ChemEng - NTUA | g_tsiliki@hotmail.com
 #
 # inputs:
 # - my.datf, my.datf.train,my.datf.test = full, train and test dataset frames
 # - fDet = flag for detais (TRUE/FALSE)
 # - outFile = output file
 # output = statistics
+
 # ------------------------------------------
 GLMreg <- function(my.datf,my.datf.train,my.datf.test,fDet=FALSE,outFile="") {
   my.stats<- list() # create empty result
@@ -48,6 +50,15 @@ GLMreg <- function(my.datf,my.datf.train,my.datf.test,fDet=FALSE,outFile="") {
     # file.show(outFile)
   }
   my.stats = list("RMSE"= RMSE,"Rsquared" = Rsquared,"RMSE_SD" = RMSE_SD,"RsquaredSD" = RsquaredSD)
+  
+  return(my.stats)  # return statistics
+}
+
+# ------------------------------------------------------------------------------------------------------
+GLMregW <- function(my.datf,my.datf.train,my.datf.test,fDet=FALSE,outFile="") { # with wrapper
+  my.stats<- list() # create empty result
+  
+  # to be implemented
   
   return(my.stats)  # return statistics
 }
