@@ -1,13 +1,15 @@
 # ======================================================================
 # RRegrs - R Regression Models
 #
-# Best regression models for one dataset using R methods
+# Get the best regression models for one dataset using R caret methods
 # Developed as tool for nano-toxicity QSAR models
-# NTUA and UM groups
+# NTUA and UM groups, enanomapper.net
 # ----------------------------------------------------------------------
-# contact: Cristian R Munteanu | BiGCaT - UM    | muntisa@gmail.com
-# 	       Georgia Tsiliki     | ChemEng - NTUA | g_tsiliki@hotmail.com
+# Contact: 
+# Cristian R Munteanu, BiGCaT - UM, muntisa [at] gmail [dot] com
+# Georgia Tsiliki, ChemEng - NTUA, g_tsiliki [at] hotmail [dot] com
 # ======================================================================
+
 # Main input file: CSV
 # ----------------------------------------------------------------------
 # Variable names
@@ -40,24 +42,23 @@
 # -----------------------------------------------------------------------
 # Option to run any step
 # -----------------------------------------------------------------------
-fDet = TRUE          # flag to calculate and print details for all the functions
-fFilters=TRUE        # flag to apply filters                          (2)
-fScaling=TRUE        # flag for dataset Scaling                       (3)
-fRemNear0Var=TRUE    # flag for Removal of near zero variance columns (4)
-fRemCorr=TRUE        # flag for Removal of correlated columns         (5)
-fFeatureSel=TRUE     # flag for wrapper methods for feature selection (7)
+fDet         = TRUE  # flag to calculate and print details for all the functions
+fFilters     = TRUE  # flag to apply filters                          (2)
+fScaling     = TRUE  # flag for dataset Scaling                       (3)
+fRemNear0Var = TRUE  # flag for Removal of near zero variance columns (4)
+fRemCorr     = TRUE  # flag for Removal of correlated columns         (5)
+fFeatureSel  = FALSE  # flag for wrapper methods for feature selection (7)
 
-cutoff=0.9           # cut off for correlated features
-
-fGLM = TRUE          # flag to run GLM (8.2)
+cutoff       = 0.9   # cut off for correlated features
+fGLM         = TRUE  # flag to run GLM (8.2)
 
 # ----------------------------------------------------------------------------------------
 iScaling = 1 # 1 = normalization; 2 = standardization, 3 = other; any other: no scaling
 iScalCol = 1 # 1 = including dependent variable in scaling; 2: only all features; etc.
 # ----------------------------------------------------------------------------------------
 trainFrac  = 3/4 # the fraction of training set from the entire dataset
-#                # 1 - trainFrac = the rest of dataset, the test set
-iSplitTimes = 10 # time to split the data in train and test (steps 6-11); report each step + average
+                 # 1 - trainFrac = the rest of dataset, the test set
+iSplitTimes = 3 # default is 10; time to split the data in train and test (steps 6-11); report each step + average
 
 # -------------------------------------------------------------------------------------------------------
 # Files
@@ -76,9 +77,21 @@ inFile <- file.path(PathDataSet, DataFileName)
 # Main result file (append data using: sink(outRegrFile, append = TRUE) !!!)
 outRegrFile <- file.path(PathDataSet,ResFile) # the same folder as the input 
 
+
+cat("======================================================================
+RRegrs - R Regression Models
+Get the best regression models for one dataset using R caret methods
+NTUA and UM groups, enanomapper.net
+
+Contacts:
+Cristian R Munteanu - muntisa [at] gmail [dot] com
+Georgia Tsiliki - g_tsiliki [at] hotmail [dot] com
+======================================================================\n")
+
 # -----------------------------------
 # (1.2) Load the ORIGINAL DATASET
 # -----------------------------------
+print("-> [1] Loading original dataset ...")
 # (it can contain errors, correlations, near zero variance columns)
 ds.dat0 <- read.csv(inFile,header=T)                              # original dataset frame
 
@@ -101,6 +114,7 @@ ds<- as.data.frame(cbind(net.c,t(ds.dat1)))
 # 2.2 Custom filter (percentage threshold)
 # 2.3 Processing of missing values - use of preProcess();
 #     caret employs knnImpute algorithm to impute values from a neighborhood of k
+print("-> [2] Filtering dataset ... No filter!")
 
 # -----------------------------------------------------------------------
 # (3) Remove near zero variance columns
@@ -110,8 +124,10 @@ if (fRemNear0Var==TRUE) {
   outFile <- file.path(PathDataSet,No0NearVarFile) # the same folder as input  
   
   # get the ds without near zero cols 
-  source("s3.RemNearZeroVar.R")                    # add function
-  ds <- RemNear0VarCols(ds,fDet,outFile)           # inputs: ds, flag for details, output file
+  source("s3.RemNearZeroVar.R")                    # add function         
+  ds <- cbind("net.c" = ds[,1],RemNear0VarCols(ds[,2:dim(ds)[2]],fDet,outFile))
+  # use df without Y (predicted values), reconstruct the ds
+  # inputs: ds, flag for details, output file
 }
 
 # -----------------------------------------------------------------------
@@ -123,7 +139,9 @@ if (fScaling==TRUE) {
   
   # run fuction for scaling input dataset file
   source("s4.ScalingDataSet.R")                      # add function
-  ds <- ScalingDS(ds,iScaling,iScalCol,fDet,outFile) # inputs: ds, type of scaling, flag for details, starting column, output file
+  ds <- ScalingDS(ds,iScaling,iScalCol,fDet,outFile)
+  # use df without Y (predicted values), reconstruct the ds
+  # inputs: ds, type of scaling, flag for details, starting column, output file
 }
 
 # -----------------------------------------------------------------------
@@ -135,7 +153,7 @@ if (fRemCorr==TRUE) {
   
   # run function to remove the correlations between the features
   source("s5.RemCorrFeats.R")                     # add function
-  ds <- RemCorrs(ds,fDet,cutoff,outFile)
+  ds <- cbind("net.c" = ds[,1],RemCorrs(ds[,2:dim(ds)[2]],fDet,cutoff,outFile))
 }
 
 #=================================================================================================
@@ -143,7 +161,16 @@ if (fRemCorr==TRUE) {
 #                  (iSplitTimes = 10, default)
 #=================================================================================================
 
-for (i in 1:iSplitTimes) {
+source("s8.RegrrMethods.R")  # add external functions for regressions (all methods in one file!)
+
+#-------------------------------------------------------------------------------------------------
+# List with the results, with the same HEADER as the function are exporting
+dfRes <- list("Regrrs" <- NULL, "Step" <- NULL, "tr.RMSE.10CV" <- NULL, "tr.R2.10CV" <- NULL,
+              "tr.RMSESD.10CV" <- NULL, "tr.R2SD.10CV" <- NULL, "ts.RMSE.10CV" <- NULL, "ts.R2.10CV" <- NULL,
+              "both.adjR2.10CV" <- NULL, "tr.adjR2.10CV" <- NULL, "ts.adjR2.10CV" <- NULL)
+
+#-------------------------------------------------------------------------------------------------
+for (i in 1:iSplitTimes) {                      # Step splitting number = i
   # -----------------------------------------------------------------------
   # (6) Dataset split: Training and Test sets
   # -----------------------------------------------------------------------
@@ -151,9 +178,9 @@ for (i in 1:iSplitTimes) {
   
   source("s6.DsSplit.R")  # add external function
   iSeed=i                 # to reapeat the ds splitting, different values of seed will be used
-  dsList <- DsSplit(ds,trainFrac,fDet,PathDataSet,iSeed) # return a list with 2 datasets = dsList$train, dsList$test
+  dsList  <- DsSplit(ds,trainFrac,fDet,PathDataSet,iSeed) # return a list with 2 datasets = dsList$train, dsList$test
   # get train and test from the resulted list
-  ds.train <- dsList$train
+  ds.train<- dsList$train
   ds.test <- dsList$test
   
   # -----------------------------------------------------------------------
@@ -182,18 +209,23 @@ for (i in 1:iSplitTimes) {
   if (fGLM==TRUE) {
     print("-> [8.2] GLM stepwise - based on AIC ...")
     outFile <- file.path(PathDataSet,glmFile)   # the same folder as the input
-  
-    source("s8.2.GLM.R")  # add external functions
+
     # both wrapper and nont-wrapper function in the same external file
     
-    if (fFeatureSel=TRUE) {
-      my.stats<- GLMreg(ds,ds.train,ds.test,fDet,outFile)   # run GLM
-    } else {
-      my.stats<- GLMregW(ds,ds.train,ds.test,fDet,outFile)  # run GLM with wrapper method
+    if (fFeatureSel==FALSE) {    # if there is no need of feature selection ->> use normal functions
+      my.stats<- GLMreg(ds.train,ds.test,fDet,outFile)   # run GLM
+      my.stats$Step <- i                                 # add step number
+      # print(data.frame(my.stats)) # print results for each split
+      
+    } else {                     # if there is a need for previous feature selection ->> use wrapper functions
+      my.stats<- GLMregW(ds.train,ds.test,fDet,outFile)  # run GLM with wrapper method
     }
     
-    # Output from GLM
-    str(my.stats)      # to be modified
+    #-------------------------------------------------------
+    # Add output from GLM to the list of results
+    #-------------------------------------------------------
+    dfRes = mapply(c, my.stats, dfRes, SIMPLIFY=FALSE) # add results for one split to the main list of results
+    
   }
   
   # --------------------------------------------
@@ -245,6 +277,8 @@ for (i in 1:iSplitTimes) {
 #------------------------------------------------------------------------------
 # 12. Report all results for 10 splittings
 #-------------------------------------------------------------------------------
+print("[12] Results for all splitings")
+print(data.frame(dfRes)) # print all results as data frame
 
 #------------------------------------------------------------------------------
 # 13. Assessment of Applicability Domain (plot leverage)

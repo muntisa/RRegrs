@@ -1,0 +1,44 @@
+[1] "Training Set: "
+     net.c               V2               V5                  V7         
+ Min.   :0.05753   Min.   :0.1057   Min.   :3.973e-05   Min.   :0.02102  
+ 1st Qu.:0.12498   1st Qu.:0.2348   1st Qu.:7.925e-03   1st Qu.:0.02102  
+ Median :0.25026   Median :0.4854   Median :2.063e-02   Median :0.02102  
+ Mean   :0.25283   Mean   :0.4940   Mean   :2.323e-02   Mean   :0.02158  
+ 3rd Qu.:0.35627   3rd Qu.:0.7032   3rd Qu.:4.436e-02   3rd Qu.:0.02102  
+ Max.   :0.50082   Max.   :1.0000   Max.   :4.943e-02   Max.   :0.02487  
+[1] "Test Set: "
+     net.c               V2                V5                 V7         
+ Min.   :0.03825   Min.   :0.06138   Min.   :0.005369   Min.   :0.02102  
+ 1st Qu.:0.09607   1st Qu.:0.18473   1st Qu.:0.007689   1st Qu.:0.02102  
+ Median :0.23099   Median :0.44492   Median :0.017266   Median :0.02102  
+ Mean   :0.23099   Mean   :0.45071   Mean   :0.025864   Mean   :0.02102  
+ 3rd Qu.:0.32736   3rd Qu.:0.64537   3rd Qu.:0.043272   3rd Qu.:0.02102  
+ Max.   :0.46227   Max.   :0.91712   Max.   :0.055722   Max.   :0.02102  
+[1] "Fitting: "
+Generalized Linear Model with Stepwise Feature Selection 
+
+15 samples
+ 3 predictors
+
+No pre-processing
+Resampling: Cross-Validated (10 fold, repeated 10 times) 
+
+Summary of sample sizes: 14, 13, 14, 14, 13, 13, ... 
+
+Resampling results
+
+  RMSE     Rsquared  RMSE SD  Rsquared SD
+  0.00203  1         0.0012   0          
+
+ 
+[1] "Predictions: "
+[1] "V2" "V5" "V7"
+[1] "Trainig Results: "
+    TrainRMSE TrainRsquared     method
+1 0.002032944             1 glmStepAIC
+[1] "Test Results: "
+       RMSE    Rsquared 
+0.001859253 0.999858906 
+[1] "Final Statistics: "
+  Regrrs Step tr.RMSE.10CV tr.R2.10CV tr.RMSESD.10CV tr.R2SD.10CV ts.RMSE.10CV ts.R2.10CV both.adjR2.10CV tr.adjR2.10CV ts.adjR2.10CV
+1    GLM    1  0.002032944          1    0.001195943            0  0.001859253  0.9998589         0.99983     0.9998182     0.9994147

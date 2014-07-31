@@ -14,7 +14,7 @@
 # outFileName = new file name  (it could include the path)
 #-----------------------------------------------------------------------------------
 
-ScalingDS <- function(ds,s=1,c=1,fDet=FALSE,outFileName="") {
+ScalingDS <- function(ds,s=1,c=1,fDet=FALSE,outFileName="ds4.scaled.csv") {
   # Default scaling = NORMALIZATION !
   # if we use preProcess() from caret, errors are generating if threre are zero variance columns!
   
