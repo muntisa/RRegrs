@@ -91,7 +91,7 @@ Georgia Tsiliki - g_tsiliki [at] hotmail [dot] com
 # -----------------------------------
 # (1.2) Load the ORIGINAL DATASET
 # -----------------------------------
-print("-> [1] Loading original dataset ...")
+cat("-> [1] Loading original dataset ...\n")
 # (it can contain errors, correlations, near zero variance columns)
 ds.dat0 <- read.csv(inFile,header=T)                              # original dataset frame
 
@@ -114,13 +114,13 @@ ds<- as.data.frame(cbind(net.c,t(ds.dat1)))
 # 2.2 Custom filter (percentage threshold)
 # 2.3 Processing of missing values - use of preProcess();
 #     caret employs knnImpute algorithm to impute values from a neighborhood of k
-print("-> [2] Filtering dataset ... No filter!")
+cat("-> [2] Filtering dataset ... No filter!\n")
 
 # -----------------------------------------------------------------------
 # (3) Remove near zero variance columns
 # -----------------------------------------------------------------------
 if (fRemNear0Var==TRUE) {
-  print("-> [3] Removal of near zero variance columns ...")
+  cat("-> [3] Removal of near zero variance columns ...\n")
   outFile <- file.path(PathDataSet,No0NearVarFile) # the same folder as input  
   
   # get the ds without near zero cols 
@@ -134,7 +134,7 @@ if (fRemNear0Var==TRUE) {
 # (4) Scaling dataset: normalization (default), standardization, other
 # -----------------------------------------------------------------------
 if (fScaling==TRUE) {
-  print("-> [4] Scaling original dataset ...")
+  cat("-> [4] Scaling original dataset ...\n")
   outFile <- file.path(PathDataSet,ScaledFile)       # the same folder as input
   
   # run fuction for scaling input dataset file
@@ -148,7 +148,7 @@ if (fScaling==TRUE) {
 # (5) Remove correlated features
 # -----------------------------------------------------------------------
 if (fRemCorr==TRUE) {    
-  print("-> [5] Removing correlated features ...") 
+  cat("-> [5] Removing correlated features ...\n") 
   outFile <- file.path(PathDataSet,NoCorrFile)    # the same folder as the input
   
   # run function to remove the correlations between the features
@@ -174,7 +174,7 @@ for (i in 1:iSplitTimes) {                      # Step splitting number = i
   # -----------------------------------------------------------------------
   # (6) Dataset split: Training and Test sets
   # -----------------------------------------------------------------------
-  print("-> [6] Splitting dataset in Training and Test sets ...")
+  cat("-> [6] Splitting dataset in Training and Test sets ...\n")
   
   source("s6.DsSplit.R")  # add external function
   iSeed=i                 # to reapeat the ds splitting, different values of seed will be used
@@ -197,7 +197,7 @@ for (i in 1:iSplitTimes) {                      # Step splitting number = i
   # (8) Regressions
   # -----------------------------------------------------------------------
   #
-  print("-> [8] Run Regressions ...")
+  cat("-> [8] Run Regressions ...\n")
   
   # --------------------------------------------
   # 8.1. Basic LM : default
@@ -207,7 +207,7 @@ for (i in 1:iSplitTimes) {                      # Step splitting number = i
   # (8.2) GLM - based on AIC - Generalized Linear Model with Stepwise Feature Selection
   # -----------------------------------------------------------------------------------------
   if (fGLM==TRUE) {
-    print("-> [8.2] GLM stepwise - based on AIC ...")
+    cat("-> [8.2] GLM stepwise - based on AIC ...\n")
     outFile <- file.path(PathDataSet,glmFile)   # the same folder as the input
 
     # both wrapper and nont-wrapper function in the same external file
@@ -277,7 +277,7 @@ for (i in 1:iSplitTimes) {                      # Step splitting number = i
 #------------------------------------------------------------------------------
 # 12. Report all results for 10 splittings
 #-------------------------------------------------------------------------------
-print("[12] Results for all splitings")
+cat("[12] Results for all splitings\n")
 print(data.frame(dfRes)) # print all results as data frame
 
 #------------------------------------------------------------------------------

@@ -45,63 +45,86 @@ rmse.funct<- function(y,y.new){
 #   (tr = train, ts = test, both = tr+ts = full dataset, 10Cv = 10-fold cross-validation)
 # ---------------------------------------------------------------------------------------------------
 GLMreg <- function(my.datf.train,my.datf.test,fDet=FALSE,outFile="") {
-  my.stats<- list() # create empty result
+  attach(my.datf.train)   # make available the names of variables from training dataset
   
-  # specify CV parameters = 10-fold cross validation
-  ctrl<- trainControl(method = 'repeatedcv', number = 10,repeats = 10,
-                      summaryFunction = defaultSummary)
+  # CV types: 10-CV and LOOCV
+  CVtypes = c("repeatedcv","LOOCV")
   
-  # Training the model using only training set
-  set.seed(2)
-  attach(my.datf.train)
-  lm.fit<- train(net.c~.,data=my.datf.train,
-                 method = 'glmStepAIC', tuneLength = 10, trControl = ctrl,
-                 metric = 'RMSE')
-  
-  #------------------------------
-  # Training RESULTS
-  #------------------------------
-  RMSE = lm.fit$results[,2]
-  Rsquared = lm.fit$results[,3]
-  RMSE_SD = lm.fit$results[,4]
-  Rsquared_SD = lm.fit$results[,5]
-  
-  #------------------------------------------------
-  # RMSE & R^2, for train/ test respectively
-  #------------------------------------------------
-  lm.train.res<- getTrainPerf(lm.fit)
-  lm.test.res <- postResample(predict(lm.fit,my.datf.test),my.datf.test[,1])
-  
-  #------------------------------------------------
-  # Adj R2: y obs, y predicted, No of predictors
-  #------------------------------------------------
-  ds.full = rbind(my.datf.train,my.datf.test)
-  adjR2_both = r2.adj.funct(ds.full[,1], predict(lm.fit,ds.full), length(predictors(lm.fit)))
-  adjR2_train= r2.adj.funct(my.datf.train[,1],predict(lm.fit,my.datf.train),length(predictors(lm.fit)))
-  adjR2_test = r2.adj.funct(my.datf.test[,1], predict(lm.fit,my.datf.test), length(predictors(lm.fit)))
-  
-  my.stats = list("Regrrs"="GLM","Step"=1,"tr.RMSE.10CV"= RMSE,"tr.R2.10CV" = Rsquared,
-                  "tr.RMSESD.10CV" = RMSE_SD,"tr.R2SD.10CV" = Rsquared_SD,
-                  "ts.RMSE.10CV" = (lm.test.res["RMSE"][[1]]),"ts.R2.10CV" = (lm.test.res["Rsquared"][[1]]),
-                  "both.adjR2.10CV" = adjR2_both, "tr.adjR2.10CV" = adjR2_train, "ts.adjR2.10CV" = adjR2_test)
-  # default values: "Regrrs"="GLM","Step"=1 (or for one single use of funtion)
-  
-  #--------------------------------------
-  # Write to file DETAILS for GLM
-  #--------------------------------------
-  if (fDet==TRUE) {  
-    sink(outFile) # to be modified to append results!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    print("Training Set: ");print(summary(my.datf.train))
-    print("Test Set: ");print(summary(my.datf.test))
-    print("Fitting: ");print(lm.fit)
-    print("Predictions: ");print(predictors(lm.fit))
-    print("Trainig Results: ");print(lm.train.res)
-    print("Test Results: ");print(lm.test.res)
-    print("Final Statistics: ");print(data.frame(my.stats))
-    sink()
-    # file.show(outFile)
-  }
-  return(my.stats)  # return a list with statistics
+  # for each type of CV do all the statistics (get 1 list for each CV and merge all)
+  for (cv in 1:length(CVtypes)) {
+    
+    ctrl<- trainControl(method = CVtypes[cv], number = 10,repeats = 10,
+                        summaryFunction = defaultSummary)
+    
+    # Training the model using only training set
+    set.seed(cv)
+    lm.fit<- train(net.c~.,data=my.datf.train,
+                   method = 'glmStepAIC', tuneLength = 10, trControl = ctrl,
+                   metric = 'RMSE')
+    
+    #------------------------------
+    # Training RESULTS
+    #------------------------------
+    RMSE = lm.fit$results[,2]
+    Rsquared = lm.fit$results[,3]
+    if (cv == 1){ # if 10-fold CV
+      RMSE_SD = lm.fit$results[,4]
+      Rsquared_SD = lm.fit$results[,5]
+    }
+    
+    #------------------------------------------------
+    # RMSE & R^2, for train/ test respectively
+    #------------------------------------------------
+    lm.train.res<- getTrainPerf(lm.fit)
+    lm.test.res <- postResample(predict(lm.fit,my.datf.test),my.datf.test[,1])
+    
+    #------------------------------------------------
+    # Adj R2: y obs, y predicted, No of predictors
+    #------------------------------------------------
+    ds.full = rbind(my.datf.train,my.datf.test)
+    adjR2_both = r2.adj.funct(ds.full[,1], predict(lm.fit,ds.full), length(predictors(lm.fit)))
+    adjR2_train= r2.adj.funct(my.datf.train[,1],predict(lm.fit,my.datf.train),length(predictors(lm.fit)))
+    adjR2_test = r2.adj.funct(my.datf.test[,1], predict(lm.fit,my.datf.test), length(predictors(lm.fit)))
+    
+    # generate a list with statistics for each cross-validation type
+    if (cv == 1){  # output for 10-CV
+      my.stats.10CV = list("Regrrs"="GLM","Step"=1,"tr.RMSE.10CV"= RMSE,"tr.R2.10CV" = Rsquared,
+                           "tr.RMSESD.10CV" = RMSE_SD,"tr.R2SD.10CV" = Rsquared_SD,
+                           "ts.RMSE.10CV" = (lm.test.res["RMSE"][[1]]),"ts.R2.10CV" = (lm.test.res["Rsquared"][[1]]),
+                           "both.adjR2.10CV" = adjR2_both, "tr.adjR2.10CV" = adjR2_train, "ts.adjR2.10CV" = adjR2_test)
+      # default values: "Regrrs"="GLM","Step"=1 (or for one single use of funtion)
+    }
+    if (cv == 2){  # output for LOOCV
+      my.stats.LOOCV = list("tr.RMSE.LOOCV"= RMSE,"tr.R2.LOOCV" = Rsquared,
+                            "ts.RMSE.LOOCV" = (lm.test.res["RMSE"][[1]]),"ts.R2.LOOCV" = (lm.test.res["Rsquared"][[1]]),
+                            "both.adjR2.LOOCV" = adjR2_both, "tr.adjR2.LOOCV" = adjR2_train, "ts.adjR2.LOOCV" = adjR2_test)
+    }
+    
+    #--------------------------------------
+    # Write to file DETAILS for GLM
+    #--------------------------------------
+    if (fDet==TRUE) {  
+      sink(outFile) # to be modified to append results!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      print("Training Set: ");print(summary(my.datf.train))
+      print("Test Set: ");print(summary(my.datf.test))
+      print("Fitting: ");print(lm.fit)
+      print("Predictions: ");print(predictors(lm.fit))
+      print("Trainig Results: ");print(lm.train.res)
+      print("Test Results: ");print(lm.test.res)
+      if (cv == 1){
+        print("10-fold CV statistics: ");print(data.frame(my.stats.10CV))
+      }
+      if (cv == 2){
+        print("LOOCV statistics: ");print(data.frame(my.stats.LOOCV))
+      }
+      sink()
+      # file.show(outFile)
+    }
+    #--------------------------------------
+    
+  } # END cross-validations
+  my.stats.full = c(my.stats.10CV,my.stats.LOOCV)   # merge the CV results into one list
+  return(my.stats.full)  # return a list with statistics
 }
 
 # ------------------------------------------------------------------------------------------------------
