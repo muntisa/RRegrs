@@ -88,17 +88,23 @@ GLMreg <- function(my.datf.train,my.datf.test,fDet=FALSE,outFile="") {
     
     # generate a list with statistics for each cross-validation type
     if (cv == 1){  # output for 10-CV
-      my.stats.10CV = list("Regrrs"="GLM","Step"=1,"tr.RMSE.10CV"= RMSE,"tr.R2.10CV" = Rsquared,
-                           "tr.RMSESD.10CV" = RMSE_SD,"tr.R2SD.10CV" = Rsquared_SD,
-                           "ts.RMSE.10CV" = (lm.test.res["RMSE"][[1]]),"ts.R2.10CV" = (lm.test.res["Rsquared"][[1]]),
-                           "both.adjR2.10CV" = adjR2_both, "tr.adjR2.10CV" = adjR2_train, "ts.adjR2.10CV" = adjR2_test)
+      my.stats.10CV = list("RegrMethod"="GLM.AIC","SplitNo"=1,"RMSE.tr.10CV"= RMSE,"R2.tr.10CV" = Rsquared,
+                           "RMSEsd.tr.10CV" = RMSE_SD,"R2sd.tr.10CV" = Rsquared_SD,
+                           "RMSE.ts.10CV" = (lm.test.res["RMSE"][[1]]),"R2.ts.10CV" = (lm.test.res["Rsquared"][[1]]),
+                           "adjR2.both.10CV" = adjR2_both, "adjR2.tr.10CV" = adjR2_train, "adjR2.ts.10CV" = adjR2_test)
       # default values: "Regrrs"="GLM","Step"=1 (or for one single use of funtion)
     }
     if (cv == 2){  # output for LOOCV
-      my.stats.LOOCV = list("tr.RMSE.LOOCV"= RMSE,"tr.R2.LOOCV" = Rsquared,
-                            "ts.RMSE.LOOCV" = (lm.test.res["RMSE"][[1]]),"ts.R2.LOOCV" = (lm.test.res["Rsquared"][[1]]),
-                            "both.adjR2.LOOCV" = adjR2_both, "tr.adjR2.LOOCV" = adjR2_train, "ts.adjR2.LOOCV" = adjR2_test)
+      my.stats.LOOCV = list("RMSE.tr.LOOCV"= RMSE,"R2.tr.LOOCV" = Rsquared,
+                            "RMSE.ts.LOOCV" = (lm.test.res["RMSE"][[1]]),"R2.ts.LOOCV" = (lm.test.res["Rsquared"][[1]]),
+                            "adjR2.both.LOOCV" = adjR2_both, "adjR2.tr.LOOCV" = adjR2_train, "adjR2.ts.LOOCV" = adjR2_test)
     }
+    
+    # TO ADD !!!!!!!!!! here or in the main script !!!!!!!!!!!!
+    # dsFileName, DateTime, CaseNo, FeatureNo, FeatureList, OutVar
+    # RMSE.both10CV, RMSE.bothLOOCV, R2.both10CV, R2.bothLOOCV
+    # 
+    
     
     #--------------------------------------
     # Write to file DETAILS for GLM

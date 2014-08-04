@@ -165,9 +165,11 @@ source("s8.RegrrMethods.R")  # add external functions for regressions (all metho
 
 #-------------------------------------------------------------------------------------------------
 # List with the results, with the same HEADER as the function are exporting
-dfRes <- list("Regrrs" <- NULL, "Step" <- NULL, "tr.RMSE.10CV" <- NULL, "tr.R2.10CV" <- NULL,
-              "tr.RMSESD.10CV" <- NULL, "tr.R2SD.10CV" <- NULL, "ts.RMSE.10CV" <- NULL, "ts.R2.10CV" <- NULL,
-              "both.adjR2.10CV" <- NULL, "tr.adjR2.10CV" <- NULL, "ts.adjR2.10CV" <- NULL)
+dfRes <- list("RegrMethod" <- NULL, "SplitNo" <- NULL, "RMSE.tr.10CV" <- NULL, "R2.tr.10CV" <- NULL,
+              "RMSEsd.tr.10CV" <- NULL, "R2sd.tr.10CV" <- NULL, "RMSE.ts.10CV" <- NULL, "R2.ts.10CV" <- NULL,
+              "adjR2.both.10CV" <- NULL, "djR2.tr.10CV" <- NULL, "adjR2.ts.10CV" <- NULL)
+
+# ADD NEW values!! See GLM file!!!!
 
 #-------------------------------------------------------------------------------------------------
 for (i in 1:iSplitTimes) {                      # Step splitting number = i
