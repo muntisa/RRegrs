@@ -11,3 +11,15 @@ The full R script will contain: Loading dataset, Filter dataset, Scaling dataset
 The script will be modular in order to create flexible APIs.
 
 The main authors are from the National Technical University of Athens (NTUA) and Maastricht University (UM) joining efforts for the EU eNanoMapper project.
+
+The list of the methods that will be included contains:
+- Basic LM
+- GLM based on AIC
+- PLS
+- Lasso
+- RBF
+- SVM radial
+- SVM linear
+- Neural Networks
+- SOM
+- Recursive Feature Extraction (SVM-RFE)
