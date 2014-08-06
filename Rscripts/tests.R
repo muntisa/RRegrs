@@ -42,6 +42,7 @@
 #
 #adjsuted R2 and RMSE functions are included at the top.
 #
+library(caret)
 
 r2.adj.funct<- function(y,y.new,num.pred){#y==y, y.new=predicted, num.pred=number of idependent variables (predictors)
   y.mean<- mean(y)
@@ -52,8 +53,8 @@ r2.adj.funct<- function(y,y.new,num.pred){#y==y, y.new=predicted, num.pred=numbe
   x.in<- 1 - x.in 
   return(x.in)
 }
-
-r2.adj.lm.funct<- function(y,y.new,num.pred){#y==y, y.new=predicted, num.pred=number of idependent variables (predictors)
+#----------------------------------------------------------------------------------------------------------------------
+r2.adj.lm.funct<- function(y,y.new,num.pred){ #y==y, y.new=predicted, num.pred=number of idependent variables (predictors)
   #only for lm with intercept
   #y.mean<- mean(y)
   #x.in<- sum((y-y.new)^2)/sum((y-y.mean)^2)
@@ -63,12 +64,17 @@ r2.adj.lm.funct<- function(y,y.new,num.pred){#y==y, y.new=predicted, num.pred=nu
   x.in<- 1 - x.in 
   return(x.in)
 }
-
-
-rmse.funct<- function(y,y.new){
+#----------------------------------------------------------------------------------------------------------------------
+rmse.funct<- function(y,y.new){               #y==y, y.new=predicted
   return(sqrt(mean((y.new - y)^2)))
 }
-
+#----------------------------------------------------------------------------------------------------------------------
+r2.funct<- function(y,y.new){                 #y==y, y.new=predicted
+  y.mean<- mean(y)
+  x.in<- sum((y-y.new)^2)/sum((y-y.mean)^2)
+  x.in<- 1-x.in #r squared
+  return(x.in)
+}
 
 #==========================================================================================
 # (1) Load dataset and parameters
@@ -125,7 +131,6 @@ net.c<- as.numeric(as.character(net.c)) # values
 # full ds frame with training and test
 ds<- as.data.frame(cbind(net.c,t(ds.dat1)))
 
-
 # -----------------------------------------------------------------------
 # (3) Remove near zero variance columns
 # -----------------------------------------------------------------------
@@ -137,6 +142,7 @@ if (fRemNear0Var==TRUE) {
   source("s3.RemNearZeroVar.R")                    # add function
   ds <- RemNear0VarCols(ds,fDet,outFile)           # inputs: ds, flag for details, output file
 }
+
 
 # -----------------------------------------------------------------------
 # (6) Dataset split: Training and Test sets
@@ -158,51 +164,145 @@ my.datf.test
 # TO TEST
 ####################
 
-my.stats<- list() # create empty result
-# specify CV parameters
-ctrl<- trainControl(method = 'repeatedcv', number = 10,repeats = 10,
-                    summaryFunction = defaultSummary)
+attach(my.datf.train)   # make available the names of variables from training dataset
 
-# Training the model using only training set
-set.seed(2)
-attach(my.datf.train)
-lm.fit<- train(net.c~.,data=my.datf.train,
-               method = 'glmStepAIC', tuneLength = 10, trControl = ctrl,
-               metric = 'RMSE')
+CVtypes    <- c("repeatedcv","LOOCV")             # CV types: 10-CV and LOOCV
+RegrMethod <- "GLM.AIC"                           # type of regression
+nCases     <- dim(my.datf.train)[1]               # number of cases
+nFeatures  <- dim(my.datf.train)[2] - 1           # number of input features (it could be different with the fitted model features!)
+FeatureList<- paste(names(my.datf.train)[2:nFeatures], collapse="+") # list of input feature names, from second name, first name is the output variable
+OutVar     <- names(my.datf.train)[1]
 
-# Training RESULTS
-#------------------------------
-# get statistics for training
-RMSE = lm.fit$results[,2]
-Rsquared = lm.fit$results[,3]
-RMSE_SD = lm.fit$results[,4]
-Rsquared_SD = lm.fit$results[,5]
+# Data set info
+my.stats.dsInfo <- list("RegrMethod"= RegrMethod,
+                        "NoCases"= nCases,
+                        "InNoVars"= nFeatures,
+                        "InFeatures"= FeatureList,
+                        "SplitNo"= OutVar)
 
-# RMSE & R^2, for train/ test respectively
-lm.train.res<- getTrainPerf(lm.fit)
-lm.test.res <- postResample(predict(lm.fit,my.datf.test),my.datf.test[,1])
-
-# Adj R2: y obs, y predicted, No of predictors
-ds.full = rbind(my.datf.train,my.datf.test)
-adjR2_both = r2.adj.funct(ds.full[,1], predict(lm.fit,ds.full), length(predictors(lm.fit)))
-adjR2_train= r2.adj.funct(my.datf.train[,1],predict(lm.fit,my.datf.train),length(predictors(lm.fit)))
-adjR2_test = r2.adj.funct(my.datf.test[,1], predict(lm.fit,my.datf.test), length(predictors(lm.fit)))
+# For each type of CV do all the statistics (get 1 list for each CV and merge all)
+for (cv in 1:length(CVtypes)) {
   
-if (fDet==TRUE) {
-  # write RESULTS
-  sink(outFile)
-  print(summary(my.datf.train))
-  print(summary(my.datf.test))
-  print(lm.fit)
-  print(predictors(lm.fit))
-  print(lm.train.res)
-  print(lm.test.res)
-  sink()
-  #file.show(outFile)
+  ctrl<- trainControl(method = CVtypes[cv], number = 10,repeats = 10,
+                      summaryFunction = defaultSummary)
+  
+  # Training the model using only training set
+  set.seed(cv)
+  lm.fit<- train(net.c~.,data=my.datf.train,
+                 method = 'glmStepAIC', tuneLength = 10, trControl = ctrl,
+                 metric = 'RMSE')
+  
+  #------------------------------
+  # Training RESULTS
+  #------------------------------
+  RMSE.tr  <- lm.fit$results[,2]
+  R2.tr    <- lm.fit$results[,3]
+  if (cv == 1){ # if 10-fold CV
+    RMSEsd.tr <- lm.fit$results[,4]
+    R2sd.tr   <- lm.fit$results[,5]
+  }
+  if (cv == 2){ # if 10-fold CV
+    RMSEsd.tr <- 0 # formulas will be added later!
+    R2sd.tr   <- 0 # formulas will be added later!
+  }
+  
+  
+  #------------------------------------------------
+  # RMSE & R^2, for train/ test respectively
+  #------------------------------------------------
+  lm.train.res <- getTrainPerf(lm.fit)
+  lm.test.res  <- postResample(predict(lm.fit,my.datf.test),my.datf.test[,1])
+  
+  #------------------------------------------------
+  # Adj R2, Pearson correlation
+  #------------------------------------------------
+  pred.tr     <- predict(lm.fit,my.datf.train) # predicted Y
+  pred.ts     <- predict(lm.fit,my.datf.test)  # predicted Y
+  noFeats.fit <- length(predictors(lm.fit))    # no. of features from the fitted model
+  Feats.fit   <- paste(predictors(lm.fit),collapse="+") # string with the features included in the fitted model
+  
+  ds.full     <- rbind(my.datf.train,my.datf.test)
+  pred.both   <- predict(lm.fit,ds.full)       # predicted Y
+  adjR2.tr    <- r2.adj.funct(my.datf.train[,1],pred.tr,noFeats.fit)
+  adjR2.ts    <- r2.adj.funct(my.datf.test[,1],pred.ts,noFeats.fit)
+  corP.ts     <- cor(my.datf.test[,1],pred.ts)
+  
+  adjR2.both  <- r2.adj.funct(ds.full[,1],pred.both,noFeats.fit)
+  RMSE.both   <- rmse.funct(ds.full[,1],pred.both)
+  r2.both     <- r2.funct(ds.full[,1],pred.both)
+  
+  # Generate a list with statistics for each cross-validation type
+  # --------------------------------------------------------------------
+  # There are 3 lists for Data set info, 10-fold CV and LOOCV
+  # These 3 lists will be merged into one in order obtain the function output including the header (statistics names)
+  
+  if (cv == 1){  # output for 10-fold CV (it shold be modified with unique bloque for each cv, dynamic labels of the fields, etc.)
+    my.stats.10CV <- list("NoModelFeats.10CV"  = noFeats.fit,
+                          "ModelFeats.10CV"    = Feats.fit,
+                          "adjR2.tr.10CV"  = adjR2.tr,
+                          "RMSE.tr.10CV"   = RMSE.tr,
+                          "R2.tr.10CV"     = R2.tr,
+                          "RMSEsd.tr.10CV" = RMSEsd.tr,
+                          "R2sd.tr.10CV"   = R2sd.tr,
+                          "adjR2.ts.10CV"= adjR2.ts,
+                          "RMSE.ts.10CV" = (lm.test.res["RMSE"][[1]]),
+                          "R2.ts.10CV"   = (lm.test.res["Rsquared"][[1]]),
+                          "corP.ts.10CV" = corP.ts,
+                          "adjR2.both.10CV" = adjR2.both,
+                          "RMSE.both.10CV"  = RMSE.both,
+                          "R2.both.10CV"    = r2.both)
+    
+    # default values: "Regrrs"="GLM","Step"=1 (or for one single use of funtion)
+  }
+  if (cv == 2){  # output for LOOCV
+    my.stats.LOOCV <- list("NoModelFeats.10CV"= noFeats.fit,
+                           "ModelFeats.10CV"  = Feats.fit,
+                           "adjR2.tr.LOOCV"   = adjR2.tr,
+                           "RMSE.tr.LOOCV"    = RMSE.tr,
+                           "R2.tr.LOOCV"      = R2.tr,
+                           "RMSEsd.tr.LOOCV"  = RMSEsd.tr,
+                           "R2sd.tr.LOOCV"    = R2sd.tr,
+                           "adjR2.ts.LOOCV" = adjR2.ts,
+                           "RMSE.ts.LOOCV"  = (lm.test.res["RMSE"][[1]]),
+                           "R2.ts.LOOCV"    = (lm.test.res["Rsquared"][[1]]),
+                           "corP.ts.LOOCV"  = corP.ts,
+                           "adjR2.both.LOOCV"  = adjR2.both,
+                           "RMSE.both.LOOCV"   = RMSE.both,
+                           "R2.both.LOOCV"     = r2.both)
+  } # default values: "Regrrs"="GLM","Step"=1 (or for one single use of funtion)
+  
+  # TO ADD !!!!!!!!!! here or in the main script !!!!!!!!!!!!
+  # dsFileName, DateTime
+  
+  #---------------------------------------------------------------------
+  # Write to file DETAILS for GLM for each cross-validation method
+  #---------------------------------------------------------------------
+  if (fDet==TRUE) {   # if flag for details if true, print details about any resut
+    write.table("Fitting Summary: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
+    write.table(summary(lm.fit)$coefficients, file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
+    
+    write.table("Predictors: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
+    write.table(predictors(lm.fit), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
+    
+    write.table("Trainig Results: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
+    write.table(predictors(lm.train.res), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
+    write.table("Test Results: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
+    write.table(predictors(lm.test.res), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
+  }
+  #--------------------------------------
+} # END cross-validations
+my.stats.full <- c(my.stats.10CV,my.stats.LOOCV)   # merge the CV results into one list that contains the names of each field!
+
+#--------------------------------------
+# Write to file DETAILS for GLM
+#--------------------------------------
+if (fDet==TRUE) {   # if flag for details if true, print details about any resut
+  
+  write.table("Full Statistics: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
+  write.table(my.stats.full, file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
 }
-my.stats = list("Regrrs"="GLM","Step"=1,"tr.RMSE.10CV"= RMSE,"tr.R2.10CV" = Rsquared,
-                "tr.RMSESD.10CV" = RMSE_SD,"tr.R2SD.10CV" = Rsquared_SD,
-                "ts.RMSE" = (lm.test.res["RMSE"][[1]]),"ts.R2" = (lm.test.res["Rsquared"][[1]]),
-                "both.adjR2" = adjR2_both, "tr.adjR2" = adjR2_train, "ts.adjR2" = adjR2_test)
-# default values: "Regrrs"="GLM","Step"=1 (or for one single use of funtion)
-print(data.frame(my.stats))
+
+
+#####################################################
+print(data.frame(my.stats.full))
+print(length(my.stats.full))

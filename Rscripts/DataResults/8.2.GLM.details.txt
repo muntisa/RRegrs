@@ -1,44 +1,510 @@
-[1] "Training Set: "
-     net.c               V2               V5                  V7         
+1 Regression method:  GLM.AIC
+1 Split no.:  1
+1 Training Set Summary: 
+    net.c       V2       V5       V7
+ Min.   :0.03825   Min.   :0.06138   Min.   :3.973e-05   Min.   :0.02102  
+ 1st Qu.:0.09607   1st Qu.:0.18184   1st Qu.:7.925e-03   1st Qu.:0.02102  
+ Median :0.15389   Median :0.29266   Median :1.727e-02   Median :0.02102  
+ Mean   :0.21942   Mean   :0.42732   Mean   :2.364e-02   Mean   :0.02142  
+ 3rd Qu.:0.29845   3rd Qu.:0.58562   3rd Qu.:4.414e-02   3rd Qu.:0.02102  
+ Max.   :0.50082   Max.   :1.00000   Max.   :5.572e-02   Max.   :0.02487  
+1 Test Set Summary: 
+    net.c       V2       V5       V7
+ Min.   :0.1924   Min.   :0.3755   Min.   :0.004187   Min.   :0.02102  
+ 1st Qu.:0.3081   1st Qu.:0.6010   1st Qu.:0.005134   1st Qu.:0.02102  
+ Median :0.3466   Median :0.6820   Median :0.020630   Median :0.02102  
+ Mean   :0.3312   Mean   :0.6508   Mean   :0.024617   Mean   :0.02149  
+ 3rd Qu.:0.3659   3rd Qu.:0.7244   3rd Qu.:0.043701   3rd Qu.:0.02102  
+ Max.   :0.4430   Max.   :0.8709   Max.   :0.049434   Max.   :0.02339  
+1 Fitting Summary: 
+Estimate Std..Error t.value Pr...t..
+(Intercept) 0.00750932701793991 0.000796025980873941 9.43352000860019 3.52419418798019e-07
+V2 0.495914750025621 0.00150808036971125 328.838409401598 7.18070035169487e-27
+1 Predictors: 
+x
+1 V2
+2 V5
+3 V7
+1 Trainig Results: 
+x
+1 NA
+1 Test Results: 
+x
+1 NA
+1 Fitting Summary: 
+Estimate Std..Error t.value Pr...t..
+(Intercept) 0.00750932701793991 0.000796025980873941 9.43352000860019 3.52419418798019e-07
+V2 0.495914750025621 0.00150808036971125 328.838409401598 7.18070035169487e-27
+1 Predictors: 
+x
+1 V2
+2 V5
+3 V7
+1 Trainig Results: 
+x
+1 NA
+1 Test Results: 
+x
+1 NA
+1 Full Statistics: 
+RegrMethod NoCases InNoVars InFeatures PredVar SplitNo NoModelFeats.10CV ModelFeats.10CV adjR2.tr.10CV RMSE.tr.10CV R2.tr.10CV RMSEsd.tr.10CV R2sd.tr.10CV adjR2.ts.10CV RMSE.ts.10CV R2.ts.10CV corP.ts.10CV adjR2.both.10CV RMSE.both.10CV R2.both.10CV NoModelFeats.10CV.1 ModelFeats.10CV.1 adjR2.tr.LOOCV RMSE.tr.LOOCV R2.tr.LOOCV RMSEsd.tr.LOOCV R2sd.tr.LOOCV adjR2.ts.LOOCV RMSE.ts.LOOCV R2.ts.LOOCV corP.ts.LOOCV adjR2.both.LOOCV RMSE.both.LOOCV R2.both.LOOCV
+1 GLM.AIC 15 3 V2+V5 net.c 1 3 V2+V5+V7 0.999847010573297 0.0017637875709294 1 0.00115163143645414 0 0.997323195103646 0.0021246946356528 0.999693038829014 0.999846507634554 0.99982206836819 0.00180488690694227 0.999850162836371 3 V2+V5+V7 0.999847010573297 0.00206056328744763 0.999821099368627 0 0 0.997323195103646 0.0021246946356528 0.999693038829014 0.999846507634554 0.99982206836819 0.00180488690694227 0.999850162836371
+1 Regression method:  GLM.AIC
+1 Split no.:  2
+1 Training Set Summary: 
+    net.c       V2       V5       V7
+ Min.   :0.05753   Min.   :0.1057   Min.   :3.973e-05   Min.   :0.02102  
+ 1st Qu.:0.13462   1st Qu.:0.2532   1st Qu.:6.580e-03   1st Qu.:0.02102  
+ Median :0.30808   Median :0.6010   Median :1.174e-02   Median :0.02102  
+ Mean   :0.27853   Mean   :0.5464   Mean   :2.217e-02   Mean   :0.02158  
+ 3rd Qu.:0.40445   3rd Qu.:0.7976   3rd Qu.:4.349e-02   3rd Qu.:0.02102  
+ Max.   :0.50082   Max.   :1.0000   Max.   :5.572e-02   Max.   :0.02487  
+1 Test Set Summary: 
+    net.c       V2       V5       V7
+ Min.   :0.03825   Min.   :0.06138   Min.   :0.007689   Min.   :0.02102  
+ 1st Qu.:0.09607   1st Qu.:0.17895   1st Qu.:0.017266   1st Qu.:0.02102  
+ Median :0.13462   Median :0.25604   Median :0.024608   Median :0.02102  
+ Mean   :0.15389   Mean   :0.29343   Mean   :0.029031   Mean   :0.02102  
+ 3rd Qu.:0.23099   3rd Qu.:0.44492   3rd Qu.:0.046156   3rd Qu.:0.02102  
+ Max.   :0.26953   Max.   :0.52587   Max.   :0.049434   Max.   :0.02102  
+1 Fitting Summary: 
+Estimate Std..Error t.value Pr...t..
+(Intercept) 0.00677572457615941 0.00107249258405993 6.31773559730345 2.6684503164752e-05
+V2 0.497324777905241 0.00171678723289977 289.683408855054 3.73113804464812e-26
+1 Predictors: 
+x
+1 V2
+2 V5
+3 V7
+1 Trainig Results: 
+x
+1 NA
+1 Test Results: 
+x
+1 NA
+1 Fitting Summary: 
+Estimate Std..Error t.value Pr...t..
+(Intercept) 0.00677572457615941 0.00107249258405993 6.31773559730345 2.6684503164752e-05
+V2 0.497324777905241 0.00171678723289977 289.683408855054 3.73113804464812e-26
+1 Predictors: 
+x
+1 V2
+2 V5
+3 V7
+1 Trainig Results: 
+x
+1 NA
+1 Test Results: 
+x
+1 NA
+1 Full Statistics: 
+RegrMethod NoCases InNoVars InFeatures PredVar SplitNo NoModelFeats.10CV ModelFeats.10CV adjR2.tr.10CV RMSE.tr.10CV R2.tr.10CV RMSEsd.tr.10CV R2sd.tr.10CV adjR2.ts.10CV RMSE.ts.10CV R2.ts.10CV corP.ts.10CV adjR2.both.10CV RMSE.both.10CV R2.both.10CV NoModelFeats.10CV.1 ModelFeats.10CV.1 adjR2.tr.LOOCV RMSE.tr.LOOCV R2.tr.LOOCV RMSEsd.tr.LOOCV R2sd.tr.LOOCV adjR2.ts.LOOCV RMSE.ts.LOOCV R2.ts.LOOCV corP.ts.LOOCV adjR2.both.LOOCV RMSE.both.LOOCV R2.both.LOOCV
+1 GLM.AIC 15 3 V2+V5 net.c 1 3 V2+V5+V7 0.999802864797152 0.00200408939711666 1 0.00100452342754293 0 0.99874586048551 0.00151088427694911 0.999919250376414 0.999959624373111 0.999824935042791 0.00179028851094198 0.99985257687814 3 V2+V5+V7 0.999802864797152 0.00220922524455953 0.999785001053155 0 0 0.99874586048551 0.00151088427694911 0.999919250376414 0.999959624373111 0.999824935042791 0.00179028851094198 0.99985257687814
+1 Regression method:  GLM.AIC
+1 Split no.:  3
+1 Training Set Summary: 
+    net.c       V2       V5       V7
  Min.   :0.05753   Min.   :0.1057   Min.   :3.973e-05   Min.   :0.02102  
  1st Qu.:0.12498   1st Qu.:0.2348   1st Qu.:7.925e-03   1st Qu.:0.02102  
  Median :0.25026   Median :0.4854   Median :2.063e-02   Median :0.02102  
  Mean   :0.25283   Mean   :0.4940   Mean   :2.323e-02   Mean   :0.02158  
  3rd Qu.:0.35627   3rd Qu.:0.7032   3rd Qu.:4.436e-02   3rd Qu.:0.02102  
  Max.   :0.50082   Max.   :1.0000   Max.   :4.943e-02   Max.   :0.02487  
-[1] "Test Set: "
-     net.c               V2                V5                 V7         
+1 Test Set Summary: 
+    net.c       V2       V5       V7
  Min.   :0.03825   Min.   :0.06138   Min.   :0.005369   Min.   :0.02102  
  1st Qu.:0.09607   1st Qu.:0.18473   1st Qu.:0.007689   1st Qu.:0.02102  
  Median :0.23099   Median :0.44492   Median :0.017266   Median :0.02102  
  Mean   :0.23099   Mean   :0.45071   Mean   :0.025864   Mean   :0.02102  
  3rd Qu.:0.32736   3rd Qu.:0.64537   3rd Qu.:0.043272   3rd Qu.:0.02102  
  Max.   :0.46227   Max.   :0.91712   Max.   :0.055722   Max.   :0.02102  
-[1] "Fitting: "
-Generalized Linear Model with Stepwise Feature Selection 
-
-15 samples
- 3 predictors
-
-No pre-processing
-Resampling: Cross-Validated (10 fold, repeated 10 times) 
-
-Summary of sample sizes: 14, 13, 14, 14, 13, 13, ... 
-
-Resampling results
-
-  RMSE     Rsquared  RMSE SD  Rsquared SD
-  0.00203  1         0.0012   0          
-
- 
-[1] "Predictions: "
-[1] "V2" "V5" "V7"
-[1] "Trainig Results: "
-    TrainRMSE TrainRsquared     method
-1 0.002032944             1 glmStepAIC
-[1] "Test Results: "
-       RMSE    Rsquared 
-0.001859253 0.999858906 
-[1] "Final Statistics: "
-  Regrrs Step tr.RMSE.10CV tr.R2.10CV tr.RMSESD.10CV tr.R2SD.10CV ts.RMSE.10CV ts.R2.10CV both.adjR2.10CV tr.adjR2.10CV ts.adjR2.10CV
-1    GLM    1  0.002032944          1    0.001195943            0  0.001859253  0.9998589         0.99983     0.9998182     0.9994147
+1 Fitting Summary: 
+Estimate Std..Error t.value Pr...t..
+(Intercept) 0.0074033347041844 0.000944709232371856 7.8366278750098 2.80085897973691e-06
+V2 0.496810825333866 0.00164680775182124 301.681131136548 2.20168053156721e-26
+1 Predictors: 
+x
+1 V2
+2 V5
+3 V7
+1 Trainig Results: 
+x
+1 NA
+1 Test Results: 
+x
+1 NA
+1 Fitting Summary: 
+Estimate Std..Error t.value Pr...t..
+(Intercept) 0.0074033347041844 0.000944709232371856 7.8366278750098 2.80085897973691e-06
+V2 0.496810825333866 0.00164680775182124 301.681131136548 2.20168053156721e-26
+1 Predictors: 
+x
+1 V2
+2 V5
+3 V7
+1 Trainig Results: 
+x
+1 NA
+1 Test Results: 
+x
+1 NA
+1 Full Statistics: 
+RegrMethod NoCases InNoVars InFeatures PredVar SplitNo NoModelFeats.10CV ModelFeats.10CV adjR2.tr.10CV RMSE.tr.10CV R2.tr.10CV RMSEsd.tr.10CV R2sd.tr.10CV adjR2.ts.10CV RMSE.ts.10CV R2.ts.10CV corP.ts.10CV adjR2.both.10CV RMSE.both.10CV R2.both.10CV NoModelFeats.10CV.1 ModelFeats.10CV.1 adjR2.tr.LOOCV RMSE.tr.LOOCV R2.tr.LOOCV RMSEsd.tr.LOOCV R2sd.tr.LOOCV adjR2.ts.LOOCV RMSE.ts.LOOCV R2.ts.LOOCV corP.ts.LOOCV adjR2.both.LOOCV RMSE.both.LOOCV R2.both.LOOCV
+1 GLM.AIC 15 3 V2+V5 net.c 1 3 V2+V5+V7 0.999818230765808 0.00203634016942171 1 0.00126862811983091 0 0.999414726055015 0.00185925258302674 0.99985890595122 0.999929450486993 0.999829971631072 0.00176434742510189 0.99985681821564 3 V2+V5+V7 0.999818230765808 0.00236945477753412 0.99973380806124 0 0 0.999414726055015 0.00185925258302674 0.99985890595122 0.999929450486993 0.999829971631072 0.00176434742510189 0.99985681821564
+1 Regression method:  GLM.AIC
+1 Split no.:  4
+1 Training Set Summary: 
+    net.c       V2       V5       V7
+ Min.   :0.03825   Min.   :0.06138   Min.   :0.004187   Min.   :0.02102  
+ 1st Qu.:0.10571   1st Qu.:0.19919   1st Qu.:0.007925   1st Qu.:0.02102  
+ Median :0.19244   Median :0.37554   Median :0.017266   Median :0.02102  
+ Mean   :0.22585   Mean   :0.44030   Mean   :0.025488   Mean   :0.02132  
+ 3rd Qu.:0.33699   3rd Qu.:0.66368   3rd Qu.:0.044928   3rd Qu.:0.02102  
+ Max.   :0.50082   Max.   :1.00000   Max.   :0.055722   Max.   :0.02339  
+1 Test Set Summary: 
+    net.c       V2       V5       V7
+ Min.   :0.05753   Min.   :0.1057   Min.   :3.973e-05   Min.   :0.02102  
+ 1st Qu.:0.26953   1st Qu.:0.5259   1st Qu.:5.134e-03   1st Qu.:0.02102  
+ Median :0.30808   Median :0.6010   Median :2.063e-02   Median :0.02102  
+ Mean   :0.31194   Mean   :0.6118   Mean   :1.908e-02   Mean   :0.02179  
+ 3rd Qu.:0.44300   3rd Qu.:0.8709   3rd Qu.:2.461e-02   3rd Qu.:0.02102  
+ Max.   :0.48154   Max.   :0.9557   Max.   :4.501e-02   Max.   :0.02487  
+1 Fitting Summary: 
+Estimate Std..Error t.value Pr...t..
+(Intercept) 0.00782737481178761 0.000814505420132934 9.60997265126869 2.84899658945262e-07
+V2 0.49516690087879 0.00155620535017654 318.188663740692 1.10158272820703e-26
+1 Predictors: 
+x
+1 V2
+2 V5
+3 V7
+1 Trainig Results: 
+x
+1 NA
+1 Test Results: 
+x
+1 NA
+1 Fitting Summary: 
+Estimate Std..Error t.value Pr...t..
+(Intercept) 0.00782737481178761 0.000814505420132934 9.60997265126869 2.84899658945262e-07
+V2 0.49516690087879 0.00155620535017654 318.188663740692 1.10158272820703e-26
+1 Predictors: 
+x
+1 V2
+2 V5
+3 V7
+1 Trainig Results: 
+x
+1 NA
+1 Test Results: 
+x
+1 NA
+1 Full Statistics: 
+RegrMethod NoCases InNoVars InFeatures PredVar SplitNo NoModelFeats.10CV ModelFeats.10CV adjR2.tr.10CV RMSE.tr.10CV R2.tr.10CV RMSEsd.tr.10CV R2sd.tr.10CV adjR2.ts.10CV RMSE.ts.10CV R2.ts.10CV corP.ts.10CV adjR2.both.10CV RMSE.both.10CV R2.both.10CV NoModelFeats.10CV.1 ModelFeats.10CV.1 adjR2.tr.LOOCV RMSE.tr.LOOCV R2.tr.LOOCV RMSEsd.tr.LOOCV R2sd.tr.LOOCV adjR2.ts.LOOCV RMSE.ts.LOOCV R2.ts.LOOCV corP.ts.LOOCV adjR2.both.LOOCV RMSE.both.LOOCV R2.both.LOOCV
+1 GLM.AIC 15 3 V2+V5 net.c 1 3 V2+V5+V7 0.999836599441612 0.00165735871003152 1 0.00102059658424328 0 0.998879991668264 0.00250976928629556 0.999891981227075 0.999945989154952 0.999810711870028 0.00186159457214744 0.999840599469498 3 V2+V5+V7 0.999836599441612 0.00184733122748754 0.999826925729864 0 0 0.998879991668264 0.00250976928629556 0.999891981227075 0.999945989154952 0.999810711870028 0.00186159457214744 0.999840599469498
+1 Regression method:  GLM.AIC
+1 Split no.:  5
+1 Training Set Summary: 
+    net.c       V2       V5       V7
+ Min.   :0.05753   Min.   :0.1057   Min.   :3.973e-05   Min.   :0.02102  
+ 1st Qu.:0.12498   1st Qu.:0.2348   1st Qu.:8.505e-03   1st Qu.:0.02102  
+ Median :0.30808   Median :0.6010   Median :2.461e-02   Median :0.02102  
+ Mean   :0.28238   Mean   :0.5538   Mean   :2.819e-02   Mean   :0.02142  
+ 3rd Qu.:0.40445   3rd Qu.:0.7976   3rd Qu.:4.558e-02   3rd Qu.:0.02102  
+ Max.   :0.50082   Max.   :1.0000   Max.   :5.572e-02   Max.   :0.02487  
+1 Test Set Summary: 
+    net.c       V2       V5       V7
+ Min.   :0.03825   Min.   :0.06138   Min.   :0.004187   Min.   :0.02102  
+ 1st Qu.:0.07680   1st Qu.:0.14233   1st Qu.:0.007689   1st Qu.:0.02102  
+ Median :0.15389   Median :0.29266   Median :0.008059   Median :0.02102  
+ Mean   :0.14233   Mean   :0.27146   Mean   :0.010991   Mean   :0.02149  
+ 3rd Qu.:0.19244   3rd Qu.:0.37554   3rd Qu.:0.011738   3rd Qu.:0.02102  
+ Max.   :0.25026   Max.   :0.48540   Max.   :0.023281   Max.   :0.02339  
+1 Fitting Summary: 
+Estimate Std..Error t.value Pr...t..
+(Intercept) 0.00722496362443656 0.00110339630069907 6.54793170854307 1.85953289985401e-05
+V2 0.496896951058148 0.00175290266187271 283.47093188123 4.94560488711267e-26
+1 Predictors: 
+x
+1 V2
+2 V5
+3 V7
+1 Trainig Results: 
+x
+1 NA
+1 Test Results: 
+x
+1 NA
+1 Fitting Summary: 
+Estimate Std..Error t.value Pr...t..
+(Intercept) 0.00722496362443656 0.00110339630069907 6.54793170854307 1.85953289985401e-05
+V2 0.496896951058148 0.00175290266187271 283.47093188123 4.94560488711267e-26
+1 Predictors: 
+x
+1 V2
+2 V5
+3 V7
+1 Trainig Results: 
+x
+1 NA
+1 Test Results: 
+x
+1 NA
+1 Full Statistics: 
+RegrMethod NoCases InNoVars InFeatures PredVar SplitNo NoModelFeats.10CV ModelFeats.10CV adjR2.tr.10CV RMSE.tr.10CV R2.tr.10CV RMSEsd.tr.10CV R2sd.tr.10CV adjR2.ts.10CV RMSE.ts.10CV R2.ts.10CV corP.ts.10CV adjR2.both.10CV RMSE.both.10CV R2.both.10CV NoModelFeats.10CV.1 ModelFeats.10CV.1 adjR2.tr.LOOCV RMSE.tr.LOOCV R2.tr.LOOCV RMSEsd.tr.LOOCV R2sd.tr.LOOCV adjR2.ts.LOOCV RMSE.ts.LOOCV R2.ts.LOOCV corP.ts.LOOCV adjR2.both.LOOCV RMSE.both.LOOCV R2.both.LOOCV
+1 GLM.AIC 15 3 V2+V5 net.c 1 3 V2+V5+V7 0.999794130796008 0.00217177009722818 1 0.00155573231468992 0 0.998847709511747 0.00130193354631459 0.999748254735963 0.999874119445024 0.999830261276788 0.00176284398923379 0.999857062127821 3 V2+V5+V7 0.999794130796008 0.002604248986391 0.999698431222651 0 0 0.998847709511747 0.00130193354631459 0.999748254735963 0.999874119445024 0.999830261276788 0.00176284398923379 0.999857062127821
+1 Regression method:  GLM.AIC
+1 Split no.:  6
+1 Training Set Summary: 
+    net.c       V2       V5       V7
+ Min.   :0.03825   Min.   :0.06138   Min.   :3.973e-05   Min.   :0.02102  
+ 1st Qu.:0.11535   1st Qu.:0.22039   1st Qu.:6.529e-03   1st Qu.:0.02102  
+ Median :0.26953   Median :0.52587   Median :2.328e-02   Median :0.02102  
+ Mean   :0.25926   Mean   :0.50711   Mean   :2.603e-02   Mean   :0.02117  
+ 3rd Qu.:0.35627   3rd Qu.:0.70319   3rd Qu.:4.493e-02   3rd Qu.:0.02102  
+ Max.   :0.48154   Max.   :0.95567   Max.   :5.572e-02   Max.   :0.02339  
+1 Test Set Summary: 
+    net.c       V2       V5       V7
+ Min.   :0.05753   Min.   :0.1057   Min.   :0.007790   Min.   :0.02102  
+ 1st Qu.:0.11535   1st Qu.:0.2136   1st Qu.:0.008059   1st Qu.:0.02102  
+ Median :0.15389   Median :0.2927   Median :0.009219   Median :0.02102  
+ Mean   :0.21171   Mean   :0.4114   Mean   :0.017469   Mean   :0.02223  
+ 3rd Qu.:0.23099   3rd Qu.:0.4449   3rd Qu.:0.017266   3rd Qu.:0.02323  
+ Max.   :0.50082   Max.   :1.0000   Max.   :0.045012   Max.   :0.02487  
+1 Fitting Summary: 
+Estimate Std..Error t.value Pr...t..
+(Intercept) 0.00652990709623787 0.000810343927362028 8.05819217711072 2.06539671314726e-06
+V2 0.498362225732616 0.00139118264637622 358.229185097125 2.35991901547661e-27
+1 Predictors: 
+x
+1 V2
+2 V5
+3 V7
+1 Trainig Results: 
+x
+1 NA
+1 Test Results: 
+x
+1 NA
+1 Fitting Summary: 
+Estimate Std..Error t.value Pr...t..
+(Intercept) 0.00652990709623787 0.000810343927362028 8.05819217711072 2.06539671314726e-06
+V2 0.498362225732616 0.00139118264637622 358.229185097125 2.35991901547661e-27
+1 Predictors: 
+x
+1 V2
+2 V5
+3 V7
+1 Trainig Results: 
+x
+1 NA
+1 Test Results: 
+x
+1 NA
+1 Full Statistics: 
+RegrMethod NoCases InNoVars InFeatures PredVar SplitNo NoModelFeats.10CV ModelFeats.10CV adjR2.tr.10CV RMSE.tr.10CV R2.tr.10CV RMSEsd.tr.10CV R2sd.tr.10CV adjR2.ts.10CV RMSE.ts.10CV R2.ts.10CV corP.ts.10CV adjR2.both.10CV RMSE.both.10CV R2.both.10CV NoModelFeats.10CV.1 ModelFeats.10CV.1 adjR2.tr.LOOCV RMSE.tr.LOOCV R2.tr.LOOCV RMSEsd.tr.LOOCV R2sd.tr.LOOCV adjR2.ts.LOOCV RMSE.ts.LOOCV R2.ts.LOOCV corP.ts.LOOCV adjR2.both.LOOCV RMSE.both.LOOCV R2.both.LOOCV
+1 GLM.AIC 15 3 V2+V5 net.c 1 3 V2+V5+V7 0.99987108223148 0.00156361264985348 1 0.000866398182812986 0 0.998847931514704 0.00263303657346292 0.999812843733021 0.999906417487667 0.999820684930654 0.00181188991572722 0.999848997836341 3 V2+V5+V7 0.99987108223148 0.001775837206148 0.999845704953292 0 0 0.998847931514704 0.00263303657346292 0.999812843733021 0.999906417487667 0.999820684930654 0.00181188991572722 0.999848997836341
+1 Regression method:  GLM.AIC
+1 Split no.:  7
+1 Training Set Summary: 
+    net.c       V2       V5       V7
+ Min.   :0.03825   Min.   :0.06138   Min.   :3.973e-05   Min.   :0.02102  
+ 1st Qu.:0.10571   1st Qu.:0.19919   1st Qu.:6.529e-03   1st Qu.:0.02102  
+ Median :0.19244   Median :0.37554   Median :1.727e-02   Median :0.02102  
+ Mean   :0.22071   Mean   :0.42886   Mean   :2.231e-02   Mean   :0.02158  
+ 3rd Qu.:0.32736   3rd Qu.:0.64151   3rd Qu.:4.436e-02   3rd Qu.:0.02102  
+ Max.   :0.48154   Max.   :0.95567   Max.   :4.943e-02   Max.   :0.02487  
+1 Test Set Summary: 
+    net.c       V2       V5       V7
+ Min.   :0.0768   Min.   :0.1423   Min.   :0.00779   Min.   :0.02102  
+ 1st Qu.:0.2695   1st Qu.:0.5259   1st Qu.:0.01174   1st Qu.:0.02102  
+ Median :0.3274   Median :0.6454   Median :0.02461   Median :0.02102  
+ Mean   :0.3274   Mean   :0.6461   Mean   :0.02863   Mean   :0.02102  
+ 3rd Qu.:0.4623   3rd Qu.:0.9171   3rd Qu.:0.04327   3rd Qu.:0.02102  
+ Max.   :0.5008   Max.   :1.0000   Max.   :0.05572   Max.   :0.02102  
+1 Fitting Summary: 
+Estimate Std..Error t.value Pr...t..
+(Intercept) 0.0068202513753778 0.000866373007937268 7.87218820634315 2.66617664846069e-06
+V2 0.498734615205467 0.00170449163948572 292.600212081971 3.27556505278187e-26
+1 Predictors: 
+x
+1 V2
+2 V5
+3 V7
+1 Trainig Results: 
+x
+1 NA
+1 Test Results: 
+x
+1 NA
+1 Fitting Summary: 
+Estimate Std..Error t.value Pr...t..
+(Intercept) 0.0068202513753778 0.000866373007937268 7.87218820634315 2.66617664846069e-06
+V2 0.498734615205467 0.00170449163948572 292.600212081971 3.27556505278187e-26
+1 Predictors: 
+x
+1 V2
+2 V5
+3 V7
+1 Trainig Results: 
+x
+1 NA
+1 Test Results: 
+x
+1 NA
+1 Full Statistics: 
+RegrMethod NoCases InNoVars InFeatures PredVar SplitNo NoModelFeats.10CV ModelFeats.10CV adjR2.tr.10CV RMSE.tr.10CV R2.tr.10CV RMSEsd.tr.10CV R2sd.tr.10CV adjR2.ts.10CV RMSE.ts.10CV R2.ts.10CV corP.ts.10CV adjR2.both.10CV RMSE.both.10CV R2.both.10CV NoModelFeats.10CV.1 ModelFeats.10CV.1 adjR2.tr.LOOCV RMSE.tr.LOOCV R2.tr.LOOCV RMSEsd.tr.LOOCV R2sd.tr.LOOCV adjR2.ts.LOOCV RMSE.ts.LOOCV R2.ts.LOOCV corP.ts.LOOCV adjR2.both.LOOCV RMSE.both.LOOCV R2.both.LOOCV
+1 GLM.AIC 15 3 V2+V5 net.c 1 3 V2+V5+V7 0.999806774922476 0.00206634002216664 1 0.00110933558303484 0 0.998977669613152 0.00241833371821512 0.999930633275422 0.999965316036223 0.999804976198898 0.00188958843412588 0.999835769430651 3 V2+V5+V7 0.999806774922476 0.00223786873138527 0.999729896963088 0 0 0.998977669613152 0.00241833371821512 0.999930633275422 0.999965316036223 0.999804976198898 0.00188958843412588 0.999835769430651
+1 Regression method:  GLM.AIC
+1 Split no.:  8
+1 Training Set Summary: 
+    net.c       V2       V5       V7
+ Min.   :0.03825   Min.   :0.06138   Min.   :3.973e-05   Min.   :0.02102  
+ 1st Qu.:0.12498   1st Qu.:0.23484   1st Qu.:1.048e-02   1st Qu.:0.02102  
+ Median :0.25026   Median :0.48540   Median :2.328e-02   Median :0.02102  
+ Mean   :0.24384   Mean   :0.47512   Mean   :2.735e-02   Mean   :0.02116  
+ 3rd Qu.:0.33699   3rd Qu.:0.66368   3rd Qu.:4.493e-02   3rd Qu.:0.02102  
+ Max.   :0.48154   Max.   :0.95567   Max.   :5.572e-02   Max.   :0.02323  
+1 Test Set Summary: 
+    net.c       V2       V5       V7
+ Min.   :0.05753   Min.   :0.1057   Min.   :0.004187   Min.   :0.02102  
+ 1st Qu.:0.09607   1st Qu.:0.1847   1st Qu.:0.005134   1st Qu.:0.02102  
+ Median :0.19244   Median :0.3755   Median :0.005369   Median :0.02102  
+ Mean   :0.25797   Mean   :0.5074   Mean   :0.013498   Mean   :0.02226  
+ 3rd Qu.:0.44300   3rd Qu.:0.8709   3rd Qu.:0.007790   3rd Qu.:0.02339  
+ Max.   :0.50082   Max.   :1.0000   Max.   :0.045012   Max.   :0.02487  
+1 Fitting Summary: 
+Estimate Std..Error t.value Pr...t..
+(Intercept) 0.00826631521784756 0.000662760644204311 12.4725499169792 1.31314719199563e-08
+V2 0.495814225997994 0.00121204774297313 409.071531111285 4.2039886186063e-28
+1 Predictors: 
+x
+1 V2
+2 V5
+3 V7
+1 Trainig Results: 
+x
+1 NA
+1 Test Results: 
+x
+1 NA
+1 Fitting Summary: 
+Estimate Std..Error t.value Pr...t..
+(Intercept) 0.00826631521784756 0.000662760644204311 12.4725499169792 1.31314719199563e-08
+V2 0.495814225997994 0.00121204774297313 409.071531111285 4.2039886186063e-28
+1 Predictors: 
+x
+1 V2
+2 V5
+3 V7
+1 Trainig Results: 
+x
+1 NA
+1 Test Results: 
+x
+1 NA
+1 Full Statistics: 
+RegrMethod NoCases InNoVars InFeatures PredVar SplitNo NoModelFeats.10CV ModelFeats.10CV adjR2.tr.10CV RMSE.tr.10CV R2.tr.10CV RMSEsd.tr.10CV R2sd.tr.10CV adjR2.ts.10CV RMSE.ts.10CV R2.ts.10CV corP.ts.10CV adjR2.both.10CV RMSE.both.10CV R2.both.10CV NoModelFeats.10CV.1 ModelFeats.10CV.1 adjR2.tr.LOOCV RMSE.tr.LOOCV R2.tr.LOOCV RMSEsd.tr.LOOCV R2sd.tr.LOOCV adjR2.ts.LOOCV RMSE.ts.LOOCV R2.ts.LOOCV corP.ts.LOOCV adjR2.both.LOOCV RMSE.both.LOOCV R2.both.LOOCV
+1 GLM.AIC 15 3 V2+V5 net.c 1 3 V2+V5+V7 0.999901134116259 0.00142602735969165 1 0.00074354210144602 0 0.998836729656977 0.0030874740643023 0.999859884603213 0.999929939847394 0.999812515690731 0.00185270330900282 0.999842118476405 3 V2+V5+V7 0.999901134116259 0.00160193047871227 0.999865206263533 0 0 0.998836729656977 0.0030874740643023 0.999859884603213 0.999929939847394 0.999812515690731 0.00185270330900282 0.999842118476405
+1 Regression method:  GLM.AIC
+1 Split no.:  9
+1 Training Set Summary: 
+    net.c       V2       V5       V7
+ Min.   :0.03825   Min.   :0.06138   Min.   :3.973e-05   Min.   :0.02102  
+ 1st Qu.:0.09607   1st Qu.:0.18184   1st Qu.:7.740e-03   1st Qu.:0.02102  
+ Median :0.15389   Median :0.29266   Median :1.174e-02   Median :0.02102  
+ Mean   :0.20401   Mean   :0.39623   Mean   :1.994e-02   Mean   :0.02158  
+ 3rd Qu.:0.27917   3rd Qu.:0.54322   3rd Qu.:3.328e-02   3rd Qu.:0.02102  
+ Max.   :0.50082   Max.   :1.00000   Max.   :4.943e-02   Max.   :0.02487  
+1 Test Set Summary: 
+    net.c       V2       V5       V7
+ Min.   :0.2695   Min.   :0.5259   Min.   :0.005134   Min.   :0.02102  
+ 1st Qu.:0.3466   1st Qu.:0.6820   1st Qu.:0.024608   1st Qu.:0.02102  
+ Median :0.3659   Median :0.7244   Median :0.043701   Median :0.02102  
+ Mean   :0.3775   Mean   :0.7440   Mean   :0.035720   Mean   :0.02102  
+ 3rd Qu.:0.4430   3rd Qu.:0.8709   3rd Qu.:0.049434   3rd Qu.:0.02102  
+ Max.   :0.4623   Max.   :0.9171   Max.   :0.055722   Max.   :0.02102  
+1 Fitting Summary: 
+Estimate Std..Error t.value Pr...t..
+(Intercept) 0.00737678516343726 0.000859795770947353 8.57969463528446 1.03122202539107e-06
+V2 0.496252947741199 0.00176392851644833 281.333933384332 5.45677804927294e-26
+1 Predictors: 
+x
+1 V2
+2 V5
+3 V7
+1 Trainig Results: 
+x
+1 NA
+1 Test Results: 
+x
+1 NA
+1 Fitting Summary: 
+Estimate Std..Error t.value Pr...t..
+(Intercept) 0.00737678516343726 0.000859795770947353 8.57969463528446 1.03122202539107e-06
+V2 0.496252947741199 0.00176392851644833 281.333933384332 5.45677804927294e-26
+1 Predictors: 
+x
+1 V2
+2 V5
+3 V7
+1 Trainig Results: 
+x
+1 NA
+1 Test Results: 
+x
+1 NA
+1 Full Statistics: 
+RegrMethod NoCases InNoVars InFeatures PredVar SplitNo NoModelFeats.10CV ModelFeats.10CV adjR2.tr.10CV RMSE.tr.10CV R2.tr.10CV RMSEsd.tr.10CV R2sd.tr.10CV adjR2.ts.10CV RMSE.ts.10CV R2.ts.10CV corP.ts.10CV adjR2.both.10CV RMSE.both.10CV R2.both.10CV NoModelFeats.10CV.1 ModelFeats.10CV.1 adjR2.tr.LOOCV RMSE.tr.LOOCV R2.tr.LOOCV RMSEsd.tr.LOOCV R2sd.tr.LOOCV adjR2.ts.LOOCV RMSE.ts.LOOCV R2.ts.LOOCV corP.ts.LOOCV adjR2.both.LOOCV RMSE.both.LOOCV R2.both.LOOCV
+1 GLM.AIC 15 3 V2+V5 net.c 1 3 V2+V5+V7 0.999790991888863 0.0019800107847763 1 0.00119494157174394 0 0.997531842314665 0.0017288427267734 0.999538051860384 0.999768999249519 0.999825641004432 0.00178667513286497 0.999853171372154 3 V2+V5+V7 0.999790991888863 0.00230020354735327 0.999736028105869 0 0 0.997531842314665 0.0017288427267734 0.999538051860384 0.999768999249519 0.999825641004432 0.00178667513286497 0.999853171372154
+1 Regression method:  GLM.AIC
+1 Split no.:  10
+1 Training Set Summary: 
+    net.c       V2       V5       V7
+ Min.   :0.03825   Min.   :0.06138   Min.   :3.973e-05   Min.   :0.02102  
+ 1st Qu.:0.09607   1st Qu.:0.18184   1st Qu.:7.874e-03   1st Qu.:0.02102  
+ Median :0.15389   Median :0.29266   Median :1.727e-02   Median :0.02102  
+ Mean   :0.20786   Mean   :0.40381   Mean   :2.488e-02   Mean   :0.02158  
+ 3rd Qu.:0.31772   3rd Qu.:0.62320   3rd Qu.:4.558e-02   3rd Qu.:0.02102  
+ Max.   :0.48154   Max.   :0.95567   Max.   :5.572e-02   Max.   :0.02487  
+1 Test Set Summary: 
+    net.c       V2       V5       V7
+ Min.   :0.2503   Min.   :0.4854   Min.   :0.005134   Min.   :0.02102  
+ 1st Qu.:0.2695   1st Qu.:0.5259   1st Qu.:0.007790   1st Qu.:0.02102  
+ Median :0.3659   Median :0.7244   Median :0.023281   Median :0.02102  
+ Mean   :0.3659   Mean   :0.7213   Mean   :0.020903   Mean   :0.02102  
+ 3rd Qu.:0.4430   3rd Qu.:0.8709   3rd Qu.:0.024608   3rd Qu.:0.02102  
+ Max.   :0.5008   Max.   :1.0000   Max.   :0.043701   Max.   :0.02102  
+1 Fitting Summary: 
+Estimate Std..Error t.value Pr...t..
+(Intercept) 0.00691886133696478 0.000744502498977617 9.29326811725422 4.18238705290929e-07
+V2 0.497616408444248 0.00151248636823531 329.005549335854 7.13342711953135e-27
+1 Predictors: 
+x
+1 V2
+2 V5
+3 V7
+1 Trainig Results: 
+x
+1 NA
+1 Test Results: 
+x
+1 NA
+1 Fitting Summary: 
+Estimate Std..Error t.value Pr...t..
+(Intercept) 0.00691886133696478 0.000744502498977617 9.29326811725422 4.18238705290929e-07
+V2 0.497616408444248 0.00151248636823531 329.005549335854 7.13342711953135e-27
+1 Predictors: 
+x
+1 V2
+2 V5
+3 V7
+1 Trainig Results: 
+x
+1 NA
+1 Test Results: 
+x
+1 NA
+1 Full Statistics: 
+RegrMethod NoCases InNoVars InFeatures PredVar SplitNo NoModelFeats.10CV ModelFeats.10CV adjR2.tr.10CV RMSE.tr.10CV R2.tr.10CV RMSEsd.tr.10CV R2sd.tr.10CV adjR2.ts.10CV RMSE.ts.10CV R2.ts.10CV corP.ts.10CV adjR2.both.10CV RMSE.both.10CV R2.both.10CV NoModelFeats.10CV.1 ModelFeats.10CV.1 adjR2.tr.LOOCV RMSE.tr.LOOCV R2.tr.LOOCV RMSEsd.tr.LOOCV R2sd.tr.LOOCV adjR2.ts.LOOCV RMSE.ts.LOOCV R2.ts.LOOCV corP.ts.LOOCV adjR2.both.LOOCV RMSE.both.LOOCV R2.both.LOOCV
+1 GLM.AIC 15 3 V2+V5 net.c 1 3 V2+V5+V7 0.999847165957166 0.00175314787957538 1 0.000947091430020093 0 0.997646442490872 0.00234689099221402 0.999581684062844 0.999790820153318 0.999828257058888 0.00177322098232926 0.999855374365379 3 V2+V5+V7 0.999847165957166 0.00188843310931784 0.999818778724277 0 0 0.997646442490872 0.00234689099221402 0.999581684062844 0.999790820153318 0.999828257058888 0.00177322098232926 0.999855374365379

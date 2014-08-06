@@ -56,9 +56,8 @@ fGLM         = TRUE  # flag to run GLM (8.2)
 iScaling = 1 # 1 = normalization; 2 = standardization, 3 = other; any other: no scaling
 iScalCol = 1 # 1 = including dependent variable in scaling; 2: only all features; etc.
 # ----------------------------------------------------------------------------------------
-trainFrac  = 3/4 # the fraction of training set from the entire dataset
-                 # 1 - trainFrac = the rest of dataset, the test set
-iSplitTimes = 3 # default is 10; time to split the data in train and test (steps 6-11); report each step + average
+trainFrac  = 3/4 # the fraction of training set from the entire dataset; trainFrac = the rest of dataset, the test set
+iSplitTimes = 10 # default is 10; time to split the data in train and test (steps 6-11); report each step + average
 
 # -------------------------------------------------------------------------------------------------------
 # Files
@@ -68,15 +67,13 @@ DataFileName   = "ds.csv"                 # input step 1 = ds original file name
 No0NearVarFile = "ds3.No0Var.csv"         # output step 3 = ds without zero near vars
 ScaledFile     = "ds4.scaled.csv"         # output step 4 = scaled ds file name (in the same folder)
 NoCorrFile     = "ds5.scaled.NoCorrs.csv" # output step 5 = dataset after correction removal
-ResFile        = "RRegresRezults.txt"     # the main output file
 
-glmFile        = "8.2.GLM.details.txt"
+ResAvgs        = "RRegsRes.csv"           # the main output file with averaged statistics for each regression method
+ResBySplits    = "RRegrsResBySplit.csv"   # the output file with statistics for each split and the averaged values
+glmFile        = "8.2.GLM.details.txt"    # GLM output file for details
 
 # Generate path + file name = original dataset
 inFile <- file.path(PathDataSet, DataFileName)
-# Main result file (append data using: sink(outRegrFile, append = TRUE) !!!)
-outRegrFile <- file.path(PathDataSet,ResFile) # the same folder as the input 
-
 
 cat("======================================================================
 RRegrs - R Regression Models
@@ -164,12 +161,18 @@ if (fRemCorr==TRUE) {
 source("s8.RegrrMethods.R")  # add external functions for regressions (all methods in one file!)
 
 #-------------------------------------------------------------------------------------------------
-# List with the results, with the same HEADER as the function are exporting
-dfRes <- list("RegrMethod" <- NULL, "SplitNo" <- NULL, "RMSE.tr.10CV" <- NULL, "R2.tr.10CV" <- NULL,
-              "RMSEsd.tr.10CV" <- NULL, "R2sd.tr.10CV" <- NULL, "RMSE.ts.10CV" <- NULL, "R2.ts.10CV" <- NULL,
-              "adjR2.both.10CV" <- NULL, "djR2.tr.10CV" <- NULL, "adjR2.ts.10CV" <- NULL)
-
-# ADD NEW values!! See GLM file!!!!
+# List with the results, with the same HEADER as the functions are exporting
+dfRes <- list("RegrMethod" <- NULL,"NoCases" <- NULL, "InNoVars" <- NULL, "InFeatures" <- NULL,
+              "PredVar" <- NULL, "SplitNo" <- NULL, "NoModelFeats.10CV" <- NULL, "ModelFeats.10CV" <- NULL,
+              "adjR2.tr.10CV" <- NULL, "RMSE.tr.10CV" <- NULL, "R2.tr.10CV" <- NULL,
+              "RMSEsd.tr.10CV" <- NULL, "R2sd.tr.10CV" <- NULL, "adjR2.ts.10CV" <- NULL,
+              "RMSE.ts.10CV" <- NULL, "R2.ts.10CV" <- NULL, "corP.ts.10CV" <- NULL,
+              "adjR2.both.10CV" <- NULL, "RMSE.both.10CV" <- NULL, "R2.both.10CV" <- NULL,
+              "NoModelFeats.10CV" <- NULL, "ModelFeats.10CV" <- NULL, "adjR2.tr.LOOCV" <- NULL,
+              "RMSE.tr.LOOCV" <- NULL, "R2.tr.LOOCV" <- NULL, "RMSEsd.tr.LOOCV" <- NULL, 
+              "R2sd.tr.LOOCV" <- NULL, "adjR2.ts.LOOCV" <- NULL, "RMSE.ts.LOOCV" <- NULL,
+              "R2.ts.LOOCV" <- NULL, "corP.ts.LOOCV" <- NULL, "adjR2.both.LOOCV" <- NULL,
+              "RMSE.both.LOOCV" <- NULL,"R2.both.LOOCV" <- NULL)
 
 #-------------------------------------------------------------------------------------------------
 for (i in 1:iSplitTimes) {                      # Step splitting number = i
@@ -208,19 +211,27 @@ for (i in 1:iSplitTimes) {                      # Step splitting number = i
   # -----------------------------------------------------------------------------------------
   # (8.2) GLM - based on AIC - Generalized Linear Model with Stepwise Feature Selection
   # -----------------------------------------------------------------------------------------
-  if (fGLM==TRUE) {
+  if (fGLM==TRUE) {   # if GLM was selected, run the method
     cat("-> [8.2] GLM stepwise - based on AIC ...\n")
-    outFile <- file.path(PathDataSet,glmFile)   # the same folder as the input
+    outFile <- file.path(PathDataSet,glmFile)   # the same folder as the input is used for the output
 
-    # both wrapper and nont-wrapper function in the same external file
-    
+    # Both wrapper and nont-wrapper function are placed in the same external file s8.RegrrMethods.R
     if (fFeatureSel==FALSE) {    # if there is no need of feature selection ->> use normal functions
-      my.stats<- GLMreg(ds.train,ds.test,fDet,outFile)   # run GLM
-      my.stats$Step <- i                                 # add step number
-      # print(data.frame(my.stats)) # print results for each split
       
+      if (fDet==TRUE) { # if details flag is true, print details about method, split, training and test sets
+        write.table(paste("Regression method: ", "GLM.AIC"), file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
+        write.table(paste("Split no.: ", i), file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
+        write.table("Training Set Summary: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
+        write.table(summary(ds.train), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
+        write.table("Test Set Summary: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
+        write.table(summary(ds.test), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
+      }
+      
+      my.stats<- GLMreg(ds.train,ds.test,fDet,outFile)   # run GLM
+      my.stats$SplitNo <- i                                 # modify step number! (the default values is 1)
+        
     } else {                     # if there is a need for previous feature selection ->> use wrapper functions
-      my.stats<- GLMregW(ds.train,ds.test,fDet,outFile)  # run GLM with wrapper method
+      my.stats<- GLMregW(ds.train,ds.test,fDet,outFile)  # run GLM with wrapper method (TO BE IMPLEMENTED!)
     }
     
     #-------------------------------------------------------
@@ -273,7 +284,6 @@ for (i in 1:iSplitTimes) {                      # Step splitting number = i
   # 11. Test best model with test dataset
   #                   (+ Y randomization 100 times, bootstaping)
   #-------------------------------------------------------------------------------
-  
 }
 
 #------------------------------------------------------------------------------
@@ -281,6 +291,16 @@ for (i in 1:iSplitTimes) {                      # Step splitting number = i
 #-------------------------------------------------------------------------------
 cat("[12] Results for all splitings\n")
 print(data.frame(dfRes)) # print all results as data frame
+
+# Writing the statistics into output files: one with detailed splits, other with only averages
+# File names includin paths for the statistics outputs (only averages and split detailed+averages)
+ResBySplitsF <- file.path(PathDataSet,ResBySplits)   # the main output file with averaged statistics for each regression method
+write.csv(data.frame(dfRes), file = ResBySplitsF)    # write statistics data frame into a CSV output file
+
+file.show(ResBySplitsF)  # show the statistics file!
+
+# Averages: colMeans(data.frame(dfRes)[23:35])  & colMeans(data.frame(dfRes)[9:34])
+ResAvgsF <- file.path(PathDataSet,ResAvgs)           # the main output file with averaged statistics for each regression method
 
 #------------------------------------------------------------------------------
 # 13. Assessment of Applicability Domain (plot leverage)
