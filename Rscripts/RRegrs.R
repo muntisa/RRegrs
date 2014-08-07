@@ -57,7 +57,9 @@ iScaling = 1 # 1 = normalization; 2 = standardization, 3 = other; any other: no 
 iScalCol = 1 # 1 = including dependent variable in scaling; 2: only all features; etc.
 # ----------------------------------------------------------------------------------------
 trainFrac  = 3/4 # the fraction of training set from the entire dataset; trainFrac = the rest of dataset, the test set
-iSplitTimes = 10 # default is 10; time to split the data in train and test (steps 6-11); report each step + average
+iSplitTimes = 2 # default is 10; time to split the data in train and test (steps 6-11); report each step + average
+
+CVtypes    <- c("repeatedcv","LOOCV")             # cross-validation types: 10-CV and LOOCV
 
 # -------------------------------------------------------------------------------------------------------
 # Files
@@ -161,18 +163,24 @@ if (fRemCorr==TRUE) {
 source("s8.RegrrMethods.R")  # add external functions for regressions (all methods in one file!)
 
 #-------------------------------------------------------------------------------------------------
-# List with the results, with the same HEADER as the functions are exporting
-dfRes <- list("RegrMethod" <- NULL,"NoCases" <- NULL, "InNoVars" <- NULL, "InFeatures" <- NULL,
-              "PredVar" <- NULL, "SplitNo" <- NULL, "NoModelFeats.10CV" <- NULL, "ModelFeats.10CV" <- NULL,
-              "adjR2.tr.10CV" <- NULL, "RMSE.tr.10CV" <- NULL, "R2.tr.10CV" <- NULL,
-              "RMSEsd.tr.10CV" <- NULL, "R2sd.tr.10CV" <- NULL, "adjR2.ts.10CV" <- NULL,
-              "RMSE.ts.10CV" <- NULL, "R2.ts.10CV" <- NULL, "corP.ts.10CV" <- NULL,
-              "adjR2.both.10CV" <- NULL, "RMSE.both.10CV" <- NULL, "R2.both.10CV" <- NULL,
-              "NoModelFeats.10CV" <- NULL, "ModelFeats.10CV" <- NULL, "adjR2.tr.LOOCV" <- NULL,
-              "RMSE.tr.LOOCV" <- NULL, "R2.tr.LOOCV" <- NULL, "RMSEsd.tr.LOOCV" <- NULL, 
-              "R2sd.tr.LOOCV" <- NULL, "adjR2.ts.LOOCV" <- NULL, "RMSE.ts.LOOCV" <- NULL,
-              "R2.ts.LOOCV" <- NULL, "corP.ts.LOOCV" <- NULL, "adjR2.both.LOOCV" <- NULL,
-              "RMSE.both.LOOCV" <- NULL,"R2.both.LOOCV" <- NULL)
+# Initialize the list with the statistics results; the same HEADER as the function output
+dfRes <- list("RegrMeth"     = NULL,
+              "Split No"     = NULL,    
+              "CVtype"       = NULL,      
+              "NoModelFeats" = NULL,
+              "ModelFeats"   = NULL,
+              "adjR2.tr"  = NULL,
+              "RMSE.tr"   = NULL,
+              "R2.tr"     = NULL,
+              "RMSEsd.tr" = NULL,
+              "R2sd.tr"   = NULL,
+              "adjR2.ts"= NULL,
+              "RMSE.ts" = NULL,
+              "R2.ts"   = NULL,
+              "corP.ts" = NULL,
+              "adjR2.both" = NULL,
+              "RMSE.both"  = NULL,
+              "R2.both"    = NULL)
 
 #-------------------------------------------------------------------------------------------------
 for (i in 1:iSplitTimes) {                      # Step splitting number = i
@@ -187,6 +195,14 @@ for (i in 1:iSplitTimes) {                      # Step splitting number = i
   # get train and test from the resulted list
   ds.train<- dsList$train
   ds.test <- dsList$test
+  
+  # Training data set info - to be added later!
+  # ------------------------------------------------------------------------
+  #nCases     <- dim(ds)[1]                     # number of total cases
+  #nCases.tr  <- dim(ds.train)[1]               # number of training cases
+  #nFeatures  <- dim(ds.train)[2] - 1           # number of input features (it could be different with the fitted model features!)
+  #FeatureList<- paste(names(ds.train)[2:nFeatures], collapse="+") # list of input feature names, from second name, first name is the output variable
+  #OutVar     <- names(ds.train)[1]             # name of predicted variable (dependent variable)
   
   # -----------------------------------------------------------------------
   # (7) Feature selection
@@ -213,33 +229,38 @@ for (i in 1:iSplitTimes) {                      # Step splitting number = i
   # -----------------------------------------------------------------------------------------
   if (fGLM==TRUE) {   # if GLM was selected, run the method
     cat("-> [8.2] GLM stepwise - based on AIC ...\n")
-    outFile <- file.path(PathDataSet,glmFile)   # the same folder as the input is used for the output
+    outFile.GLM <- file.path(PathDataSet,glmFile)   # the same folder as the input is used for the output
 
     # Both wrapper and nont-wrapper function are placed in the same external file s8.RegrrMethods.R
     if (fFeatureSel==FALSE) {    # if there is no need of feature selection ->> use normal functions
       
-      if (fDet==TRUE) { # if details flag is true, print details about method, split, training and test sets
-        write.table(paste("Regression method: ", "GLM.AIC"), file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-        write.table(paste("Split no.: ", i), file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-        write.table("Training Set Summary: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-        write.table(summary(ds.train), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
-        write.table("Test Set Summary: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-        write.table(summary(ds.test), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
-      }
+      # List with data set and method information
+      #my.stats.dsInfo <- list("RegrMethod"= RegrMethod,           # regression method name
+                              #"NoCases"= as.numeric(nCases),      # no. of cases
+                              #"InNoVars"= as.numeric(nFeatures),  # no. of input features
+                              #"InFeatures"= FeatureList,          # list with feature names
+                              #"PredVar" = OutVar)                 # name of predicted variable (dependent variable)
       
-      my.stats<- GLMreg(ds.train,ds.test,fDet,outFile)   # run GLM
-      my.stats$SplitNo <- i                                 # modify step number! (the default values is 1)
+      # For each type of CV do all the statistics
+      # -----------------------------------------------------
+      for (cv in 1:length(CVtypes)) {
+        my.stats.GLM   <- GLMreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.GLM) # run GLM for each CV and regr method
+        #my.stats.split <- c(my.stats.dsInfo,my.stats.GLM) # merge the ds info with statistics results for each Cv & reg method
         
-    } else {                     # if there is a need for previous feature selection ->> use wrapper functions
-      my.stats<- GLMregW(ds.train,ds.test,fDet,outFile)  # run GLM with wrapper method (TO BE IMPLEMENTED!)
+        #-------------------------------------------------------
+        # Add output from GLM to the list of results
+        #-------------------------------------------------------
+        # List of results for each splitting, CV type & regression method
+        dfRes = mapply(c, my.stats.GLM, dfRes, SIMPLIFY=FALSE)
+      
+        } # end CV types
+    } 
+    else    # if there is a need for previous feature selection ->> use wrapper functions
+      {                     
+      # run GLM with wrapper method (TO BE IMPLEMENTED!)
     }
-    
-    #-------------------------------------------------------
-    # Add output from GLM to the list of results
-    #-------------------------------------------------------
-    dfRes = mapply(c, my.stats, dfRes, SIMPLIFY=FALSE) # add results for one split to the main list of results
-    
-  }
+  
+  } # end GLM
   
   # --------------------------------------------
   # 8.3. PLS
@@ -296,8 +317,7 @@ print(data.frame(dfRes)) # print all results as data frame
 # File names includin paths for the statistics outputs (only averages and split detailed+averages)
 ResBySplitsF <- file.path(PathDataSet,ResBySplits)   # the main output file with averaged statistics for each regression method
 write.csv(data.frame(dfRes), file = ResBySplitsF)    # write statistics data frame into a CSV output file
-
-file.show(ResBySplitsF)  # show the statistics file!
+# file.show(ResBySplitsF)  # show the statistics file!
 
 # Averages: colMeans(data.frame(dfRes)[23:35])  & colMeans(data.frame(dfRes)[9:34])
 ResAvgsF <- file.path(PathDataSet,ResAvgs)           # the main output file with averaged statistics for each regression method
