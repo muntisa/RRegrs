@@ -51,6 +51,9 @@ fFeatureSel  = FALSE  # flag for wrapper methods for feature selection (7)
 
 cutoff       = 0.9   # cut off for correlated features
 fGLM         = TRUE  # flag to run GLM (8.2)
+fLASSO       = FALSE  # flag to run LASSO (8.4) 
+fSVLM        = FALSE # flat to run svmRadial.RMSE (8.6)
+fNN          = TRUE  # flat to run NN (8.6)
 
 # ----------------------------------------------------------------------------------------
 iScaling = 1 # 1 = normalization; 2 = standardization, 3 = other; any other: no scaling
@@ -73,6 +76,9 @@ NoCorrFile     = "ds5.scaled.NoCorrs.csv" # output step 5 = dataset after correc
 ResAvgs        = "RRegsRes.csv"           # the main output file with averaged statistics for each regression method
 ResBySplits    = "RRegrsResBySplit.csv"   # the output file with statistics for each split and the averaged values
 glmFile        = "8.2.GLM.details.txt"    # GLM output file for details
+lassoFile      = "8.4.Lasso.details.txt"        # Lasoo Radial output file for details
+svlmFile       = "8.6.SVMRadial.details.txt"    # SVM Radial output file for details
+nnFile         = "8.8.NN.details.txt"           # NN Radial output file for details
 
 # Generate path + file name = original dataset
 inFile <- file.path(PathDataSet, DataFileName)
@@ -269,6 +275,29 @@ for (i in 1:iSplitTimes) {                      # Step splitting number = i
   # --------------------------------------------
   # 8.4. Lasso
   # --------------------------------------------
+  if (fLASSO==TRUE) {   # if LASSO was selected, run the method
+    cat("-> [8.4] LASSO ...\n")
+    outFile.LASSO <- file.path(PathDataSet,lassoFile)   # the same folder as the input is used for the output
+    
+    # Both wrapper and nont-wrapper function are placed in the same external file s8.RegrrMethods.R
+    if (fFeatureSel==FALSE) {    # if there is no need of feature selection ->> use normal functions
+      # For each type of CV do all the statistics
+      # -----------------------------------------------------
+      for (cv in 1:length(CVtypes)) {
+        my.stats.LASSO  <- LASSOreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.LASSO) # run SVLM Radial for each CV and regr method
+        #-------------------------------------------------------
+        # Add output from GLM to the list of results
+        #-------------------------------------------------------
+        # List of results for each splitting, CV type & regression method
+        dfRes = mapply(c, my.stats.LASSO, dfRes, SIMPLIFY=FALSE)
+      } # end CV types
+    } 
+    else    # if there is a need for previous feature selection ->> use wrapper functions
+    {                     
+      # run Lasso with wrapper method (TO BE IMPLEMENTED!)
+    }
+    
+  } # end Lasso
   
   # --------------------------------------------
   # 8.5. RBF
@@ -277,15 +306,60 @@ for (i in 1:iSplitTimes) {                      # Step splitting number = i
   # --------------------------------------------
   # 8.6. SVM radial
   # --------------------------------------------
+  if (fSVLM==TRUE) {   # if SVM Radial was selected, run the method
+    cat("-> [8.6] SVM radial ...\n")
+    outFile.SVLM <- file.path(PathDataSet,svlmFile)   # the same folder as the input is used for the output
+    
+    # Both wrapper and nont-wrapper function are placed in the same external file s8.RegrrMethods.R
+    if (fFeatureSel==FALSE) {    # if there is no need of feature selection ->> use normal functions
+      # For each type of CV do all the statistics
+      # -----------------------------------------------------
+      for (cv in 1:length(CVtypes)) {
+        my.stats.SVLM  <- SVLMreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.SVLM) # run SVLM Radial for each CV and regr method
+        #-------------------------------------------------------
+        # Add output from SVM Radial to the list of results
+        #-------------------------------------------------------
+        # List of results for each splitting, CV type & regression method
+        dfRes = mapply(c, my.stats.SVLM, dfRes, SIMPLIFY=FALSE)
+      } # end CV types
+    } 
+    else    # if there is a need for previous feature selection ->> use wrapper functions
+    {                     
+      # run SVLM with wrapper method (TO BE IMPLEMENTED!)
+    }
+    
+  } # end SVLM
   
   # --------------------------------------------
   # 8.7. SVM linear
   # --------------------------------------------
   
   # --------------------------------------------
-  # 8.8. Neural Networks : default
+  # 8.8. Neural Networks Regression
   # --------------------------------------------
-  
+  if (fNN==TRUE) {   # if NNet was selected, run the method
+    cat("-> [8.8] Neural Networks ...\n")
+    outFile.NN <- file.path(PathDataSet,nnFile)   # the same folder as the input is used for the output
+    
+    # Both wrapper and nont-wrapper function are placed in the same external file s8.RegrrMethods.R
+    if (fFeatureSel==FALSE) {    # if there is no need of feature selection ->> use normal functions
+      # For each type of CV do all the statistics
+      # -----------------------------------------------------
+      for (cv in 1:length(CVtypes)) {
+        my.stats.NN  <- NNreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.NN) # run NNet for each CV and regr method
+        #-------------------------------------------------------
+        # Add output from NNet to the list of results
+        #-------------------------------------------------------
+        # List of results for each splitting, CV type & regression method
+        dfRes = mapply(c, my.stats.NN, dfRes, SIMPLIFY=FALSE)
+      } # end CV types
+    } 
+    else    # if there is a need for previous feature selection ->> use wrapper functions
+    {                     
+      # run NNet with wrapper method (TO BE IMPLEMENTED!)
+    }
+    
+  } # end NNet
   # --------------------------------------------
   # 8.9. SOM
   # --------------------------------------------
@@ -314,8 +388,8 @@ cat("[12] Results for all splitings\n")
 print(data.frame(dfRes)) # print all results as data frame
 
 # Writing the statistics into output files: one with detailed splits, other with only averages
-# File names includin paths for the statistics outputs (only averages and split detailed+averages)
-ResBySplitsF <- file.path(PathDataSet,ResBySplits)   # the main output file with averaged statistics for each regression method
+# File names includin paths for the statistics outputs (only averages and split detailed; +averages [to be implemented])
+ResBySplitsF <- file.path(PathDataSet,ResBySplits)   # the main output file with statistics for each split
 write.csv(data.frame(dfRes), file = ResBySplitsF)    # write statistics data frame into a CSV output file
 # file.show(ResBySplitsF)  # show the statistics file!
 

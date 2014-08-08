@@ -34,47 +34,55 @@ r2.funct<- function(y,y.new){                 #y==y, y.new=predicted
   return(x.in)
 }
 
-#==========================================================================================
-# (1) Load dataset and parameters
-#     (these parameters will be read from an input file! TO BE IMPLEMENTED at the end)
-#==========================================================================================
-# (1.1) PARAMETERS
-# -----------------------------------------------------------------------
-# Option to run any step
-# -----------------------------------------------------------------------
-fDet = TRUE          # flag to calculate and print details for all the functions
-fFilters=TRUE        # flag to apply filters                          (2)
-fScaling=TRUE        # flag for dataset Scaling                       (3)
-fRemNear0Var=TRUE    # flag for Removal of near zero variance columns (4)
-fRemCorr=TRUE        # flag for Removal of correlated columns         (5)
-fFeatureSel=TRUE     # flag for selection before the regression       (7)
-cutoff=0.7           # cut off for corralations
+fDet         = TRUE  # flag to calculate and print details for all the functions
+fFilters     = TRUE  # flag to apply filters                          (2)
+fScaling     = TRUE  # flag for dataset Scaling                       (3)
+fRemNear0Var = TRUE  # flag for Removal of near zero variance columns (4)
+fRemCorr     = TRUE  # flag for Removal of correlated columns         (5)
+fFeatureSel  = FALSE  # flag for wrapper methods for feature selection (7)
+
+cutoff       = 0.9   # cut off for correlated features
+fGLM         = TRUE  # flag to run GLM (8.2)
+
 # ----------------------------------------------------------------------------------------
-iScaling = 1 # 1 = standardization; 2 = normalization, 3 = other; any other: no scaling
-iScalCol = 1 # 1: including dependent variable in scaling; 2: only all features; etc.
+iScaling = 1 # 1 = normalization; 2 = standardization, 3 = other; any other: no scaling
+iScalCol = 1 # 1 = including dependent variable in scaling; 2: only all features; etc.
 # ----------------------------------------------------------------------------------------
-trainFrac  = 3/4 # the fraction of training set from the entire dataset
-#                # 1 - trainFrac = the rest of dataset, the test set
-# ---------------------------------------------------------------------------------------------------
+trainFrac  = 3/4 # the fraction of training set from the entire dataset; trainFrac = the rest of dataset, the test set
+iSplitTimes = 2 # default is 10; time to split the data in train and test (steps 6-11); report each step + average
+
+CVtypes    <- c("repeatedcv","LOOCV")             # cross-validation types: 10-CV and LOOCV
+
+# -------------------------------------------------------------------------------------------------------
 # Files
-# ---------------------------------------------------------------------------------------------------
-PathDataSet    = "DataResults"            # dataset folder
+# -------------------------------------------------------------------------------------------------------
+PathDataSet    = "DataResults"            # dataset folder for input and output files
 DataFileName   = "ds.csv"                 # input step 1 = ds original file name
 No0NearVarFile = "ds3.No0Var.csv"         # output step 3 = ds without zero near vars
 ScaledFile     = "ds4.scaled.csv"         # output step 4 = scaled ds file name (in the same folder)
 NoCorrFile     = "ds5.scaled.NoCorrs.csv" # output step 5 = dataset after correction removal
-ResFile        = "RRegresRezults.txt"     # the common output file! 
 
-glmFile        = "glm.res.txt"
+ResAvgs        = "RRegsRes.csv"           # the main output file with averaged statistics for each regression method
+ResBySplits    = "RRegrsResBySplit.csv"   # the output file with statistics for each split and the averaged values
+glmFile        = "8.2.GLM.details.txt"    # GLM output file for details
 
 # Generate path + file name = original dataset
 inFile <- file.path(PathDataSet, DataFileName)
-# Set the file with results (append data using: sink(outRegrFile, append = TRUE) !!!)
-outRegrFile <- file.path(PathDataSet,ResFile) # the same folder as the input 
+
+cat("======================================================================
+    RRegrs - R Regression Models
+    Get the best regression models for one dataset using R caret methods
+    NTUA and UM groups, enanomapper.net
+    
+    Contacts:
+    Cristian R Munteanu - muntisa [at] gmail [dot] com
+    Georgia Tsiliki - g_tsiliki [at] hotmail [dot] com
+    ======================================================================\n")
 
 # -----------------------------------
 # (1.2) Load the ORIGINAL DATASET
 # -----------------------------------
+cat("-> [1] Loading original dataset ...\n")
 # (it can contain errors, correlations, near zero variance columns)
 ds.dat0 <- read.csv(inFile,header=T)                              # original dataset frame
 
@@ -89,16 +97,54 @@ net.c<- as.numeric(as.character(net.c)) # values
 # full ds frame with training and test
 ds<- as.data.frame(cbind(net.c,t(ds.dat1)))
 
+#========================================================
+# (2) FILTERS
+#     (it will be implemented in the future versions)
+#========================================================
+# 2.1 Outlier removal
+# 2.2 Custom filter (percentage threshold)
+# 2.3 Processing of missing values - use of preProcess();
+#     caret employs knnImpute algorithm to impute values from a neighborhood of k
+cat("-> [2] Filtering dataset ... No filter!\n")
+
 # -----------------------------------------------------------------------
 # (3) Remove near zero variance columns
 # -----------------------------------------------------------------------
 if (fRemNear0Var==TRUE) {
-  print("-> [3] Removal of near zero variance columns ...")
+  cat("-> [3] Removal of near zero variance columns ...\n")
   outFile <- file.path(PathDataSet,No0NearVarFile) # the same folder as input  
   
   # get the ds without near zero cols 
-  source("s3.RemNearZeroVar.R")                    # add function
-  ds <- RemNear0VarCols(ds,fDet,outFile)           # inputs: ds, flag for details, output file
+  source("s3.RemNearZeroVar.R")                    # add function         
+  ds <- cbind("net.c" = ds[,1],RemNear0VarCols(ds[,2:dim(ds)[2]],fDet,outFile))
+  # use df without Y (predicted values), reconstruct the ds
+  # inputs: ds, flag for details, output file
+}
+
+# -----------------------------------------------------------------------
+# (4) Scaling dataset: normalization (default), standardization, other
+# -----------------------------------------------------------------------
+if (fScaling==TRUE) {
+  cat("-> [4] Scaling original dataset ...\n")
+  outFile <- file.path(PathDataSet,ScaledFile)       # the same folder as input
+  
+  # run fuction for scaling input dataset file
+  source("s4.ScalingDataSet.R")                      # add function
+  ds <- ScalingDS(ds,iScaling,iScalCol,fDet,outFile)
+  # use df without Y (predicted values), reconstruct the ds
+  # inputs: ds, type of scaling, flag for details, starting column, output file
+}
+
+# -----------------------------------------------------------------------
+# (5) Remove correlated features
+# -----------------------------------------------------------------------
+if (fRemCorr==TRUE) {    
+  cat("-> [5] Removing correlated features ...\n") 
+  outFile <- file.path(PathDataSet,NoCorrFile)    # the same folder as the input
+  
+  # run function to remove the correlations between the features
+  source("s5.RemCorrFeats.R")                     # add function
+  ds <- cbind("net.c" = ds[,1],RemCorrs(ds[,2:dim(ds)[2]],fDet,cutoff,outFile))
 }
 
 
@@ -117,16 +163,16 @@ my.datf.test  <- dsList$test
 my.datf.train
 my.datf.test
 
+sCV = "repeatedcv"
+iSplit=1
 
 ####################
 # TO TEST
 ####################
 
-sCV = "repeatedcv"
-iSplit=1
-
+library(caret)
 attach(my.datf.train)   # make available the names of variables from training dataset
-RegrMethod <- "GLM.AIC" # type of regression
+RegrMethod <- "nnet" # type of regression
 
 # Define the CV conditions
 ctrl<- trainControl(method = sCV, number = 10,repeats = 10,
@@ -134,18 +180,23 @@ ctrl<- trainControl(method = sCV, number = 10,repeats = 10,
 
 # Train the model using only training set
 set.seed(iSplit)
-lm.fit<- train(net.c~.,data=my.datf.train,
-               method = 'glmStepAIC', tuneLength = 10, trControl = ctrl,
-               metric = 'RMSE')
+
+nn.fit<- train(net.c~.,data=my.datf.train,
+               method = 'nnet',trControl = ctrl,
+               linout=TRUE, trace = FALSE,MaxNWts=20000,
+               #Grid of tuning parameters to try:
+               tuneGrid=expand.grid(.size=c(1,5,10,15),.decay=c(0,0.001,0.1)))
+#Grid parameters are appearing at the print out of the model
+#size==#of units in hidden layer, decay==parameter of weight decay (default:0)
 
 #------------------------------
 # Training RESULTS
 #------------------------------
-RMSE.tr  <- lm.fit$results[,2]
-R2.tr    <- lm.fit$results[,3]
+RMSE.tr  <- nn.fit$results[,2]
+R2.tr    <- nn.fit$results[,3]
 if (sCV == "repeatedcv"){ # if 10-fold CV
-  RMSEsd.tr <- lm.fit$results[,4]
-  R2sd.tr   <- lm.fit$results[,5]
+  RMSEsd.tr <- nn.fit$results[,4]
+  R2sd.tr   <- nn.fit$results[,5]
 }
 if (sCV == "LOOCV"){ # if LOOCV
   RMSEsd.tr <- 0 # formulas will be added later!
@@ -155,19 +206,19 @@ if (sCV == "LOOCV"){ # if LOOCV
 #------------------------------------------------
 # RMSE & R^2, for train/test respectively
 #------------------------------------------------
-lm.train.res <- getTrainPerf(lm.fit)
-lm.test.res  <- postResample(predict(lm.fit,my.datf.test),my.datf.test[,1])
+lm.train.res <- getTrainPerf(nn.fit)
+lm.test.res  <- postResample(predict(nn.fit,my.datf.test),my.datf.test[,1])
 
 #------------------------------------------------
 # Adj R2, Pearson correlation
 #------------------------------------------------
-pred.tr     <- predict(lm.fit,my.datf.train) # predicted Y
-pred.ts     <- predict(lm.fit,my.datf.test)  # predicted Y
-noFeats.fit <- length(predictors(lm.fit))    # no. of features from the fitted model
-Feats.fit   <- paste(predictors(lm.fit),collapse="+") # string with the features included in the fitted model
+pred.tr     <- predict(nn.fit,my.datf.train) # predicted Y
+pred.ts     <- predict(nn.fit,my.datf.test)  # predicted Y
+noFeats.fit <- length(predictors(nn.fit))    # no. of features from the fitted model
+Feats.fit   <- paste(predictors(nn.fit),collapse="+") # string with the features included in the fitted model
 
 ds.full     <- rbind(my.datf.train,my.datf.test)
-pred.both   <- predict(lm.fit,ds.full)       # predicted Y
+pred.both   <- predict(nn.fit,ds.full)       # predicted Y
 adjR2.tr    <- r2.adj.funct(my.datf.train[,1],pred.tr,noFeats.fit)
 adjR2.ts    <- r2.adj.funct(my.datf.test[,1],pred.ts,noFeats.fit)
 corP.ts     <- cor(my.datf.test[,1],pred.ts)
@@ -187,10 +238,10 @@ my.stats <- list("RegrMeth"     = RegrMethod,
                  "NoModelFeats" = as.numeric(noFeats.fit),
                  "ModelFeats"   = Feats.fit,
                  "adjR2.tr"  = as.numeric(adjR2.tr),
-                 "RMSE.tr"   = as.numeric(RMSE.tr),
-                 "R2.tr"     = as.numeric(R2.tr),
-                 "RMSEsd.tr" = as.numeric(RMSEsd.tr),
-                 "R2sd.tr"   = as.numeric(R2sd.tr),
+                 "RMSE.tr"   = as.numeric(min(RMSE.tr)),  # report min
+                 "R2.tr"     = 0, # to be modified with the value that corresponds to min RMSE
+                 "RMSEsd.tr" = 0, # to be modified with the value that corresponds to min RMSE
+                 "R2sd.tr"   = 0, # to be modified with the value that corresponds to min RMSE
                  "adjR2.ts"= as.numeric(adjR2.ts),
                  "RMSE.ts" = as.numeric((lm.test.res["RMSE"][[1]])),
                  "R2.ts"   = as.numeric((lm.test.res["Rsquared"][[1]])),
@@ -198,7 +249,6 @@ my.stats <- list("RegrMeth"     = RegrMethod,
                  "adjR2.both" = as.numeric(adjR2.both),
                  "RMSE.both"  = as.numeric(RMSE.both),
                  "R2.both"    = as.numeric(r2.both))
-
 #---------------------------------------------------------------------
 # Write to file DETAILS for GLM for each cross-validation method
 #---------------------------------------------------------------------
@@ -212,20 +262,23 @@ if (fDet==TRUE) {   # if flag for details if true, print details about any resut
   write.table("Test Set Summary: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
   write.table(summary(my.datf.test), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)   
   
-  write.table("Fitting Summary: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-  write.table(data.frame(summary(lm.fit)$coefficients), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
   
   write.table("Predictors: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-  write.table(predictors(lm.fit), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
+  write.table(predictors(nn.fit), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
   
   write.table("Trainig Results: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
   write.table(predictors(lm.train.res), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
   write.table("Test Results: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
   write.table(predictors(lm.test.res), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
   
+  write.table("NNet variable importance: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
+  write.table(data.frame(varImp(nn.fit)), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
+  
   write.table("Full Statistics: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
   write.table(my.stats, file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
+  
 }
+
 
 #####################################################
 print(data.frame(my.stats))
