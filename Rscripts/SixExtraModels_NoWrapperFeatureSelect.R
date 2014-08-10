@@ -8,11 +8,36 @@
 # IMPLEMENTED
 ##########################
 
+# ------------
+# 8.2 glmStepAIC 
+# ------------
 set.seed(2)
 lm.fit<- train(net.c~.,data=my.datf.train,
                method = 'glmStepAIC', tuneLength = 10, trControl = ctrl,
+
                metric = 'RMSE')
-#--------------------------------------------------------------------------------------------------------
+
+# ------------
+# 8.4 lasso 
+# ------------
+set.seed(2)
+las.fit<- train(my.y.vec~.,data=my.datf.train,
+                method = 'lasso', tuneLength = 10, trControl = ctrl,
+                metric = 'RMSE',tuneGrid=expand.grid(.fraction= seq(0.1,1,by=0.1)),preProc = c('center', 'scale'))
+#fraction= fraction of full solution
+las.fit
+
+#---- 8.5. RBF network with the DDA algorithm ------------------------------------------------------------------
+set.seed(2)
+rbf.fit<- train(my.y.vec~.,data=my.datf.train,
+                method = 'rbfDDA',trControl = ctrl,preProc = c('center', 'scale'),
+                tuneGrid=expand.grid(.negativeThreshold=seq(0,1,0.1)))
+#size== number of hidden units
+rbf.fit
+
+# ------------
+# 8.6 svmRadial 
+# ------------
 set.seed(2)  
 svmL.fit<- train(my.y.vec~.,data=my.datf.train,
                  method = 'svmRadial', tuneLength = 10, trControl = ctrl,
@@ -23,15 +48,10 @@ tuneGrid=expand.grid(.sigma=seq(0,1,0.1),.C= c(1:10)))
 #flat surfaces.
 #sigma==the scale parameter for radial bass function (rbf)
 svmL.fit
-#--------------------------------------------------------------------------------------------------------  
-set.seed(2)
-las.fit<- train(my.y.vec~.,data=my.datf.train,
-                method = 'lasso', tuneLength = 10, trControl = ctrl,
-                metric = 'RMSE',tuneGrid=expand.grid(.fraction= seq(0.1,1,by=0.1)),preProc = c('center', 'scale'))
-#fraction= fraction of full solution
-las.fit
 
-#--------------------------------------------------------------------------------------------------------
+# ------------
+# 8.8 nnet 
+# ------------
 set.seed(2)
 nn.fit<- train(my.y.vec~.,data=my.datf.train,
                method = 'nnet',trControl = ctrl,
@@ -76,11 +96,5 @@ varImp(nn.fit)
   Error in train.default(x, y, weights = w, ...) : 
 	  final tuning parameters could not be determined
 
-  #---- 8.5. RBF network with the DDA algorithm ------------------------------------------------------------------
-	set.seed(2)
-	rbf.fit<- train(my.y.vec~.,data=my.datf.train,
-	method = 'rbfDDA',trControl = ctrl,preProc = c('center', 'scale'),
-	tuneGrid=expand.grid(.negativeThreshold=seq(0,1,0.1)))
-	#size== number of hidden units
-	rbf.fit
+
 

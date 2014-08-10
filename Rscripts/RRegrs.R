@@ -50,10 +50,11 @@ fRemCorr     = TRUE  # flag for Removal of correlated columns         (5)
 fFeatureSel  = FALSE  # flag for wrapper methods for feature selection (7)
 
 cutoff       = 0.9   # cut off for correlated features
-fGLM         = TRUE  # flag to run GLM (8.2)
-fLASSO       = FALSE  # flag to run LASSO (8.4) 
+fGLM         = FALSE  # flag to run GLM (8.2)
+fLASSO       = FALSE  # flag to run LASSO (8.4)
+fRBFdda      = TRUE  # flat to run RBF DDA (8.5)
 fSVLM        = FALSE # flat to run svmRadial.RMSE (8.6)
-fNN          = TRUE  # flat to run NN (8.6)
+fNN          = FALSE  # flat to run NN (8.8)
 
 # ----------------------------------------------------------------------------------------
 iScaling = 1 # 1 = normalization; 2 = standardization, 3 = other; any other: no scaling
@@ -221,7 +222,7 @@ for (i in 1:iSplitTimes) {                      # Step splitting number = i
   # Note: additional feature selection could be implemented in the future
   
   # -----------------------------------------------------------------------
-  # (8) Regressions
+  # (8) REGRESSION METHODS
   # -----------------------------------------------------------------------
   #
   cat("-> [8] Run Regressions ...\n")
@@ -231,7 +232,7 @@ for (i in 1:iSplitTimes) {                      # Step splitting number = i
   # --------------------------------------------
   
   # -----------------------------------------------------------------------------------------
-  # (8.2) GLM - based on AIC - Generalized Linear Model with Stepwise Feature Selection
+  # (8.2) GLM based on AIC regression - Generalized Linear Model with Stepwise Feature Selection
   # -----------------------------------------------------------------------------------------
   if (fGLM==TRUE) {   # if GLM was selected, run the method
     cat("-> [8.2] GLM stepwise - based on AIC ...\n")
@@ -273,7 +274,7 @@ for (i in 1:iSplitTimes) {                      # Step splitting number = i
   # --------------------------------------------
   
   # --------------------------------------------
-  # 8.4. Lasso
+  # 8.4. LASSO regression
   # --------------------------------------------
   if (fLASSO==TRUE) {   # if LASSO was selected, run the method
     cat("-> [8.4] LASSO ...\n")
@@ -300,11 +301,34 @@ for (i in 1:iSplitTimes) {                      # Step splitting number = i
   } # end Lasso
   
   # --------------------------------------------
-  # 8.5. RBF
+  # 8.5. RBF network with the DDA algorithm regression (caret)
   # --------------------------------------------
+  if (fRBFdda==TRUE) {   # if SVM Radial was selected, run the method
+    cat("-> [8.6] RBF network with the DDA ...\n")
+    outFile.rbfDDA <- file.path(PathDataSet,svlmFile)   # the same folder as the input is used for the output
+    
+    # Both wrapper and nont-wrapper function are placed in the same external file s8.RegrrMethods.R
+    if (fFeatureSel==FALSE) {    # if there is no need of feature selection ->> use normal functions
+      # For each type of CV do all the statistics
+      # -----------------------------------------------------
+      for (cv in 1:length(CVtypes)) {
+        my.stats.rbfDDA  <- RBF_DDAreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.rbfDDA) # run SVLM Radial for each CV and regr method
+        #-------------------------------------------------------
+        # Add output from SVM Radial to the list of results
+        #-------------------------------------------------------
+        # List of results for each splitting, CV type & regression method
+        dfRes = mapply(c, my.stats.rbfDDA, dfRes, SIMPLIFY=FALSE)
+      } # end CV types
+    } 
+    else    # if there is a need for previous feature selection ->> use wrapper functions
+    {                     
+      # run rbfDDA with wrapper method (TO BE IMPLEMENTED!)
+    }
+    
+  } # end rbfDDA
   
   # --------------------------------------------
-  # 8.6. SVM radial
+  # 8.6. SVM radial regression
   # --------------------------------------------
   if (fSVLM==TRUE) {   # if SVM Radial was selected, run the method
     cat("-> [8.6] SVM radial ...\n")

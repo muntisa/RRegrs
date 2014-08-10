@@ -33,6 +33,21 @@ r2.funct<- function(y,y.new){                 #y==y, y.new=predicted
   x.in<- 1-x.in #r squared
   return(x.in)
 }
+#--------------------------------------------------------------------
+# Write a LIST to CSV file
+#--------------------------------------------------------------------
+AppendList2CSv <- function(l,csvFile) {
+  out_file <- file(csvFile, open="a")  #creates a file in append mode 
+  for (i in seq_along(l)){ 
+    write.table(names(l)[i], file=out_file, sep=",", dec=".", 
+                quote=FALSE, col.names=FALSE, row.names=FALSE)  #writes the name of the list elements ("A", "B", etc) 
+    write.table(l[[i]], file=out_file, sep=",", dec=".", quote=FALSE, 
+                col.names=NA, row.names=TRUE)  #writes the data.frames 
+  } 
+  close(out_file)  #close connection to file.csv 
+}  
+
+
 
 fDet         = TRUE  # flag to calculate and print details for all the functions
 fFilters     = TRUE  # flag to apply filters                          (2)
@@ -42,7 +57,10 @@ fRemCorr     = TRUE  # flag for Removal of correlated columns         (5)
 fFeatureSel  = FALSE  # flag for wrapper methods for feature selection (7)
 
 cutoff       = 0.9   # cut off for correlated features
-fGLM         = TRUE  # flag to run GLM (8.2)
+fGLM         = FALSE  # flag to run GLM (8.2)
+fLASSO       = FALSE  # flag to run LASSO (8.4) 
+fSVLM        = FALSE # flat to run svmRadial.RMSE (8.6)
+fNN          = TRUE  # flat to run NN (8.6)
 
 # ----------------------------------------------------------------------------------------
 iScaling = 1 # 1 = normalization; 2 = standardization, 3 = other; any other: no scaling
@@ -171,8 +189,9 @@ iSplit=1
 ####################
 
 library(caret)
+
 attach(my.datf.train)   # make available the names of variables from training dataset
-RegrMethod <- "nnet" # type of regression
+RegrMethod <- "rbfDDA" # type of regression
 
 # Define the CV conditions
 ctrl<- trainControl(method = sCV, number = 10,repeats = 10,
@@ -181,22 +200,18 @@ ctrl<- trainControl(method = sCV, number = 10,repeats = 10,
 # Train the model using only training set
 set.seed(iSplit)
 
-nn.fit<- train(net.c~.,data=my.datf.train,
-               method = 'nnet',trControl = ctrl,
-               linout=TRUE, trace = FALSE,MaxNWts=20000,
-               #Grid of tuning parameters to try:
-               tuneGrid=expand.grid(.size=c(1,5,10,15),.decay=c(0,0.001,0.1)))
-#Grid parameters are appearing at the print out of the model
-#size==#of units in hidden layer, decay==parameter of weight decay (default:0)
+rbf.fit<- train(net.c~.,data=my.datf.train,
+                method = 'rbfDDA',trControl = ctrl,
+                tuneGrid=expand.grid(.negativeThreshold=seq(0,1,0.1)))
 
 #------------------------------
 # Training RESULTS
 #------------------------------
-RMSE.tr  <- nn.fit$results[,2]
-R2.tr    <- nn.fit$results[,3]
+RMSE.tr  <- rbf.fit$results[,2]
+R2.tr    <- rbf.fit$results[,3]
 if (sCV == "repeatedcv"){ # if 10-fold CV
-  RMSEsd.tr <- nn.fit$results[,4]
-  R2sd.tr   <- nn.fit$results[,5]
+  RMSEsd.tr <- rbf.fit$results[,4]
+  R2sd.tr   <- rbf.fit$results[,5]
 }
 if (sCV == "LOOCV"){ # if LOOCV
   RMSEsd.tr <- 0 # formulas will be added later!
@@ -206,19 +221,19 @@ if (sCV == "LOOCV"){ # if LOOCV
 #------------------------------------------------
 # RMSE & R^2, for train/test respectively
 #------------------------------------------------
-lm.train.res <- getTrainPerf(nn.fit)
-lm.test.res  <- postResample(predict(nn.fit,my.datf.test),my.datf.test[,1])
+lm.train.res <- getTrainPerf(rbf.fit)
+lm.test.res  <- postResample(predict(rbf.fit,my.datf.test),my.datf.test[,1])
 
 #------------------------------------------------
 # Adj R2, Pearson correlation
 #------------------------------------------------
-pred.tr     <- predict(nn.fit,my.datf.train) # predicted Y
-pred.ts     <- predict(nn.fit,my.datf.test)  # predicted Y
-noFeats.fit <- length(predictors(nn.fit))    # no. of features from the fitted model
-Feats.fit   <- paste(predictors(nn.fit),collapse="+") # string with the features included in the fitted model
+pred.tr     <- predict(rbf.fit,my.datf.train) # predicted Y
+pred.ts     <- predict(rbf.fit,my.datf.test)  # predicted Y
+noFeats.fit <- length(predictors(rbf.fit))    # no. of features from the fitted model
+Feats.fit   <- paste(predictors(rbf.fit),collapse="+") # string with the features included in the fitted model
 
 ds.full     <- rbind(my.datf.train,my.datf.test)
-pred.both   <- predict(nn.fit,ds.full)       # predicted Y
+pred.both   <- predict(rbf.fit,ds.full)       # predicted Y
 adjR2.tr    <- r2.adj.funct(my.datf.train[,1],pred.tr,noFeats.fit)
 adjR2.ts    <- r2.adj.funct(my.datf.test[,1],pred.ts,noFeats.fit)
 corP.ts     <- cor(my.datf.test[,1],pred.ts)
@@ -264,19 +279,15 @@ if (fDet==TRUE) {   # if flag for details if true, print details about any resut
   
   
   write.table("Predictors: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-  write.table(predictors(nn.fit), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
+  write.table(predictors(rbf.fit), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
   
   write.table("Trainig Results: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
   write.table(predictors(lm.train.res), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
   write.table("Test Results: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
   write.table(predictors(lm.test.res), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
   
-  write.table("NNet variable importance: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-  write.table(data.frame(varImp(nn.fit)), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
-  
   write.table("Full Statistics: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
   write.table(my.stats, file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
-  
 }
 
 

@@ -41,6 +41,34 @@ r2.funct<- function(y,y.new){                 #y==y, y.new=predicted
   return(x.in)
 }
 
+#--------------------------------------------------------------------
+# Write a LIST to CSV file
+#--------------------------------------------------------------------
+AppendList2CSv <- function(l,csvFile) {
+  out_file <- file(csvFile, open="a")  #creates a file in append mode 
+  for (i in seq_along(l)){ 
+    write.table(names(l)[i], file=out_file, sep=",", dec=".", 
+                quote=FALSE, col.names=FALSE, row.names=FALSE)  #writes the name of the list elements ("A", "B", etc) 
+    write.table(l[[i]], file=out_file, sep=",", dec=".", quote=FALSE, 
+                col.names=NA, row.names=TRUE)  #writes the data.frames 
+  } 
+  close(out_file)  #close connection to file.csv 
+}  
+
+#--------------------------------------------------------------------
+# Write a LIST to TXT file
+#--------------------------------------------------------------------
+AppendList2txt <- function(l,csvFile) {
+  out_file <- file(csvFile, open="a")  #creates a file in append mode 
+  for (i in seq_along(l)){ 
+    write.table(names(l)[i], file=out_file, sep=" ", dec=".", 
+                quote=FALSE, col.names=FALSE, row.names=FALSE)  #writes the name of the list elements ("A", "B", etc) 
+    write.table(l[[i]], file=out_file, sep=" ", dec=".", quote=FALSE, 
+                col.names=NA, row.names=TRUE)  #writes the data.frames 
+  } 
+  close(out_file)  #close connection to file.csv 
+}  
+
 #====================================================================================================
 # 8.2- GLM stepwise regression - based on AIC (caret)
 #====================================================================================================
@@ -383,6 +411,114 @@ SVLMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=FALSE,outFile="
 }
 
 #====================================================================================================
+# 8.5. RBF network with the DDA algorithm regression (caret)
+#====================================================================================================
+RBF_DDAreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=FALSE,outFile="") {
+  attach(my.datf.train)   # make available the names of variables from training dataset
+  RegrMethod <- "rbfDDA" # type of regression
+  
+  # Define the CV conditions
+  ctrl<- trainControl(method = sCV, number = 10,repeats = 10,
+                      summaryFunction = defaultSummary)
+  
+  # Train the model using only training set
+  set.seed(iSplit)
+  
+  rbf.fit<- train(net.c~.,data=my.datf.train,
+                  method = 'rbfDDA',trControl = ctrl,
+                  tuneGrid=expand.grid(.negativeThreshold=seq(0,1,0.1)))
+  
+  #------------------------------
+  # Training RESULTS
+  #------------------------------
+  RMSE.tr  <- rbf.fit$results[,2]
+  R2.tr    <- rbf.fit$results[,3]
+  if (sCV == "repeatedcv"){ # if 10-fold CV
+    RMSEsd.tr <- rbf.fit$results[,4]
+    R2sd.tr   <- rbf.fit$results[,5]
+  }
+  if (sCV == "LOOCV"){ # if LOOCV
+    RMSEsd.tr <- 0 # formulas will be added later!
+    R2sd.tr   <- 0 # formulas will be added later!
+  }
+  
+  #------------------------------------------------
+  # RMSE & R^2, for train/test respectively
+  #------------------------------------------------
+  lm.train.res <- getTrainPerf(rbf.fit)
+  lm.test.res  <- postResample(predict(rbf.fit,my.datf.test),my.datf.test[,1])
+  
+  #------------------------------------------------
+  # Adj R2, Pearson correlation
+  #------------------------------------------------
+  pred.tr     <- predict(rbf.fit,my.datf.train) # predicted Y
+  pred.ts     <- predict(rbf.fit,my.datf.test)  # predicted Y
+  noFeats.fit <- length(predictors(rbf.fit))    # no. of features from the fitted model
+  Feats.fit   <- paste(predictors(rbf.fit),collapse="+") # string with the features included in the fitted model
+  
+  ds.full     <- rbind(my.datf.train,my.datf.test)
+  pred.both   <- predict(rbf.fit,ds.full)       # predicted Y
+  adjR2.tr    <- r2.adj.funct(my.datf.train[,1],pred.tr,noFeats.fit)
+  adjR2.ts    <- r2.adj.funct(my.datf.test[,1],pred.ts,noFeats.fit)
+  corP.ts     <- cor(my.datf.test[,1],pred.ts)
+  
+  adjR2.both  <- r2.adj.funct(ds.full[,1],pred.both,noFeats.fit)
+  RMSE.both   <- rmse.funct(ds.full[,1],pred.both)
+  r2.both     <- r2.funct(ds.full[,1],pred.both)
+  
+  # Generate the output list with statistics for each cross-validation type
+  # --------------------------------------------------------------------
+  # There are 3 lists for Data set info, 10-fold CV and LOOCV
+  # These 3 lists will be merged into one in order obtain the function output including the header (statistics names)
+  
+  my.stats <- list("RegrMeth"     = RegrMethod,
+                   "Split No"     = as.numeric(iSplit),     # from function param
+                   "CVtype"       = sCV,                    # from function param
+                   "NoModelFeats" = as.numeric(noFeats.fit),
+                   "ModelFeats"   = Feats.fit,
+                   "adjR2.tr"  = as.numeric(adjR2.tr),
+                   "RMSE.tr"   = as.numeric(min(RMSE.tr)),  # report min
+                   "R2.tr"     = 0, # to be modified with the value that corresponds to min RMSE
+                   "RMSEsd.tr" = 0, # to be modified with the value that corresponds to min RMSE
+                   "R2sd.tr"   = 0, # to be modified with the value that corresponds to min RMSE
+                   "adjR2.ts"= as.numeric(adjR2.ts),
+                   "RMSE.ts" = as.numeric((lm.test.res["RMSE"][[1]])),
+                   "R2.ts"   = as.numeric((lm.test.res["Rsquared"][[1]])),
+                   "corP.ts" = as.numeric(corP.ts),
+                   "adjR2.both" = as.numeric(adjR2.both),
+                   "RMSE.both"  = as.numeric(RMSE.both),
+                   "R2.both"    = as.numeric(r2.both))
+  #---------------------------------------------------------------------
+  # Write to file DETAILS for GLM for each cross-validation method
+  #---------------------------------------------------------------------
+  if (fDet==TRUE) {   # if flag for details if true, print details about any resut
+    write("RRegr package | eNanoMapper", file = outFile)
+    write.table(paste("Regression method: ", RegrMethod), file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
+    write.table(paste("Split no.: ", iSplit), file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
+    write.table(paste("CV type: ", sCV), file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
+    write.table("Training Set Summary: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
+    write.table(summary(my.datf.train), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
+    write.table("Test Set Summary: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
+    write.table(summary(my.datf.test), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)   
+    
+    
+    write.table("Predictors: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
+    write.table(predictors(rbf.fit), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
+    
+    write.table("Trainig Results: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
+    write.table(predictors(lm.train.res), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
+    write.table("Test Results: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
+    write.table(predictors(lm.test.res), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
+    
+    write.table("Full Statistics: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
+    write.table(my.stats, file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
+  }
+  
+  return(my.stats)  # return a list with statistics
+}
+
+
+#====================================================================================================
 # 8.6 Neural Network Regression (caret)
 #====================================================================================================
 NNreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=FALSE,outFile="") {
@@ -486,15 +622,18 @@ NNreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=FALSE,outFile="")
     write.table("Test Results: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
     write.table(predictors(lm.test.res), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
     
-    # TO BE corrected !!!!
-    #write.table("NNet variable importance: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    #write.table(data.frame(varImp(nn.fit)), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
+    #write.table("NNet fitting resuts: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
+    #AppendList2txt(list(nn.fit),outFile)
+    
+    write.table("NNet variable importance: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
+    AppendList2txt(varImp(nn.fit),outFile)
     
     write.table("Full Statistics: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
     write.table(my.stats, file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
   }
   return(my.stats)  # return a list with statistics
 }
+
 
 # ------------------------------------------------------------------------------------------------------
 # WRAPPER METHODS
