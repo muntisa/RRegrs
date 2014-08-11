@@ -50,11 +50,11 @@ fRemCorr     = TRUE  # flag for Removal of correlated columns         (5)
 fFeatureSel  = FALSE  # flag for wrapper methods for feature selection (7)
 
 cutoff       = 0.9   # cut off for correlated features
-fGLM         = FALSE  # flag to run GLM (8.2)
-fLASSO       = FALSE  # flag to run LASSO (8.4)
+fGLM         = TRUE  # flag to run GLM (8.2)
+fLASSO       = TRUE  # flag to run LASSO (8.4)
 fRBFdda      = TRUE  # flat to run RBF DDA (8.5)
-fSVLM        = FALSE # flat to run svmRadial.RMSE (8.6)
-fNN          = FALSE  # flat to run NN (8.8)
+fSVLM        = TRUE # flat to run svmRadial.RMSE (8.6)
+fNN          = TRUE  # flat to run NN (8.8)
 
 # ----------------------------------------------------------------------------------------
 iScaling = 1 # 1 = normalization; 2 = standardization, 3 = other; any other: no scaling
@@ -77,7 +77,8 @@ NoCorrFile     = "ds5.scaled.NoCorrs.csv" # output step 5 = dataset after correc
 ResAvgs        = "RRegsRes.csv"           # the main output file with averaged statistics for each regression method
 ResBySplits    = "RRegrsResBySplit.csv"   # the output file with statistics for each split and the averaged values
 glmFile        = "8.2.GLM.details.txt"    # GLM output file for details
-lassoFile      = "8.4.Lasso.details.txt"        # Lasoo Radial output file for details
+lassoFile      = "8.4.LASSO.details.txt"        # Lasoo Radial output file for details
+rbfDDAFile     = "8.5.RBF_DDA.details.txt"      # RBF DDA output file for details
 svlmFile       = "8.6.SVMRadial.details.txt"    # SVM Radial output file for details
 nnFile         = "8.8.NN.details.txt"           # NN Radial output file for details
 
@@ -305,7 +306,7 @@ for (i in 1:iSplitTimes) {                      # Step splitting number = i
   # --------------------------------------------
   if (fRBFdda==TRUE) {   # if SVM Radial was selected, run the method
     cat("-> [8.6] RBF network with the DDA ...\n")
-    outFile.rbfDDA <- file.path(PathDataSet,svlmFile)   # the same folder as the input is used for the output
+    outFile.rbfDDA <- file.path(PathDataSet,rbfDDAFile)   # the same folder as the input is used for the output
     
     # Both wrapper and nont-wrapper function are placed in the same external file s8.RegrrMethods.R
     if (fFeatureSel==FALSE) {    # if there is no need of feature selection ->> use normal functions

@@ -259,10 +259,12 @@ LASSOreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=FALSE,outFile=
                    "NoModelFeats" = as.numeric(noFeats.fit),
                    "ModelFeats"   = Feats.fit,
                    "adjR2.tr"  = as.numeric(adjR2.tr),
-                   "RMSE.tr"   = as.numeric(min(RMSE.tr)),  # report min
-                   "R2.tr"     = 0, # to be modified with the value that corresponds to min RMSE
-                   "RMSEsd.tr" = 0, # to be modified with the value that corresponds to min RMSE
-                   "R2sd.tr"   = 0, # to be modified with the value that corresponds to min RMSE
+                   
+                   "RMSE.tr"   = as.numeric(min(RMSE.tr)),  # these 4 lines correspond to the min of RMSE.tr !!!
+                   "R2.tr"     = as.numeric(R2.tr[which.min(RMSE.tr)]),  
+                   "RMSEsd.tr" = as.numeric(RMSEsd.tr[which.min(RMSE.tr)]),
+                   "R2sd.tr"   = as.numeric(R2sd.tr[which.min(RMSE.tr)]),
+           
                    "adjR2.ts"= as.numeric(adjR2.ts),
                    "RMSE.ts" = as.numeric((lm.test.res["RMSE"][[1]])),
                    "R2.ts"   = as.numeric((lm.test.res["Rsquared"][[1]])),
@@ -369,10 +371,12 @@ SVLMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=FALSE,outFile="
                    "NoModelFeats" = as.numeric(noFeats.fit),
                    "ModelFeats"   = Feats.fit,
                    "adjR2.tr"  = as.numeric(adjR2.tr),
-                   "RMSE.tr"   = as.numeric(RMSE.tr),
-                   "R2.tr"     = as.numeric(R2.tr),
-                   "RMSEsd.tr" = as.numeric(RMSEsd.tr),
-                   "R2sd.tr"   = as.numeric(R2sd.tr),
+                   
+                   "RMSE.tr"   = as.numeric(min(RMSE.tr)),  # these 4 lines correspond to the min of RMSE.tr !!!
+                   "R2.tr"     = as.numeric(R2.tr[which.min(RMSE.tr)]),  
+                   "RMSEsd.tr" = as.numeric(RMSEsd.tr[which.min(RMSE.tr)]),
+                   "R2sd.tr"   = as.numeric(R2sd.tr[which.min(RMSE.tr)]),
+                   
                    "adjR2.ts"= as.numeric(adjR2.ts),
                    "RMSE.ts" = as.numeric((lm.test.res["RMSE"][[1]])),
                    "R2.ts"   = as.numeric((lm.test.res["Rsquared"][[1]])),
@@ -477,10 +481,12 @@ RBF_DDAreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=FALSE,outFil
                    "NoModelFeats" = as.numeric(noFeats.fit),
                    "ModelFeats"   = Feats.fit,
                    "adjR2.tr"  = as.numeric(adjR2.tr),
-                   "RMSE.tr"   = as.numeric(min(RMSE.tr)),  # report min
-                   "R2.tr"     = 0, # to be modified with the value that corresponds to min RMSE
-                   "RMSEsd.tr" = 0, # to be modified with the value that corresponds to min RMSE
-                   "R2sd.tr"   = 0, # to be modified with the value that corresponds to min RMSE
+                   
+                   "RMSE.tr"   = as.numeric(min(RMSE.tr)),  # these 4 lines correspond to the min of RMSE.tr !!!
+                   "R2.tr"     = as.numeric(R2.tr[which.min(RMSE.tr)]),  
+                   "RMSEsd.tr" = as.numeric(RMSEsd.tr[which.min(RMSE.tr)]),
+                   "R2sd.tr"   = as.numeric(R2sd.tr[which.min(RMSE.tr)]),
+                   
                    "adjR2.ts"= as.numeric(adjR2.ts),
                    "RMSE.ts" = as.numeric((lm.test.res["RMSE"][[1]])),
                    "R2.ts"   = as.numeric((lm.test.res["Rsquared"][[1]])),
@@ -589,10 +595,12 @@ NNreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=FALSE,outFile="")
                    "NoModelFeats" = as.numeric(noFeats.fit),
                    "ModelFeats"   = Feats.fit,
                    "adjR2.tr"  = as.numeric(adjR2.tr),
-                   "RMSE.tr"   = as.numeric(min(RMSE.tr)),  # report min
-                   "R2.tr"     = 0, # to be modified with the value that corresponds to min RMSE
-                   "RMSEsd.tr" = 0, # to be modified with the value that corresponds to min RMSE
-                   "R2sd.tr"   = 0, # to be modified with the value that corresponds to min RMSE
+                   
+                   "RMSE.tr"   = as.numeric(min(RMSE.tr)),  # these 4 lines correspond to the min of RMSE.tr !!!
+                   "R2.tr"     = as.numeric(R2.tr[which.min(RMSE.tr)]),  
+                   "RMSEsd.tr" = as.numeric(RMSEsd.tr[which.min(RMSE.tr)]),
+                   "R2sd.tr"   = as.numeric(R2sd.tr[which.min(RMSE.tr)]),
+                   
                    "adjR2.ts"= as.numeric(adjR2.ts),
                    "RMSE.ts" = as.numeric((lm.test.res["RMSE"][[1]])),
                    "R2.ts"   = as.numeric((lm.test.res["Rsquared"][[1]])),
