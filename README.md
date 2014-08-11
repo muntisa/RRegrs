@@ -12,14 +12,18 @@ The script will be modular in order to create flexible APIs.
 
 The main authors are from the National Technical University of Athens (NTUA) and Maastricht University (UM) joining efforts for the EU eNanoMapper project.
 
-The list of the methods that will be included contains:
-- Basic LM
+The current implemented methods:
 - GLM based on AIC
-- PLS
 - Lasso
 - RBF
 - SVM radial
-- SVM linear
 - Neural Networks
+
+The methods to be implemented:
+- Basic LM
+- PLS
+- SVM linear
 - SOM
 - Recursive Feature Extraction (SVM-RFE)
+
+In addition, all methods will contain a wrapper version.
