@@ -1,13 +1,20 @@
-#
 #Methods included are: lm (no cv), pls, lasso, svmLinear, neural network (single hidden layer), rbf.
-#
 #REsampling: 10fold CV (no repeats)
-
 
 ##########################
 # IMPLEMENTED
 ##########################
 
+#-----------8.1 Basic LM --------------------------------------------------------------------------------------
+lm.fit<- lm(as.matrix(my.y.vec)~as.matrix(my.descr.dat))#no cv
+lm.fit.sum<- summary(lm.fit)
+lm.fit.sum
+
+# Error !!!!!!!!!!
+lm.fit<- lm(as.matrix(net.c)~as.matrix(my.datf.train))#no cv
+Error in model.frame.default(formula = as.matrix(net.c) ~ as.matrix(my.datf.train),  : 
+                               variable lengths differ (found for 'as.matrix(my.datf.train)')       
+                             
 # ------------
 # 8.2 glmStepAIC 
 # ------------
@@ -85,19 +92,4 @@ nn.fit<- train(my.y.vec~.,data=my.datf.train,
 #size==#of units in hidden layer, decay==parameter of weight decay (default:0)
 nn.fit
 varImp(nn.fit)
-
-##########################
-# To be implemented
-##########################
-
-
-  #-----------8.1 Basic LM --------------------------------------------------------------------------------------
-	lm.fit<- lm(as.matrix(my.y.vec)~as.matrix(my.descr.dat))#no cv
-	lm.fit.sum<- summary(lm.fit)
-	lm.fit.sum
-  
-  # Error !!!!!!!!!!
-  lm.fit<- lm(as.matrix(net.c)~as.matrix(my.datf.train))#no cv
-  Error in model.frame.default(formula = as.matrix(net.c) ~ as.matrix(my.datf.train),  : 
-                                 variable lengths differ (found for 'as.matrix(my.datf.train)')                          
 

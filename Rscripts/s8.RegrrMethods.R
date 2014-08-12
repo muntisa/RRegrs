@@ -70,6 +70,108 @@ AppendList2txt <- function(l,csvFile) {
 }  
 
 #====================================================================================================
+# 8.1. Basic LM no CV
+#====================================================================================================
+LMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=FALSE,outFile="") {
+  net.c = my.datf.train[,1]   # make available the names of variables from training dataset
+  RegrMethod <- "lm" # type of regression
+  
+  # Define the CV conditions
+  ctrl<- trainControl(method = sCV, number = 10,repeats = 10,
+                      summaryFunction = defaultSummary)
+  
+  # Train the model using only training set
+  set.seed(iSplit)
+  X <- as.matrix(my.datf.train[,2:dim(my.datf.train)[2]])
+  Y <- as.matrix(my.datf.train[,1])
+  lm.fit<- lm(Y~X)
+  lm.fit.sum<- summary(lm.fit)
+  
+  #------------------------------
+  # Training RESULTS
+  #------------------------------
+  RMSE.tr  <- 0 # to be calculated
+  R2.tr    <- lm.fit.sum$r.squared
+  
+  RMSEsd.tr <- 0 # formulas will be added later!
+  R2sd.tr   <- 0 # formulas will be added later!
+  
+  #------------------------------------------------
+  # RMSE & R^2, for train/test respectively
+  #------------------------------------------------
+  lm.train.res <- 0
+  lm.test.res  <- 0
+  
+  #------------------------------------------------
+  # Adj R2, Pearson correlation
+  #------------------------------------------------
+  pred.tr     <- 0 # predicted Y
+  pred.ts     <- 0  # predicted Y
+  noFeats.fit <- dim(lm.fit.sum$coefficients)[1] - 1    # no. of features from the fitted model
+  Feats.fit   <- paste(names(my.datf.train)[-1],collapse = "+") # string with the features included in the fitted model (all the training features!)
+  
+  ds.full     <- rbind(my.datf.train,my.datf.test)
+  pred.both   <- 0       # predicted Y
+  adjR2.tr    <- lm.fit.sum$adj.r.squared
+  adjR2.ts    <- 0
+  corP.ts     <- 0
+  
+  adjR2.both  <- 0
+  RMSE.both   <- 0
+  r2.both     <- 0
+  # zero values should be corrected!!!
+  
+  
+  # Generate the output list with statistics for each cross-validation type
+  # --------------------------------------------------------------------
+  # There are 3 lists for Data set info, 10-fold CV and LOOCV
+  # These 3 lists will be merged into one in order obtain the function output including the header (statistics names)
+  
+  my.stats <- list("RegrMeth"     = RegrMethod,
+                   "Split No"     = as.numeric(iSplit),     # from function param
+                   "CVtype"       = "no CV",                # from function param
+                   "NoModelFeats" = as.numeric(noFeats.fit),
+                   "ModelFeats"   = Feats.fit,
+                   "adjR2.tr"  = as.numeric(adjR2.tr),
+                   
+                   "RMSE.tr"   = RMSE.tr,  # these 4 lines correspond to the min of RMSE.tr !!!
+                   "R2.tr"     = R2.tr,  
+                   "RMSEsd.tr" = RMSEsd.tr,
+                   "R2sd.tr"   = R2sd.tr,
+                   
+                   "adjR2.ts"= as.numeric(adjR2.ts),
+                   "RMSE.ts" = 0,
+                   "R2.ts"   = 0,
+                   "corP.ts" = as.numeric(corP.ts),
+                   "adjR2.both" = as.numeric(adjR2.both),
+                   "RMSE.both"  = as.numeric(RMSE.both),
+                   "R2.both"    = as.numeric(r2.both))
+  
+  #---------------------------------------------------------------------
+  # Write to file DETAILS for GLM for each cross-validation method
+  #---------------------------------------------------------------------
+  if (fDet==TRUE) {   # if flag for details if true, print details about any resut
+    write("RRegr package | eNanoMapper", file = outFile)
+    write.table(paste("Regression method: ", RegrMethod), file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
+    write.table(paste("Split no.: ", iSplit), file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
+    write.table(paste("CV type: ", sCV), file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
+    write.table("Training Set Summary: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
+    write.table(summary(my.datf.train), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
+    write.table("Test Set Summary: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
+    write.table(summary(my.datf.test), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)   
+    
+    # TO BE MODIFIED!
+    #write.table("Fitting results: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
+    #AppendList2txt(lm.fit.sum,outFile)
+    
+    write.table("Full Statistics: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
+    write.table(my.stats, file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
+  }
+  
+  return(my.stats)  # return a list with statistics
+}
+
+#====================================================================================================
 # 8.2- GLM stepwise regression - based on AIC (caret)
 #====================================================================================================
 # Inputs:

@@ -50,12 +50,13 @@ fRemCorr     = TRUE  # flag for Removal of correlated columns         (5)
 fFeatureSel  = FALSE  # flag for wrapper methods for feature selection (7)
 
 cutoff       = 0.9   # cut off for correlated features
+fLM          = TRUE  # flag to run LM            (8.1)
 fGLM         = TRUE  # flag to run GLM           (8.2)
-fPLS         = TRUE  # flag to run PLS           (8.3)
-fLASSO       = TRUE  # flag to run LASSO         (8.4)
-fRBFdda      = TRUE  # flat to run RBF DDA       (8.5)
-fSVLM        = TRUE # flat to run svmRadial.RMSE (8.6)
-fNN          = TRUE  # flat to run NN            (8.8)
+fPLS         = FALSE  # flag to run PLS           (8.3)
+fLASSO       = FALSE  # flag to run LASSO         (8.4)
+fRBFdda      = FALSE  # flat to run RBF DDA       (8.5)
+fSVLM        = FALSE # flat to run svmRadial.RMSE (8.6)
+fNN          = FALSE  # flat to run NN            (8.8)
 
 # ----------------------------------------------------------------------------------------
 iScaling = 1 # 1 = normalization; 2 = standardization, 3 = other; any other: no scaling
@@ -77,6 +78,7 @@ NoCorrFile     = "ds5.scaled.NoCorrs.csv" # output step 5 = dataset after correc
 
 ResAvgs        = "RRegsRes.csv"           # the main output file with averaged statistics for each regression method
 ResBySplits    = "RRegrsResBySplit.csv"   # the output file with statistics for each split and the averaged values
+lmFile         = "8.1.LM.details.txt"           # LM output file for details
 glmFile        = "8.2.GLM.details.txt"          # GLM output file for details
 plsFile        = "8.3.PLS.details.txt"          # PLS output file for details
 lassoFile      = "8.4.LASSO.details.txt"        # Lasoo Radial output file for details
@@ -233,6 +235,32 @@ for (i in 1:iSplitTimes) {                      # Step splitting number = i
   # --------------------------------------------
   # 8.1. Basic LM : default
   # --------------------------------------------
+  if (fLM==TRUE) {   # if LM was selected, run the method
+    cat("-> [8.1] LM no CV ...\n")
+    outFile.LM <- file.path(PathDataSet,lmFile)   # the same folder as the input is used for the output
+    
+    # Both wrapper and nont-wrapper function are placed in the same external file s8.RegrrMethods.R
+    if (fFeatureSel==FALSE) {    # if there is no need of feature selection ->> use normal functions
+      
+      # For each type of CV do all the statistics
+      # -----------------------------------------------------
+      for (cv in 1:length(CVtypes)) { # there is no CV but it will be implemented in the future!!!
+        my.stats.LM   <- LMreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.LM) # run GLM for each CV and regr method
+        
+        #-------------------------------------------------------
+        # Add output from GLM to the list of results
+        #-------------------------------------------------------
+        # List of results for each splitting, CV type & regression method
+        dfRes = mapply(c, my.stats.LM, dfRes, SIMPLIFY=FALSE)
+        
+      } # end CV types
+    } 
+    else    # if there is a need for previous feature selection ->> use wrapper functions
+    {                     
+      # run LM with wrapper method (TO BE IMPLEMENTED!)
+    }
+    
+  } # end LM
   
   # -----------------------------------------------------------------------------------------
   # (8.2) GLM based on AIC regression - Generalized Linear Model with Stepwise Feature Selection
