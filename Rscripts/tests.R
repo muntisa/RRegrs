@@ -1,7 +1,9 @@
 # TESTING ANY CODE
 
 library(caret)
-
+#----------------------------------------------------------------------------------------------------------------------
+# General functions
+#----------------------------------------------------------------------------------------------------------------------
 r2.adj.funct<- function(y,y.new,num.pred){#y==y, y.new=predicted, num.pred=number of idependent variables (predictors)
   y.mean<- mean(y)
   x.in<- sum((y-y.new)^2)/sum((y-y.mean)^2)
@@ -33,6 +35,7 @@ r2.funct<- function(y,y.new){                 #y==y, y.new=predicted
   x.in<- 1-x.in #r squared
   return(x.in)
 }
+
 #--------------------------------------------------------------------
 # Write a LIST to CSV file
 #--------------------------------------------------------------------
@@ -47,7 +50,19 @@ AppendList2CSv <- function(l,csvFile) {
   close(out_file)  #close connection to file.csv 
 }  
 
-
+#--------------------------------------------------------------------
+# Write a LIST to TXT file
+#--------------------------------------------------------------------
+AppendList2txt <- function(l,csvFile) {
+  out_file <- file(csvFile, open="a")  #creates a file in append mode 
+  for (i in seq_along(l)){ 
+    write.table(names(l)[i], file=out_file, sep=" ", dec=".", 
+                quote=FALSE, col.names=FALSE, row.names=FALSE)  #writes the name of the list elements ("A", "B", etc) 
+    write.table(l[[i]], file=out_file, sep=" ", dec=".", quote=FALSE, 
+                col.names=NA, row.names=TRUE)  #writes the data.frames 
+  } 
+  close(out_file)  #close connection to file.csv 
+}  
 
 fDet         = TRUE  # flag to calculate and print details for all the functions
 fFilters     = TRUE  # flag to apply filters                          (2)
@@ -211,55 +226,68 @@ iSplit=1
 
 library(caret)
 
-net.c = my.datf.train[,1]   # make available the names of variables from training dataset
-RegrMethod <- "lm" # type of regression
+net.c = my.datf.train[,1] # dependent variable is the first column in Training set
+RegrMethod <- "pls.WSel" # type of regression
 
 # Define the CV conditions
-ctrl<- trainControl(method = sCV, number = 10,repeats = 10,
-                    summaryFunction = defaultSummary)
+ctrlw <- rfeControl(method = 'boot', number = 25,saveDetails=T)
+ctrl  <- trainControl(method = sCV, number = 10,repeats = 1,
+                      summaryFunction = defaultSummary,savePred=T)
+
+subsets<- seq(5,dim(my.datf.train)[2]-1,by=10)
+
+
+
 
 # Train the model using only training set
 set.seed(iSplit)
-X <- as.matrix(my.datf.train)
-Y <- as.matrix(my.datf.train[,1])
-lm.fit<- lm(Y~X)
-lm.fit.sum<- summary(lm.fit)
+
+pls.fit<- rfe(net.c~.,data=my.datf.train, 
+              method = 'pls',
+              rfeControl = ctrlw, trControl=ctrl, sizes=subsets, importance=T,
+              metric = 'RMSE',
+              tuneGrid=expand.grid(.ncomp=c(1:5)))
 
 #------------------------------
 # Training RESULTS
 #------------------------------
-RMSE.tr  <- 0 # to be calculated
-R2.tr    <- lm.fit.sum$r.squared
 
-RMSEsd.tr <- 0 # formulas will be added later!
-R2sd.tr   <- 0 # formulas will be added later!
+pls.fit.best <- subset(pls.fit$results, pls.fit$results$Variables == 5) # best selected fit
 
+RMSE.tr  <- pls.fit.best$RMSE
+R2.tr    <- pls.fit.best$Rsquared
+if (sCV == "repeatedcv"){ # if 10-fold CV
+  RMSEsd.tr <- pls.fit.best$RMSESD
+  R2sd.tr   <- pls.fit.best$RsquaredSD
+}
+if (sCV == "LOOCV"){ # if LOOCV
+  RMSEsd.tr <- 0 # formulas will be added later!
+  R2sd.tr   <- 0 # formulas will be added later!
+}
 
 #------------------------------------------------
 # RMSE & R^2, for train/test respectively
 #------------------------------------------------
-lm.train.res <- 0
-lm.test.res  <- 0
+lm.train.res <- pls.fit # ??
+lm.test.res  <- postResample(predict(pls.fit,my.datf.test),my.datf.test[,1])
 
 #------------------------------------------------
 # Adj R2, Pearson correlation
 #------------------------------------------------
-pred.tr     <- 0 # predicted Y
-pred.ts     <- 0  # predicted Y
-noFeats.fit <- dim(lm.fit.sum$coefficients)[1] - 1    # no. of features from the fitted model
-Feats.fit   <- paste(names(lm.fit.sum$coefficients[,1]),collapse = "+") # string with the features included in the fitted model
+pred.tr     <- predict(pls.fit,my.datf.train) # predicted Y
+pred.ts     <- predict(pls.fit,my.datf.test)  # predicted Y
+noFeats.fit <- length(predictors(pls.fit))    # no. of features from the fitted model
+Feats.fit   <- paste(predictors(pls.fit),collapse="+") # string with the features included in the fitted model
 
 ds.full     <- rbind(my.datf.train,my.datf.test)
-pred.both   <- 0       # predicted Y
-adjR2.tr    <- lm.fit.sum$adj.r.squared
-adjR2.ts    <- 0
-corP.ts     <- 0
+pred.both   <- predict(pls.fit,ds.full)       # predicted Y
+adjR2.tr    <- r2.adj.funct(my.datf.train[,1],pred.tr,noFeats.fit)
+adjR2.ts    <- r2.adj.funct(my.datf.test[,1],pred.ts,noFeats.fit)
+corP.ts     <- cor(my.datf.test[,1],pred.ts)
 
-adjR2.both  <- 0
-RMSE.both   <- 0
-r2.both     <- 0
-# zero values should be corrected!!!
-
+adjR2.both  <- r2.adj.funct(ds.full[,1],pred.both,noFeats.fit)
+RMSE.both   <- rmse.funct(ds.full[,1],pred.both)
+r2.both     <- r2.funct(ds.full[,1],pred.both)
 
 # Generate the output list with statistics for each cross-validation type
 # --------------------------------------------------------------------
@@ -268,19 +296,19 @@ r2.both     <- 0
 
 my.stats <- list("RegrMeth"     = RegrMethod,
                  "Split No"     = as.numeric(iSplit),     # from function param
-                 "CVtype"       = "no CV",                # from function param
+                 "CVtype"       = sCV,                    # from function param
                  "NoModelFeats" = as.numeric(noFeats.fit),
                  "ModelFeats"   = Feats.fit,
                  "adjR2.tr"  = as.numeric(adjR2.tr),
                  
-                 "RMSE.tr"   = RMSE.tr,  # these 4 lines correspond to the min of RMSE.tr !!!
-                 "R2.tr"     = R2.tr,  
-                 "RMSEsd.tr" = RMSEsd.tr,
-                 "R2sd.tr"   = R2sd.tr,
+                 "RMSE.tr"   = as.numeric(RMSE.tr),  # these 4 lines correspond to the min of RMSE.tr !!!
+                 "R2.tr"     = as.numeric(R2.tr),  
+                 "RMSEsd.tr" = as.numeric(RMSEsd.tr),
+                 "R2sd.tr"   = as.numeric(R2sd.tr),
                  
                  "adjR2.ts"= as.numeric(adjR2.ts),
-                 "RMSE.ts" = 0,
-                 "R2.ts"   = 0,
+                 "RMSE.ts" = as.numeric((lm.test.res["RMSE"][[1]])),
+                 "R2.ts"   = as.numeric((lm.test.res["Rsquared"][[1]])),
                  "corP.ts" = as.numeric(corP.ts),
                  "adjR2.both" = as.numeric(adjR2.both),
                  "RMSE.both"  = as.numeric(RMSE.both),
@@ -299,13 +327,21 @@ if (fDet==TRUE) {   # if flag for details if true, print details about any resut
   write.table("Test Set Summary: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
   write.table(summary(my.datf.test), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)   
   
-  write.table("Fitting results: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-  AppendList2txt(lm.fit.sum,outFile)
+  
+  write.table("Predictors: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
+  write.table(predictors(pls.fit), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
+  
+  write.table("Trainig Results: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
+  write.table(predictors(lm.train.res), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
+  write.table("Test Results: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
+  write.table(predictors(lm.test.res), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
+  
+  write.table("NNet variable importance: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
+  AppendList2txt(varImp(pls.fit),outFile)
   
   write.table("Full Statistics: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
   write.table(my.stats, file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
 }
-
 
 #####################################################
 dfRes = data.frame(my.stats)
