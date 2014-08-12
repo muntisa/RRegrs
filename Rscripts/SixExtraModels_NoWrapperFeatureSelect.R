@@ -17,6 +17,29 @@ lm.fit<- train(net.c~.,data=my.datf.train,
 
                metric = 'RMSE')
 
+#-------------8.3 PLS ------------------------------------------------------------------------
+set.seed(2)
+pls.fit<- train(my.y.vec~.,data=my.datf.train,
+                method = 'pls', tuneLength = 10, trControl = ctrl,
+                metric = 'RMSE',tuneGrid=expand.grid(.ncomp=c(1:15)),preProc = c('center', 'scale'))
+#ncomp== the number of components to include in the model
+pls.fit
+
+# ERROR !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+pls.fit<- train(net.c~.,data=my.datf.train,
+                method = 'pls', tuneLength = 10, trControl = ctrl,
+                metric = 'RMSE',tuneGrid=expand.grid(.ncomp=c(1:15)),preProc = c('center', 'scale'))
+Error in train.default(x, y, weights = w, ...) : 
+  final tuning parameters could not be determined
+
+
+#Try:
+pls.fit<- train(net.c~.,data=my.datf.train,
+                method = 'pls', tuneLength = 10, trControl = ctrl1,
+                metric = 'RMSE',
+                tuneGrid=expand.grid(.ncomp=c(1:(dim(my.datf.train)[2]-1))),
+                preProc = c('center', 'scale'))
+
 # ------------
 # 8.4 lasso 
 # ------------
@@ -63,9 +86,6 @@ nn.fit<- train(my.y.vec~.,data=my.datf.train,
 nn.fit
 varImp(nn.fit)
 
-
-
-
 ##########################
 # To be implemented
 ##########################
@@ -80,27 +100,4 @@ varImp(nn.fit)
   lm.fit<- lm(as.matrix(net.c)~as.matrix(my.datf.train))#no cv
   Error in model.frame.default(formula = as.matrix(net.c) ~ as.matrix(my.datf.train),  : 
                                  variable lengths differ (found for 'as.matrix(my.datf.train)')                          
-
-	#-------------8.3 PLS ------------------------------------------------------------------------
-  set.seed(2)
-	pls.fit<- train(my.y.vec~.,data=my.datf.train,
-                  method = 'pls', tuneLength = 10, trControl = ctrl,
-                  metric = 'RMSE',tuneGrid=expand.grid(.ncomp=c(1:15)),preProc = c('center', 'scale'))
-	#ncomp== the number of components to include in the model
-	pls.fit
-  
-  # ERROR !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  pls.fit<- train(net.c~.,data=my.datf.train,
-                  method = 'pls', tuneLength = 10, trControl = ctrl,
-                  metric = 'RMSE',tuneGrid=expand.grid(.ncomp=c(1:15)),preProc = c('center', 'scale'))
-  Error in train.default(x, y, weights = w, ...) : 
-	  final tuning parameters could not be determined
-
-
-#Try:
-pls.fit<- train(net.c~.,data=my.datf.train,
-                   method = 'pls', tuneLength = 10, trControl = ctrl1,
-                   metric = 'RMSE',
-			 tuneGrid=expand.grid(.ncomp=c(1:(dim(my.datf.train)[2]-1))),
-			 preProc = c('center', 'scale'))
 

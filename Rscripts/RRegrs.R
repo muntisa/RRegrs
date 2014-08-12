@@ -50,11 +50,12 @@ fRemCorr     = TRUE  # flag for Removal of correlated columns         (5)
 fFeatureSel  = FALSE  # flag for wrapper methods for feature selection (7)
 
 cutoff       = 0.9   # cut off for correlated features
-fGLM         = TRUE  # flag to run GLM (8.2)
-fLASSO       = TRUE  # flag to run LASSO (8.4)
-fRBFdda      = TRUE  # flat to run RBF DDA (8.5)
+fGLM         = TRUE  # flag to run GLM           (8.2)
+fPLS         = TRUE  # flag to run PLS           (8.3)
+fLASSO       = TRUE  # flag to run LASSO         (8.4)
+fRBFdda      = TRUE  # flat to run RBF DDA       (8.5)
 fSVLM        = TRUE # flat to run svmRadial.RMSE (8.6)
-fNN          = TRUE  # flat to run NN (8.8)
+fNN          = TRUE  # flat to run NN            (8.8)
 
 # ----------------------------------------------------------------------------------------
 iScaling = 1 # 1 = normalization; 2 = standardization, 3 = other; any other: no scaling
@@ -76,7 +77,8 @@ NoCorrFile     = "ds5.scaled.NoCorrs.csv" # output step 5 = dataset after correc
 
 ResAvgs        = "RRegsRes.csv"           # the main output file with averaged statistics for each regression method
 ResBySplits    = "RRegrsResBySplit.csv"   # the output file with statistics for each split and the averaged values
-glmFile        = "8.2.GLM.details.txt"    # GLM output file for details
+glmFile        = "8.2.GLM.details.txt"          # GLM output file for details
+plsFile        = "8.3.PLS.details.txt"          # PLS output file for details
 lassoFile      = "8.4.LASSO.details.txt"        # Lasoo Radial output file for details
 rbfDDAFile     = "8.5.RBF_DDA.details.txt"      # RBF DDA output file for details
 svlmFile       = "8.6.SVMRadial.details.txt"    # SVM Radial output file for details
@@ -273,6 +275,29 @@ for (i in 1:iSplitTimes) {                      # Step splitting number = i
   # --------------------------------------------
   # 8.3. PLS
   # --------------------------------------------
+  if (fPLS==TRUE) {   # if LASSO was selected, run the method
+    cat("-> [8.3] PLS ...\n")
+    outFile.PLS <- file.path(PathDataSet,plsFile)   # the same folder as the input is used for the output
+    
+    # Both wrapper and nont-wrapper function are placed in the same external file s8.RegrrMethods.R
+    if (fFeatureSel==FALSE) {    # if there is no need of feature selection ->> use normal functions
+      # For each type of CV do all the statistics
+      # -----------------------------------------------------
+      for (cv in 1:length(CVtypes)) {
+        my.stats.PLS  <- PLSreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.PLS) # run SVLM Radial for each CV and regr method
+        #-------------------------------------------------------
+        # Add output from GLM to the list of results
+        #-------------------------------------------------------
+        # List of results for each splitting, CV type & regression method
+        dfRes = mapply(c, my.stats.PLS, dfRes, SIMPLIFY=FALSE)
+      } # end CV types
+    } 
+    else    # if there is a need for previous feature selection ->> use wrapper functions
+    {                     
+      # run PLS with wrapper method (TO BE IMPLEMENTED!)
+    }
+    
+  } # end PLS
   
   # --------------------------------------------
   # 8.4. LASSO regression

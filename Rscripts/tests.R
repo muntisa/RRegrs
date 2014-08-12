@@ -156,15 +156,36 @@ if (fScaling==TRUE) {
 # -----------------------------------------------------------------------
 # (5) Remove correlated features
 # -----------------------------------------------------------------------
-if (fRemCorr==TRUE) {    
-  cat("-> [5] Removing correlated features ...\n") 
-  outFile <- file.path(PathDataSet,NoCorrFile)    # the same folder as the input
-  
-  # run function to remove the correlations between the features
-  source("s5.RemCorrFeats.R")                     # add function
-  ds <- cbind("net.c" = ds[,1],RemCorrs(ds[,2:dim(ds)[2]],fDet,cutoff,outFile))
-}
 
+library(corrplot) #corrplot: the library to compute correlation matrix.
+library(caret)
+DataSet <- ds[,2:dim(ds)[2]]               # input dataset
+DataSetFiltered.scale <- ds[,2:dim(ds)[2]] # default results without any modification
+
+# calculate the correlation matrix for the entire file!
+# !!! NEED TO BE CORRECTED to avoid dependent variable (first column) but to report it!
+corrMat <- cor(DataSet)                                             # get corralation matrix
+
+
+highlyCor <- findCorrelation(corrMat, cutoff) # find corralated columns
+
+# Apply correlation filter with the cutoff
+# by removing all the variable correlated with more than cutoff
+DataSetFiltered.scale <- DataSet[,-highlyCor]
+
+if (fDet==TRUE) {
+  corrMat <- cor(DataSetFiltered.scale)
+  # plot again the rest of correlations after removing the correlated columns
+  #corrplot(corrMat, order = "hclust")
+  
+
+  # correlation matrix for the rest of the columns after removal
+  CorrMatFile2 <- paste(outFile,".corrMAT4Selected.csv",sep='')
+  # write correlation matrix as output file
+  write.csv(corrMat, CorrMatFile2, row.names=FALSE, quote=FALSE)
+  # write the new dataset without the correlated features
+  write.csv(DataSetFiltered.scale, outFile, row.names=FALSE, quote=FALSE)
+}
 
 # -----------------------------------------------------------------------
 # (6) Dataset split: Training and Test sets
@@ -190,8 +211,8 @@ iSplit=1
 
 library(caret)
 
-attach(my.datf.train)   # make available the names of variables from training dataset
-RegrMethod <- "rbfDDA" # type of regression
+net.c = my.datf.train[,1]   # make available the names of variables from training dataset
+RegrMethod <- "pls" # type of regression
 
 # Define the CV conditions
 ctrl<- trainControl(method = sCV, number = 10,repeats = 10,
@@ -200,18 +221,18 @@ ctrl<- trainControl(method = sCV, number = 10,repeats = 10,
 # Train the model using only training set
 set.seed(iSplit)
 
-rbf.fit<- train(net.c~.,data=my.datf.train,
-                method = 'rbfDDA',trControl = ctrl,
-                tuneGrid=expand.grid(.negativeThreshold=seq(0,1,0.1)))
-
+pls.fit<- train(net.c~.,data=my.datf.train,
+                method = 'pls', tuneLength = 10, trControl = ctrl,
+                metric = 'RMSE',
+                tuneGrid=expand.grid(.ncomp=c(1:(dim(my.datf.train)[2]-1))))
 #------------------------------
 # Training RESULTS
 #------------------------------
-RMSE.tr  <- rbf.fit$results[,2]
-R2.tr    <- rbf.fit$results[,3]
+RMSE.tr  <- pls.fit$results[,2]
+R2.tr    <- pls.fit$results[,3]
 if (sCV == "repeatedcv"){ # if 10-fold CV
-  RMSEsd.tr <- rbf.fit$results[,4]
-  R2sd.tr   <- rbf.fit$results[,5]
+  RMSEsd.tr <- pls.fit$results[,4]
+  R2sd.tr   <- pls.fit$results[,5]
 }
 if (sCV == "LOOCV"){ # if LOOCV
   RMSEsd.tr <- 0 # formulas will be added later!
@@ -221,19 +242,19 @@ if (sCV == "LOOCV"){ # if LOOCV
 #------------------------------------------------
 # RMSE & R^2, for train/test respectively
 #------------------------------------------------
-lm.train.res <- getTrainPerf(rbf.fit)
-lm.test.res  <- postResample(predict(rbf.fit,my.datf.test),my.datf.test[,1])
+lm.train.res <- getTrainPerf(pls.fit)
+lm.test.res  <- postResample(predict(pls.fit,my.datf.test),my.datf.test[,1])
 
 #------------------------------------------------
 # Adj R2, Pearson correlation
 #------------------------------------------------
-pred.tr     <- predict(rbf.fit,my.datf.train) # predicted Y
-pred.ts     <- predict(rbf.fit,my.datf.test)  # predicted Y
-noFeats.fit <- length(predictors(rbf.fit))    # no. of features from the fitted model
-Feats.fit   <- paste(predictors(rbf.fit),collapse="+") # string with the features included in the fitted model
+pred.tr     <- predict(pls.fit,my.datf.train) # predicted Y
+pred.ts     <- predict(pls.fit,my.datf.test)  # predicted Y
+noFeats.fit <- length(predictors(pls.fit))    # no. of features from the fitted model
+Feats.fit   <- paste(predictors(pls.fit),collapse="+") # string with the features included in the fitted model
 
 ds.full     <- rbind(my.datf.train,my.datf.test)
-pred.both   <- predict(rbf.fit,ds.full)       # predicted Y
+pred.both   <- predict(pls.fit,ds.full)       # predicted Y
 adjR2.tr    <- r2.adj.funct(my.datf.train[,1],pred.tr,noFeats.fit)
 adjR2.ts    <- r2.adj.funct(my.datf.test[,1],pred.ts,noFeats.fit)
 corP.ts     <- cor(my.datf.test[,1],pred.ts)
@@ -249,14 +270,16 @@ r2.both     <- r2.funct(ds.full[,1],pred.both)
 
 my.stats <- list("RegrMeth"     = RegrMethod,
                  "Split No"     = as.numeric(iSplit),     # from function param
-                 "CVtype"       = sCV,                    # from function param
+                 "CVtype"       = "no CV",                # from function param
                  "NoModelFeats" = as.numeric(noFeats.fit),
                  "ModelFeats"   = Feats.fit,
                  "adjR2.tr"  = as.numeric(adjR2.tr),
-                 "RMSE.tr"   = as.numeric(min(RMSE.tr)),  # report min
-                 "R2.tr"     = 0, # to be modified with the value that corresponds to min RMSE
-                 "RMSEsd.tr" = 0, # to be modified with the value that corresponds to min RMSE
-                 "R2sd.tr"   = 0, # to be modified with the value that corresponds to min RMSE
+                 
+                 "RMSE.tr"   = RMSE.tr,  # these 4 lines correspond to the min of RMSE.tr !!!
+                 "R2.tr"     = R2.tr,  
+                 "RMSEsd.tr" = RMSEsd.tr,
+                 "R2sd.tr"   = R2sd.tr,
+                 
                  "adjR2.ts"= as.numeric(adjR2.ts),
                  "RMSE.ts" = as.numeric((lm.test.res["RMSE"][[1]])),
                  "R2.ts"   = as.numeric((lm.test.res["Rsquared"][[1]])),
@@ -264,6 +287,7 @@ my.stats <- list("RegrMeth"     = RegrMethod,
                  "adjR2.both" = as.numeric(adjR2.both),
                  "RMSE.both"  = as.numeric(RMSE.both),
                  "R2.both"    = as.numeric(r2.both))
+
 #---------------------------------------------------------------------
 # Write to file DETAILS for GLM for each cross-validation method
 #---------------------------------------------------------------------
@@ -279,7 +303,7 @@ if (fDet==TRUE) {   # if flag for details if true, print details about any resut
   
   
   write.table("Predictors: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-  write.table(predictors(rbf.fit), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
+  write.table(predictors(pls.fit), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
   
   write.table("Trainig Results: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
   write.table(predictors(lm.train.res), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
@@ -292,5 +316,8 @@ if (fDet==TRUE) {   # if flag for details if true, print details about any resut
 
 
 #####################################################
-print(data.frame(my.stats))
+dfRes = data.frame(my.stats)
+print("*** RESULTS ***")
+print(dfRes)
 print(length(my.stats))
+# print(dfRes[which.min(dfRes$RMSE.tr),])

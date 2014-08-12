@@ -4,20 +4,20 @@ RRegr package | eNanoMapper
 1 CV type:  LOOCV
 1 Training Set Summary: 
     net.c       V2       V5       V7
- Min.   :0.05753   Min.   :0.1057   Min.   :3.973e-05   Min.   :0.02102  
- 1st Qu.:0.13462   1st Qu.:0.2532   1st Qu.:6.580e-03   1st Qu.:0.02102  
- Median :0.30808   Median :0.6010   Median :1.174e-02   Median :0.02102  
- Mean   :0.27853   Mean   :0.5464   Mean   :2.217e-02   Mean   :0.02158  
- 3rd Qu.:0.40445   3rd Qu.:0.7976   3rd Qu.:4.349e-02   3rd Qu.:0.02102  
- Max.   :0.50082   Max.   :1.0000   Max.   :5.572e-02   Max.   :0.02487  
+ Min.   :0.07092   Min.   :0.1190   Min.   :0.0001338   Min.   :0.03510  
+ 1st Qu.:0.11096   1st Qu.:0.2111   1st Qu.:0.0074114   1st Qu.:0.03510  
+ Median :0.23110   Median :0.4353   Median :0.0081800   Median :0.03510  
+ Mean   :0.26225   Mean   :0.5052   Mean   :0.0209330   Mean   :0.03705  
+ 3rd Qu.:0.39129   3rd Qu.:0.7717   3rd Qu.:0.0273091   3rd Qu.:0.03970  
+ Max.   :0.51143   Max.   :1.0000   Max.   :0.0849620   Max.   :0.04311  
 1 Test Set Summary: 
     net.c       V2       V5       V7
- Min.   :0.03825   Min.   :0.06138   Min.   :0.007689   Min.   :0.02102  
- 1st Qu.:0.09607   1st Qu.:0.17895   1st Qu.:0.017266   1st Qu.:0.02102  
- Median :0.13462   Median :0.25604   Median :0.024608   Median :0.02102  
- Mean   :0.15389   Mean   :0.29343   Mean   :0.029031   Mean   :0.02102  
- 3rd Qu.:0.23099   3rd Qu.:0.44492   3rd Qu.:0.046156   3rd Qu.:0.02102  
- Max.   :0.26953   Max.   :0.52587   Max.   :0.049434   Max.   :0.02102  
+ Min.   :0.1110   Min.   :0.2111   Min.   :0.08496   Min.   :0.03510  
+ 1st Qu.:0.1510   1st Qu.:0.2892   1st Qu.:0.08556   1st Qu.:0.03710  
+ Median :0.1911   Median :0.3673   Median :0.08615   Median :0.03911  
+ Mean   :0.1911   Mean   :0.3673   Mean   :0.08615   Mean   :0.03911  
+ 3rd Qu.:0.2311   3rd Qu.:0.4454   3rd Qu.:0.08674   3rd Qu.:0.04111  
+ Max.   :0.2712   Max.   :0.5234   Max.   :0.08734   Max.   :0.04311  
 1 Predictors: 
 x
 1 V2
@@ -33,8 +33,8 @@ x
 importance
  Overall
 V2 100
-V5 2.6198662929794
-V7 0
+V5 0
+V7 88.481398371963
 model
  x
 1 nnet
@@ -43,4 +43,4 @@ calledFrom
 1 varImp
 1 Full Statistics: 
 RegrMeth Split.No CVtype NoModelFeats ModelFeats adjR2.tr RMSE.tr R2.tr RMSEsd.tr R2sd.tr adjR2.ts RMSE.ts R2.ts corP.ts adjR2.both RMSE.both R2.both
-1 nnet 2 LOOCV 3 V2+V5+V7 0.999818064407642 0 0.00290356453205315 0 0 0.999608747997212 0.000843891403419379 0.999951623762423 0.999975811588672 0.999857476464938 0.00161535026225468 0.999879980181
+1 nnet 2 LOOCV 3 V2+V5+V7 0.999299394154497 0 0.0101882839390116 0 0 1.00034463911171 0.00210277915027414 1 1 0.99937679855611 0.00313701594197649 0.999563758989277

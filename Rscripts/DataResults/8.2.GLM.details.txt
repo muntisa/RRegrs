@@ -1,27 +1,27 @@
 RRegr package | eNanoMapper
-1 Regression method:  glmStepAIC.RMSE
-1 Split no.:  1
+1 Regression method:  glmStepAIC
+1 Split no.:  2
 1 CV type:  LOOCV
 1 Training Set Summary: 
     net.c       V2       V5       V7
- Min.   :0.03825   Min.   :0.06138   Min.   :3.973e-05   Min.   :0.02102  
- 1st Qu.:0.09607   1st Qu.:0.18184   1st Qu.:7.925e-03   1st Qu.:0.02102  
- Median :0.15389   Median :0.29266   Median :1.727e-02   Median :0.02102  
- Mean   :0.21942   Mean   :0.42732   Mean   :2.364e-02   Mean   :0.02142  
- 3rd Qu.:0.29845   3rd Qu.:0.58562   3rd Qu.:4.414e-02   3rd Qu.:0.02102  
- Max.   :0.50082   Max.   :1.00000   Max.   :5.572e-02   Max.   :0.02487  
+ Min.   :0.07092   Min.   :0.1190   Min.   :0.0001338   Min.   :0.03510  
+ 1st Qu.:0.11096   1st Qu.:0.2111   1st Qu.:0.0074114   1st Qu.:0.03510  
+ Median :0.23110   Median :0.4353   Median :0.0081800   Median :0.03510  
+ Mean   :0.26225   Mean   :0.5052   Mean   :0.0209330   Mean   :0.03705  
+ 3rd Qu.:0.39129   3rd Qu.:0.7717   3rd Qu.:0.0273091   3rd Qu.:0.03970  
+ Max.   :0.51143   Max.   :1.0000   Max.   :0.0849620   Max.   :0.04311  
 1 Test Set Summary: 
     net.c       V2       V5       V7
- Min.   :0.1924   Min.   :0.3755   Min.   :0.004187   Min.   :0.02102  
- 1st Qu.:0.3081   1st Qu.:0.6010   1st Qu.:0.005134   1st Qu.:0.02102  
- Median :0.3466   Median :0.6820   Median :0.020630   Median :0.02102  
- Mean   :0.3312   Mean   :0.6508   Mean   :0.024617   Mean   :0.02149  
- 3rd Qu.:0.3659   3rd Qu.:0.7244   3rd Qu.:0.043701   3rd Qu.:0.02102  
- Max.   :0.4430   Max.   :0.8709   Max.   :0.049434   Max.   :0.02339  
+ Min.   :0.1110   Min.   :0.2111   Min.   :0.08496   Min.   :0.03510  
+ 1st Qu.:0.1510   1st Qu.:0.2892   1st Qu.:0.08556   1st Qu.:0.03710  
+ Median :0.1911   Median :0.3673   Median :0.08615   Median :0.03911  
+ Mean   :0.1911   Mean   :0.3673   Mean   :0.08615   Mean   :0.03911  
+ 3rd Qu.:0.2311   3rd Qu.:0.4454   3rd Qu.:0.08674   3rd Qu.:0.04111  
+ Max.   :0.2712   Max.   :0.5234   Max.   :0.08734   Max.   :0.04311  
 1 Fitting Summary: 
 Estimate Std..Error t.value Pr...t..
-(Intercept) 0.00750932701793988 0.000796025980873941 9.43352000860014 3.5241941879804e-07
-V2 0.495914750025621 0.00150808036971125 328.838409401598 7.18070035169487e-27
+(Intercept) 0.00859058592077218 0.00251139264548614 3.42064628412945 0.0111256369262368
+V2 0.502098594337755 0.00421363925572075 119.160318163466 7.73014589569245e-13
 1 Predictors: 
 x
 1 V2
@@ -35,4 +35,4 @@ x
 1 NA
 1 Full Statistics: 
 RegrMeth Split.No CVtype NoModelFeats ModelFeats adjR2.tr RMSE.tr R2.tr RMSEsd.tr R2sd.tr adjR2.ts RMSE.ts R2.ts corP.ts adjR2.both RMSE.both R2.both
-1 glmStepAIC.RMSE 1 LOOCV 3 V2+V5+V7 0.999847010573297 0.00206056328744765 0.999821099368627 0 0 0.997323195103646 0.00212469463565281 0.999693038829014 0.999846507634554 0.99982206836819 0.00180488690694228 0.999850162836371
+1 glmStepAIC 2 LOOCV 3 V2+V5+V7 0.999211610800603 0.00909559444173896 0.996974678597317 0 0 1.00051050495645 0.00255924204816293 1 1 0.999280590178572 0.00337047167371395 0.999496413125001

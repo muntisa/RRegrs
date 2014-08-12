@@ -83,8 +83,10 @@ AppendList2txt <- function(l,csvFile) {
 #   (tr = train, ts = test, both = tr+ts = full dataset)
 # ---------------------------------------------------------------------------------------------------
 GLMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=FALSE,outFile="") {
-  attach(my.datf.train)   # make available the names of variables from training dataset
-  RegrMethod <- "glmStepAIC.RMSE" # type of regression
+  library(caret)
+  #attach(my.datf.train)    # make available the names of variables from training dataset
+  net.c = my.datf.train[,1] # dependent variable is the first column in Training set
+  RegrMethod <- "glmStepAIC" # type of regression
   
   # Define the CV conditions
   ctrl<- trainControl(method = sCV, number = 10,repeats = 10,
@@ -191,11 +193,124 @@ GLMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=FALSE,outFile=""
 }
 
 #====================================================================================================
+# 8.3. PLS regression (caret)
+#====================================================================================================
+PLSreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=FALSE,outFile="") {
+  library(caret)
+  #attach(my.datf.train)   # make available the names of variables from training dataset
+  net.c = my.datf.train[,1] # dependent variable is the first column in Training set
+  RegrMethod <- "pls" # type of regression
+  
+  # Define the CV conditions
+  ctrl<- trainControl(method = sCV, number = 10,repeats = 10,
+                      summaryFunction = defaultSummary)
+  
+  # Train the model using only training set
+  set.seed(iSplit)
+  
+  pls.fit<- train(net.c~.,data=my.datf.train,
+                  method = 'pls', tuneLength = 10, trControl = ctrl,
+                  metric = 'RMSE',
+                  tuneGrid=expand.grid(.ncomp=c(1:(dim(my.datf.train)[2]-1))))
+  #------------------------------
+  # Training RESULTS
+  #------------------------------
+  RMSE.tr  <- pls.fit$results[,2]
+  R2.tr    <- pls.fit$results[,3]
+  if (sCV == "repeatedcv"){ # if 10-fold CV
+    RMSEsd.tr <- pls.fit$results[,4]
+    R2sd.tr   <- pls.fit$results[,5]
+  }
+  if (sCV == "LOOCV"){ # if LOOCV
+    RMSEsd.tr <- 0 # formulas will be added later!
+    R2sd.tr   <- 0 # formulas will be added later!
+  }
+  
+  #------------------------------------------------
+  # RMSE & R^2, for train/test respectively
+  #------------------------------------------------
+  lm.train.res <- getTrainPerf(pls.fit)
+  lm.test.res  <- postResample(predict(pls.fit,my.datf.test),my.datf.test[,1])
+  
+  #------------------------------------------------
+  # Adj R2, Pearson correlation
+  #------------------------------------------------
+  pred.tr     <- predict(pls.fit,my.datf.train) # predicted Y
+  pred.ts     <- predict(pls.fit,my.datf.test)  # predicted Y
+  noFeats.fit <- length(predictors(pls.fit))    # no. of features from the fitted model
+  Feats.fit   <- paste(predictors(pls.fit),collapse="+") # string with the features included in the fitted model
+  
+  ds.full     <- rbind(my.datf.train,my.datf.test)
+  pred.both   <- predict(pls.fit,ds.full)       # predicted Y
+  adjR2.tr    <- r2.adj.funct(my.datf.train[,1],pred.tr,noFeats.fit)
+  adjR2.ts    <- r2.adj.funct(my.datf.test[,1],pred.ts,noFeats.fit)
+  corP.ts     <- cor(my.datf.test[,1],pred.ts)
+  
+  adjR2.both  <- r2.adj.funct(ds.full[,1],pred.both,noFeats.fit)
+  RMSE.both   <- rmse.funct(ds.full[,1],pred.both)
+  r2.both     <- r2.funct(ds.full[,1],pred.both)
+  
+  # Generate the output list with statistics for each cross-validation type
+  # --------------------------------------------------------------------
+  # There are 3 lists for Data set info, 10-fold CV and LOOCV
+  # These 3 lists will be merged into one in order obtain the function output including the header (statistics names)
+  
+  my.stats <- list("RegrMeth"     = RegrMethod,
+                   "Split No"     = as.numeric(iSplit),     # from function param
+                   "CVtype"       = sCV,                    # from function param
+                   "NoModelFeats" = as.numeric(noFeats.fit),
+                   "ModelFeats"   = Feats.fit,
+                   "adjR2.tr"  = as.numeric(adjR2.tr),
+                   
+                   "RMSE.tr"   = as.numeric(min(RMSE.tr)),  # these 4 lines correspond to the min of RMSE.tr !!!
+                   "R2.tr"     = as.numeric(R2.tr[which.min(RMSE.tr)]),  
+                   "RMSEsd.tr" = as.numeric(RMSEsd.tr[which.min(RMSE.tr)]),
+                   "R2sd.tr"   = as.numeric(R2sd.tr[which.min(RMSE.tr)]),
+                   
+                   "adjR2.ts"= as.numeric(adjR2.ts),
+                   "RMSE.ts" = as.numeric((lm.test.res["RMSE"][[1]])),
+                   "R2.ts"   = as.numeric((lm.test.res["Rsquared"][[1]])),
+                   "corP.ts" = as.numeric(corP.ts),
+                   "adjR2.both" = as.numeric(adjR2.both),
+                   "RMSE.both"  = as.numeric(RMSE.both),
+                   "R2.both"    = as.numeric(r2.both))
+  
+  #---------------------------------------------------------------------
+  # Write to file DETAILS for GLM for each cross-validation method
+  #---------------------------------------------------------------------
+  if (fDet==TRUE) {   # if flag for details if true, print details about any resut
+    write("RRegr package | eNanoMapper", file = outFile)
+    write.table(paste("Regression method: ", RegrMethod), file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
+    write.table(paste("Split no.: ", iSplit), file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
+    write.table(paste("CV type: ", sCV), file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
+    write.table("Training Set Summary: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
+    write.table(summary(my.datf.train), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
+    write.table("Test Set Summary: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
+    write.table(summary(my.datf.test), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)   
+    
+    
+    write.table("Predictors: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
+    write.table(predictors(pls.fit), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
+    
+    write.table("Trainig Results: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
+    write.table(predictors(lm.train.res), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
+    write.table("Test Results: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
+    write.table(predictors(lm.test.res), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
+    
+    write.table("Full Statistics: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
+    write.table(my.stats, file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
+  }
+  
+  return(my.stats)  # return a list with statistics
+}
+
+#====================================================================================================
 # 8.4 Lasso Regression (caret)
 #====================================================================================================
 LASSOreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=FALSE,outFile="") {
   library(caret)
-  attach(my.datf.train)   # make available the names of variables from training dataset
+  #attach(my.datf.train)   # make available the names of variables from training dataset
+  net.c = my.datf.train[,1] # dependent variable is the first column in Training set
   RegrMethod <- "lasso.RMSE" # type of regression
   
   # Define the CV conditions
@@ -303,122 +418,12 @@ LASSOreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=FALSE,outFile=
 }
 
 #====================================================================================================
-# 8.6 SVM Radial Regression (caret)
-#====================================================================================================
-SVLMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=FALSE,outFile="") {
-  library(caret)
-  attach(my.datf.train)   # make available the names of variables from training dataset
-  RegrMethod <- "svmRadial.RMSE" # type of regression
-  
-  # Define the CV conditions
-  ctrl<- trainControl(method = sCV, number = 10,repeats = 10,
-                      summaryFunction = defaultSummary)
-
-  # Train the model using only training set
-  set.seed(iSplit)
-  
-  svmL.fit<- train(net.c~.,data=my.datf.train,
-                   method = 'svmRadial', tuneLength = 10, trControl = ctrl,
-                   metric = 'RMSE',
-                   tuneGrid=expand.grid(.sigma=seq(0,1,0.1),.C= c(1:10))) # preProc = c('center', 'scale')
-  
-  #------------------------------
-  # Training RESULTS
-  #------------------------------
-  RMSE.tr  <- svmL.fit$results[,2]
-  R2.tr    <- svmL.fit$results[,3]
-  if (sCV == "repeatedcv"){ # if 10-fold CV
-    RMSEsd.tr <- svmL.fit$results[,4]
-    R2sd.tr   <- svmL.fit$results[,5]
-  }
-  if (sCV == "LOOCV"){ # if LOOCV
-    RMSEsd.tr <- 0 # formulas will be added later!
-    R2sd.tr   <- 0 # formulas will be added later!
-  }
-  
-  #------------------------------------------------
-  # RMSE & R^2, for train/test respectively
-  #------------------------------------------------
-  lm.train.res <- getTrainPerf(svmL.fit)
-  lm.test.res  <- postResample(predict(svmL.fit,my.datf.test),my.datf.test[,1])
-  
-  #------------------------------------------------
-  # Adj R2, Pearson correlation
-  #------------------------------------------------
-  pred.tr     <- predict(svmL.fit,my.datf.train) # predicted Y
-  pred.ts     <- predict(svmL.fit,my.datf.test)  # predicted Y
-  noFeats.fit <- length(predictors(svmL.fit))    # no. of features from the fitted model
-  Feats.fit   <- paste(predictors(svmL.fit),collapse="+") # string with the features included in the fitted model
-  
-  ds.full     <- rbind(my.datf.train,my.datf.test)
-  pred.both   <- predict(svmL.fit,ds.full)       # predicted Y
-  adjR2.tr    <- r2.adj.funct(my.datf.train[,1],pred.tr,noFeats.fit)
-  adjR2.ts    <- r2.adj.funct(my.datf.test[,1],pred.ts,noFeats.fit)
-  corP.ts     <- cor(my.datf.test[,1],pred.ts)
-  
-  adjR2.both  <- r2.adj.funct(ds.full[,1],pred.both,noFeats.fit)
-  RMSE.both   <- rmse.funct(ds.full[,1],pred.both)
-  r2.both     <- r2.funct(ds.full[,1],pred.both)
-  
-  # Generate the output list with statistics for each cross-validation type
-  # --------------------------------------------------------------------
-  # There are 3 lists for Data set info, 10-fold CV and LOOCV
-  # These 3 lists will be merged into one in order obtain the function output including the header (statistics names)
-  
-  my.stats <- list("RegrMeth"     = RegrMethod,
-                   "Split No"     = as.numeric(iSplit),     # from function param
-                   "CVtype"       = "no CV",                # from function param
-                   "NoModelFeats" = as.numeric(noFeats.fit),
-                   "ModelFeats"   = Feats.fit,
-                   "adjR2.tr"  = as.numeric(adjR2.tr),
-                   
-                   "RMSE.tr"   = as.numeric(min(RMSE.tr)),  # these 4 lines correspond to the min of RMSE.tr !!!
-                   "R2.tr"     = as.numeric(R2.tr[which.min(RMSE.tr)]),  
-                   "RMSEsd.tr" = as.numeric(RMSEsd.tr[which.min(RMSE.tr)]),
-                   "R2sd.tr"   = as.numeric(R2sd.tr[which.min(RMSE.tr)]),
-                   
-                   "adjR2.ts"= as.numeric(adjR2.ts),
-                   "RMSE.ts" = as.numeric((lm.test.res["RMSE"][[1]])),
-                   "R2.ts"   = as.numeric((lm.test.res["Rsquared"][[1]])),
-                   "corP.ts" = as.numeric(corP.ts),
-                   "adjR2.both" = as.numeric(adjR2.both),
-                   "RMSE.both"  = as.numeric(RMSE.both),
-                   "R2.both"    = as.numeric(r2.both))
-  
-  #---------------------------------------------------------------------
-  # Write to file DETAILS for GLM for each cross-validation method
-  #---------------------------------------------------------------------
-  if (fDet==TRUE) {   # if flag for details if true, print details about any resut
-    write("RRegr package | eNanoMapper", file = outFile)
-    write.table(paste("Regression method: ", RegrMethod), file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(paste("Split no.: ", iSplit), file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(paste("CV type: ", sCV), file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table("Training Set Summary: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(summary(my.datf.train), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
-    write.table("Test Set Summary: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(summary(my.datf.test), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)   
-    
-    
-    write.table("Predictors: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(predictors(svmL.fit), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
-    
-    write.table("Trainig Results: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(predictors(lm.train.res), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
-    write.table("Test Results: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(predictors(lm.test.res), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
-    
-    write.table("Full Statistics: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(my.stats, file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
-  }
-  
-  return(my.stats)  # return a list with statistics
-}
-
-#====================================================================================================
 # 8.5. RBF network with the DDA algorithm regression (caret)
 #====================================================================================================
 RBF_DDAreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=FALSE,outFile="") {
-  attach(my.datf.train)   # make available the names of variables from training dataset
+  library(caret)
+  #attach(my.datf.train)   # make available the names of variables from training dataset
+  net.c = my.datf.train[,1] # dependent variable is the first column in Training set
   RegrMethod <- "rbfDDA" # type of regression
   
   # Define the CV conditions
@@ -523,12 +528,126 @@ RBF_DDAreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=FALSE,outFil
   return(my.stats)  # return a list with statistics
 }
 
+#====================================================================================================
+# 8.6 SVM Radial Regression (caret)
+#====================================================================================================
+SVLMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=FALSE,outFile="") {
+  library(caret)
+  #attach(my.datf.train)   # make available the names of variables from training dataset
+  net.c = my.datf.train[,1] # dependent variable is the first column in Training set
+  RegrMethod <- "svmRadial.RMSE" # type of regression
+  
+  # Define the CV conditions
+  ctrl<- trainControl(method = sCV, number = 10,repeats = 10,
+                      summaryFunction = defaultSummary)
+
+  # Train the model using only training set
+  set.seed(iSplit)
+  
+  svmL.fit<- train(net.c~.,data=my.datf.train,
+                   method = 'svmRadial', tuneLength = 10, trControl = ctrl,
+                   metric = 'RMSE',
+                   tuneGrid=expand.grid(.sigma=seq(0,1,0.1),.C= c(1:10))) # preProc = c('center', 'scale')
+  
+  #------------------------------
+  # Training RESULTS
+  #------------------------------
+  RMSE.tr  <- svmL.fit$results[,2]
+  R2.tr    <- svmL.fit$results[,3]
+  if (sCV == "repeatedcv"){ # if 10-fold CV
+    RMSEsd.tr <- svmL.fit$results[,4]
+    R2sd.tr   <- svmL.fit$results[,5]
+  }
+  if (sCV == "LOOCV"){ # if LOOCV
+    RMSEsd.tr <- 0 # formulas will be added later!
+    R2sd.tr   <- 0 # formulas will be added later!
+  }
+  
+  #------------------------------------------------
+  # RMSE & R^2, for train/test respectively
+  #------------------------------------------------
+  lm.train.res <- getTrainPerf(svmL.fit)
+  lm.test.res  <- postResample(predict(svmL.fit,my.datf.test),my.datf.test[,1])
+  
+  #------------------------------------------------
+  # Adj R2, Pearson correlation
+  #------------------------------------------------
+  pred.tr     <- predict(svmL.fit,my.datf.train) # predicted Y
+  pred.ts     <- predict(svmL.fit,my.datf.test)  # predicted Y
+  noFeats.fit <- length(predictors(svmL.fit))    # no. of features from the fitted model
+  Feats.fit   <- paste(predictors(svmL.fit),collapse="+") # string with the features included in the fitted model
+  
+  ds.full     <- rbind(my.datf.train,my.datf.test)
+  pred.both   <- predict(svmL.fit,ds.full)       # predicted Y
+  adjR2.tr    <- r2.adj.funct(my.datf.train[,1],pred.tr,noFeats.fit)
+  adjR2.ts    <- r2.adj.funct(my.datf.test[,1],pred.ts,noFeats.fit)
+  corP.ts     <- cor(my.datf.test[,1],pred.ts)
+  
+  adjR2.both  <- r2.adj.funct(ds.full[,1],pred.both,noFeats.fit)
+  RMSE.both   <- rmse.funct(ds.full[,1],pred.both)
+  r2.both     <- r2.funct(ds.full[,1],pred.both)
+  
+  # Generate the output list with statistics for each cross-validation type
+  # --------------------------------------------------------------------
+  # There are 3 lists for Data set info, 10-fold CV and LOOCV
+  # These 3 lists will be merged into one in order obtain the function output including the header (statistics names)
+  
+  my.stats <- list("RegrMeth"     = RegrMethod,
+                   "Split No"     = as.numeric(iSplit),     # from function param
+                   "CVtype"       = sCV,                    # from function param
+                   "NoModelFeats" = as.numeric(noFeats.fit),
+                   "ModelFeats"   = Feats.fit,
+                   "adjR2.tr"  = as.numeric(adjR2.tr),
+                   
+                   "RMSE.tr"   = as.numeric(min(RMSE.tr)),  # these 4 lines correspond to the min of RMSE.tr !!!
+                   "R2.tr"     = as.numeric(R2.tr[which.min(RMSE.tr)]),  
+                   "RMSEsd.tr" = as.numeric(RMSEsd.tr[which.min(RMSE.tr)]),
+                   "R2sd.tr"   = as.numeric(R2sd.tr[which.min(RMSE.tr)]),
+                   
+                   "adjR2.ts"= as.numeric(adjR2.ts),
+                   "RMSE.ts" = as.numeric((lm.test.res["RMSE"][[1]])),
+                   "R2.ts"   = as.numeric((lm.test.res["Rsquared"][[1]])),
+                   "corP.ts" = as.numeric(corP.ts),
+                   "adjR2.both" = as.numeric(adjR2.both),
+                   "RMSE.both"  = as.numeric(RMSE.both),
+                   "R2.both"    = as.numeric(r2.both))
+  
+  #---------------------------------------------------------------------
+  # Write to file DETAILS for GLM for each cross-validation method
+  #---------------------------------------------------------------------
+  if (fDet==TRUE) {   # if flag for details if true, print details about any resut
+    write("RRegr package | eNanoMapper", file = outFile)
+    write.table(paste("Regression method: ", RegrMethod), file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
+    write.table(paste("Split no.: ", iSplit), file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
+    write.table(paste("CV type: ", sCV), file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
+    write.table("Training Set Summary: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
+    write.table(summary(my.datf.train), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
+    write.table("Test Set Summary: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
+    write.table(summary(my.datf.test), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)   
+    
+    
+    write.table("Predictors: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
+    write.table(predictors(svmL.fit), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
+    
+    write.table("Trainig Results: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
+    write.table(predictors(lm.train.res), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
+    write.table("Test Results: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
+    write.table(predictors(lm.test.res), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
+    
+    write.table("Full Statistics: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
+    write.table(my.stats, file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
+  }
+  
+  return(my.stats)  # return a list with statistics
+}
 
 #====================================================================================================
-# 8.6 Neural Network Regression (caret)
+# 8.8 Neural Network Regression (caret)
 #====================================================================================================
 NNreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=FALSE,outFile="") {
-  attach(my.datf.train)   # make available the names of variables from training dataset
+  library(caret)
+  #attach(my.datf.train)   # make available the names of variables from training dataset
+  net.c = my.datf.train[,1] # dependent variable is the first column in Training set
   RegrMethod <- "nnet" # type of regression
   
   # Define the CV conditions
