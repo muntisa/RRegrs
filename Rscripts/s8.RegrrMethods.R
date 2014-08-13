@@ -420,7 +420,7 @@ PLSregWSel <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=FALSE,outFil
   ctrl  <- trainControl(method = sCV, number = 10,repeats = 1,
                         summaryFunction = defaultSummary,savePred=T)
 
-  subsetsx<- seq(5,dim(my.datf.train)[2]-1, by = 10)
+  subsetsx<- seq(2,dim(my.datf.train)[2]-1, by = 10)
   
   # Train the model using only training set
   set.seed(iSplit)
