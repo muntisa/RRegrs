@@ -217,19 +217,18 @@ my.datf.test  <- dsList$test
 my.datf.train
 my.datf.test
 
-sCV = "repeatedcv"
+sCV = 'repeatedcv'
 iSplit=1
+RegrMethod='rbfDDA'
 
 ####################
 # TO TEST
 ####################
 
-library(caret)
 
 library(caret)
-#attach(my.datf.train)    # make available the names of variables from training dataset
+#attach(my.datf.train)   # make available the names of variables from training dataset
 net.c = my.datf.train[,1] # dependent variable is the first column in Training set
-RegrMethod <- "glmStepAIC" # type of regression
 
 # Define the CV conditions
 ctrl<- trainControl(method = sCV, number = 10,repeats = 10,
@@ -237,18 +236,51 @@ ctrl<- trainControl(method = sCV, number = 10,repeats = 10,
 
 # Train the model using only training set
 set.seed(iSplit)
-lm.fit<- train(net.c~.,data=my.datf.train,
-                method = 'lm', tuneLength = 10, trControl = ctrl,
-                metric = 'RMSE')
+
+if (RegrMethod=="lm" | RegrMethod=="glmStepAIC") {
+  reg.fit<- train(net.c~.,data=my.datf.train,
+                  method = 'lm', tuneLength = 10, trControl = ctrl,
+                  metric = 'RMSE')
+}
+if (RegrMethod=="pls") {
+  reg.fit<- train(net.c~.,data=my.datf.train,
+                  method = 'pls', tuneLength = 10, trControl = ctrl,
+                  metric = 'RMSE',
+                  tuneGrid=expand.grid(.ncomp=c(1:(dim(my.datf.train)[2]-1))))
+}
+if (RegrMethod=="lasso") {
+  reg.fit<- train(net.c~.,data=my.datf.train,
+                  method = 'lasso', tuneLength = 10, trControl = ctrl,
+                  metric = 'RMSE',
+                  tuneGrid=expand.grid(.fraction= seq(0.1,1,by=0.1)))
+}
+if (RegrMethod=="rbfDDA") {  
+  reg.fit<- train(net.c~.,data=my.datf.train,
+                  method = 'rbfDDA',trControl = ctrl,
+                  tuneGrid=expand.grid(.negativeThreshold=seq(0,1,0.1)))
+}
+if (RegrMethod=="svmRadial") {  
+  reg.fit<- train(net.c~.,data=my.datf.train,
+                  method = 'svmRadial', tuneLength = 10, trControl = ctrl,
+                  metric = 'RMSE',
+                  tuneGrid=expand.grid(.sigma=seq(0,1,0.1),.C= c(1:10)))
+}
+if (RegrMethod=="nnet") {  
+  reg.fit<- train(net.c~.,data=my.datf.train,
+                  method = 'nnet',trControl = ctrl,
+                  linout=TRUE, trace = FALSE,MaxNWts=20000,
+                  tuneGrid=expand.grid(.size=c(1,5,10,15),.decay=c(0,0.001,0.1)))
+} 
+
 
 #------------------------------
 # Training RESULTS
 #------------------------------
-RMSE.tr  <- lm.fit$results[,2]
-R2.tr    <- lm.fit$results[,3]
+RMSE.tr  <- reg.fit$results[,2]
+R2.tr    <- reg.fit$results[,3]
 if (sCV == "repeatedcv"){ # if 10-fold CV
-  RMSEsd.tr <- lm.fit$results[,4]
-  R2sd.tr   <- lm.fit$results[,5]
+  RMSEsd.tr <- reg.fit$results[,4]
+  R2sd.tr   <- reg.fit$results[,5]
 }
 if (sCV == "LOOCV"){ # if LOOCV
   RMSEsd.tr <- 0 # formulas will be added later!
@@ -258,19 +290,19 @@ if (sCV == "LOOCV"){ # if LOOCV
 #------------------------------------------------
 # RMSE & R^2, for train/test respectively
 #------------------------------------------------
-lm.train.res <- getTrainPerf(lm.fit)
-lm.test.res  <- postResample(predict(lm.fit,my.datf.test),my.datf.test[,1])
+lm.train.res <- getTrainPerf(reg.fit)
+lm.test.res  <- postResample(predict(reg.fit,my.datf.test),my.datf.test[,1])
 
 #------------------------------------------------
 # Adj R2, Pearson correlation
 #------------------------------------------------
-pred.tr     <- predict(lm.fit,my.datf.train) # predicted Y
-pred.ts     <- predict(lm.fit,my.datf.test)  # predicted Y
-noFeats.fit <- length(predictors(lm.fit))    # no. of features from the fitted model
-Feats.fit   <- paste(predictors(lm.fit),collapse="+") # string with the features included in the fitted model
+pred.tr     <- predict(reg.fit,my.datf.train) # predicted Y
+pred.ts     <- predict(reg.fit,my.datf.test)  # predicted Y
+noFeats.fit <- length(predictors(reg.fit))    # no. of features from the fitted model
+Feats.fit   <- paste(predictors(reg.fit),collapse="+") # string with the features included in the fitted model
 
 ds.full     <- rbind(my.datf.train,my.datf.test)
-pred.both   <- predict(lm.fit,ds.full)       # predicted Y
+pred.both   <- predict(reg.fit,ds.full)       # predicted Y
 adjR2.tr    <- r2.adj.funct(my.datf.train[,1],pred.tr,noFeats.fit)
 adjR2.ts    <- r2.adj.funct(my.datf.test[,1],pred.ts,noFeats.fit)
 corP.ts     <- cor(my.datf.test[,1],pred.ts)
@@ -290,10 +322,12 @@ my.stats <- list("RegrMeth"     = RegrMethod,
                  "NoModelFeats" = as.numeric(noFeats.fit),
                  "ModelFeats"   = Feats.fit,
                  "adjR2.tr"  = as.numeric(adjR2.tr),
-                 "RMSE.tr"   = as.numeric(RMSE.tr),
-                 "R2.tr"     = as.numeric(R2.tr),
-                 "RMSEsd.tr" = as.numeric(RMSEsd.tr),
-                 "R2sd.tr"   = as.numeric(R2sd.tr),
+                 
+                 "RMSE.tr"   = as.numeric(min(RMSE.tr)),  # these 4 lines correspond to the min of RMSE.tr !!!
+                 "R2.tr"     = as.numeric(R2.tr[which.min(RMSE.tr)]),  
+                 "RMSEsd.tr" = as.numeric(RMSEsd.tr[which.min(RMSE.tr)]),
+                 "R2sd.tr"   = as.numeric(R2sd.tr[which.min(RMSE.tr)]),
+                 
                  "adjR2.ts"= as.numeric(adjR2.ts),
                  "RMSE.ts" = as.numeric((lm.test.res["RMSE"][[1]])),
                  "R2.ts"   = as.numeric((lm.test.res["Rsquared"][[1]])),
@@ -315,11 +349,9 @@ if (fDet==TRUE) {   # if flag for details if true, print details about any resut
   write.table("Test Set Summary: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
   write.table(summary(my.datf.test), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)   
   
-  write.table("Fitting Summary: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-  write.table(data.frame(summary(lm.fit)$coefficients), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
   
   write.table("Predictors: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-  write.table(predictors(lm.fit), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
+  write.table(predictors(reg.fit), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
   
   write.table("Trainig Results: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
   write.table(predictors(lm.train.res), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
@@ -329,6 +361,7 @@ if (fDet==TRUE) {   # if flag for details if true, print details about any resut
   write.table("Full Statistics: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
   write.table(my.stats, file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
 }
+
 
 #####################################################
 dfRes = data.frame(my.stats)

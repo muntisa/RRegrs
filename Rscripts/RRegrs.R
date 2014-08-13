@@ -54,11 +54,11 @@ fFeatureSel  = FALSE  # flag for wrapper methods for feature selection (7)
 cutoff       = 0.9   # cut off for correlated features
 fLM          = TRUE  # flag to run LM            (8.1)
 fGLM         = TRUE  # flag to run GLM           (8.2)
-fPLS         = TRUE  # flag to run PLS           (8.3)
-fLASSO       = TRUE  # flag to run LASSO         (8.4)
-fRBFdda      = TRUE  # flat to run RBF DDA       (8.5)
-fSVLM        = TRUE # flat to run svmRadial.RMSE (8.6)
-fNN          = TRUE  # flat to run NN            (8.8)
+fPLS         = FALSE  # flag to run PLS           (8.3)
+fLASSO       = FALSE  # flag to run LASSO         (8.4)
+fRBFdda      = FALSE  # flat to run RBF DDA       (8.5)
+fSVLM        = FALSE # flat to run svmRadial.RMSE (8.6)
+fNN          = FALSE  # flat to run NN            (8.8)
 
 # ----------------------------------------------------------------------------------------
 iScaling = 1 # 1 = normalization; 2 = standardization, 3 = other; any other: no scaling
@@ -80,6 +80,8 @@ NoCorrFile     = "ds5.scaled.NoCorrs.csv" # output step 5 = dataset after correc
 
 ResAvgs        = "RRegsResAvgs.csv"       # the output file with averaged statistics for each regression method
 ResBySplits    = "RRegrsResBySplit.csv"   # the output file with statistics for each split and the averaged values
+ResBest        = "RRegrsResBest.csv"      # the output file with statistics for the best model
+
 lmFile         = "8.1.LM.details.txt"           # LM output file for details
 glmFile        = "8.2.GLM.details.txt"          # GLM output file for details
 plsFile        = "8.3.PLS.details.txt"          # PLS output file for details
@@ -475,7 +477,7 @@ for (i in 1:iSplitTimes) {                      # Step splitting number = i
 #------------------------------------------------------------------------------
 # 12. Report all results for 10 splittings
 #-------------------------------------------------------------------------------
-cat("[12] Results for all splitings\n")
+cat("[12] Results for all splitings ...\n")
 df.res <- data.frame(dfRes)
 print(df.res) # print all results as data frame
 
@@ -488,19 +490,23 @@ write.csv(df.res, file = ResBySplitsF)    # write statistics data frame into a C
 #-------------------------------------------------------------------------------------
 # Averaged values of the results by each Regression Method & CV type
 #-------------------------------------------------------------------------------------
+cat("-> Averaged statistics ...\n")
+
 ResAvgsF <- file.path(PathDataSet,ResAvgs)           # the main output file with averaged statistics for each regression method
 library(data.table)
-dt.res  <- data.table(df.res) # convert data frame into data table
+dt.res  <- data.table(df.res) # convert data frame into data table (for sorting abd averaging)
 
 # MEANS for each Regression Method & CV type
 #--------------------------------------------------------------------------------------------------------------
+# means for all CV types, not only 10CV
 dt.mean <- dt.res[,list(adjR2.tr.Avg=mean(adjR2.tr),RMSE.tr.Avg=mean(RMSE.tr),R2.tr.Avg=mean(R2.tr),
                         RMSEsd.tr.Avg=mean(RMSEsd.tr),R2sd.tr.Avg=mean(R2sd.tr),adjR2.ts.Avg=mean(adjR2.ts),
                         RMSE.ts.Avg=mean(RMSE.ts),R2.ts.Avg=mean(R2.ts),corP.ts.Avg=mean(corP.ts),
                         adjR2.both.Avg=mean(adjR2.both),RMSE.both.Avg=mean(RMSE.both),
                         R2.both.Avg=mean(R2.both)),by="RegrMeth,CVtype"]
 
-dt.mean.ord <- dt.mean[order(-rank(adjR2.ts.Avg))]  # descendent order the averages by adjR2.ts.Avg
+dt.mean     <- dt.mean[dt.mean$CVtype=="repeatedcv",]   # keep only the 10CV results to be used to find the best model
+dt.mean.ord <- dt.mean[order(-rank(adjR2.ts.Avg))]      # descendent order the averages by adjR2.ts.Avg
 
 # Write averages descendent ordered by adjR2.ts.Avg
 #-------------------------------------------------------------------------------
@@ -509,15 +515,50 @@ write.csv(data.frame(dt.mean.ord), file = ResAvgsF)    # write statistics data f
 #----------------------------------------------------------
 # Best model = first row of the ordered results
 #----------------------------------------------------------
+cat("-> Best model analysis ...\n")
 
 # ADD an algorithm to verifty similar adjR2 values:
 # From the best ones (+/- 0.05 of adjR2), chose the one with less variables, after that the one with min RMSE!!!
 
-dt.best <- dt.mean.ord[1] # the best model should be the first value in the descendent ordered results
+best.dt  <- dt.mean.ord[1] # the best model should be the first value in the descendent ordered results
+best.reg <- paste(best.dt$RegrMeth,collapse="") # best regrression method
 
 #----------------------------------------------------------
 # Best model detailed statistics 
 #----------------------------------------------------------
+
+# Write the best model statistics
+ResBestF <- file.path(PathDataSet,ResBest)
+write.table("Averaged values for all spits: ", file = ResBestF, append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
+write.csv(data.frame(best.dt), file = ResBestF)    # write statistics data frame into a CSV output file
+
+# Use the last split for dataset (ds.train & ds.test) ! (or chose other one?)
+
+# Run the caret function with the method from the best method, for one training-test split only
+# and append the details in the best model output file
+
+if (best.reg=="lm") {
+  my.stats.reg  <- LMreg(ds.train,ds.test,"repeatedcv",i,TRUE,ResBestF) # run GLM for each CV and regr method
+}
+if (best.reg=="glmStepAIC") {
+  my.stats.reg  <- GLMreg(ds.train,ds.test,"repeatedcv",i,TRUE,ResBestF) # run GLM for each CV and regr method
+}
+if (best.reg=="pls") {
+  my.stats.reg  <- PLSreg(ds.train,ds.test,"repeatedcv",i,TRUE,ResBestF) # run SVLM Radial for each CV and regr method
+}
+if (best.reg=="lasso") {
+  my.stats.reg  <- LASSOreg(ds.train,ds.test,"repeatedcv",i,TRUE,ResBestF) # run SVLM Radial for each CV and regr method
+}
+if (best.reg=="rbfDDA") {  
+  my.stats.reg  <- RBF_DDAreg(ds.train,ds.test,"repeatedcv",i,TRUE,ResBestF) # run SVLM Radial for each CV and regr method
+}
+if (best.reg=="svmRadial") {  
+  my.stats.reg  <- SVLMreg(ds.train,ds.test,"repeatedcv",i,TRUE,ResBestF) # run SVLM Radial for each CV and regr method
+}
+if (best.reg=="nnet") {  
+  my.stats.reg  <- NNreg(ds.train,ds.test,"repeatedcv",i,TRUE,ResBestF) # run NNet for each CV and regr method
+} 
+
 
 #------------------------------------------------------------------------------
 # 13. Assessment of Applicability Domain (plot leverage)
