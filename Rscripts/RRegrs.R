@@ -49,16 +49,16 @@ fFilters     = TRUE  # flag to apply filters                          (2)
 fScaling     = TRUE  # flag for dataset Scaling                       (3)
 fRemNear0Var = TRUE  # flag for Removal of near zero variance columns (4)
 fRemCorr     = TRUE  # flag for Removal of correlated columns         (5)
-fFeatureSel  = TRUE  # flag for wrapper methods for feature selection (7)
+fFeatureSel  = FALSE  # flag for wrapper methods for feature selection (7)
 
 cutoff       = 0.9   # cut off for correlated features
 fLM          = TRUE  # flag to run LM            (8.1)
 fGLM         = TRUE  # flag to run GLM           (8.2)
 fPLS         = TRUE  # flag to run PLS           (8.3)
-fLASSO       = FALSE  # flag to run LASSO         (8.4)
-fRBFdda      = FALSE  # flat to run RBF DDA       (8.5)
-fSVLM        = FALSE # flat to run svmRadial.RMSE (8.6)
-fNN          = FALSE  # flat to run NN            (8.8)
+fLASSO       = TRUE  # flag to run LASSO         (8.4)
+fRBFdda      = TRUE  # flat to run RBF DDA       (8.5)
+fSVLM        = TRUE # flat to run svmRadial.RMSE (8.6)
+fNN          = TRUE  # flat to run NN            (8.8)
 
 # ----------------------------------------------------------------------------------------
 iScaling = 1 # 1 = normalization; 2 = standardization, 3 = other; any other: no scaling
@@ -78,7 +78,7 @@ No0NearVarFile = "ds3.No0Var.csv"         # output step 3 = ds without zero near
 ScaledFile     = "ds4.scaled.csv"         # output step 4 = scaled ds file name (in the same folder)
 NoCorrFile     = "ds5.scaled.NoCorrs.csv" # output step 5 = dataset after correction removal
 
-ResAvgs        = "RRegsRes.csv"           # the main output file with averaged statistics for each regression method
+ResAvgs        = "RRegsResAvgs.csv"       # the output file with averaged statistics for each regression method
 ResBySplits    = "RRegrsResBySplit.csv"   # the output file with statistics for each split and the averaged values
 lmFile         = "8.1.LM.details.txt"           # LM output file for details
 glmFile        = "8.2.GLM.details.txt"          # GLM output file for details
@@ -476,16 +476,48 @@ for (i in 1:iSplitTimes) {                      # Step splitting number = i
 # 12. Report all results for 10 splittings
 #-------------------------------------------------------------------------------
 cat("[12] Results for all splitings\n")
-print(data.frame(dfRes)) # print all results as data frame
+df.res <- data.frame(dfRes)
+print(df.res) # print all results as data frame
 
 # Writing the statistics into output files: one with detailed splits, other with only averages
 # File names includin paths for the statistics outputs (only averages and split detailed; +averages [to be implemented])
 ResBySplitsF <- file.path(PathDataSet,ResBySplits)   # the main output file with statistics for each split
-write.csv(data.frame(dfRes), file = ResBySplitsF)    # write statistics data frame into a CSV output file
+write.csv(df.res, file = ResBySplitsF)    # write statistics data frame into a CSV output file
 # file.show(ResBySplitsF)  # show the statistics file!
 
-# Averages: colMeans(data.frame(dfRes)[23:35])  & colMeans(data.frame(dfRes)[9:34])
+#-------------------------------------------------------------------------------------
+# Averaged values of the results by each Regression Method & CV type
+#-------------------------------------------------------------------------------------
 ResAvgsF <- file.path(PathDataSet,ResAvgs)           # the main output file with averaged statistics for each regression method
+library(data.table)
+dt.res  <- data.table(df.res) # convert data frame into data table
+
+# MEANS for each Regression Method & CV type
+#--------------------------------------------------------------------------------------------------------------
+dt.mean <- dt.res[,list(adjR2.tr.Avg=mean(adjR2.tr),RMSE.tr.Avg=mean(RMSE.tr),R2.tr.Avg=mean(R2.tr),
+                        RMSEsd.tr.Avg=mean(RMSEsd.tr),R2sd.tr.Avg=mean(R2sd.tr),adjR2.ts.Avg=mean(adjR2.ts),
+                        RMSE.ts.Avg=mean(RMSE.ts),R2.ts.Avg=mean(R2.ts),corP.ts.Avg=mean(corP.ts),
+                        adjR2.both.Avg=mean(adjR2.both),RMSE.both.Avg=mean(RMSE.both),
+                        R2.both.Avg=mean(R2.both)),by="RegrMeth,CVtype"]
+
+dt.mean.ord <- dt.mean[order(-rank(adjR2.ts.Avg))]  # descendent order the averages by adjR2.ts.Avg
+
+# Write averages descendent ordered by adjR2.ts.Avg
+#-------------------------------------------------------------------------------
+write.csv(data.frame(dt.mean.ord), file = ResAvgsF)    # write statistics data frame into a CSV output file
+
+#----------------------------------------------------------
+# Best model = first row of the ordered results
+#----------------------------------------------------------
+
+# ADD an algorithm to verifty similar adjR2 values:
+# From the best ones (+/- 0.05 of adjR2), chose the one with less variables, after that the one with min RMSE!!!
+
+dt.best <- dt.mean.ord[1] # the best model should be the first value in the descendent ordered results
+
+#----------------------------------------------------------
+# Best model detailed statistics 
+#----------------------------------------------------------
 
 #------------------------------------------------------------------------------
 # 13. Assessment of Applicability Domain (plot leverage)

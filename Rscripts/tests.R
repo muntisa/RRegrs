@@ -226,39 +226,29 @@ iSplit=1
 
 library(caret)
 
+library(caret)
+#attach(my.datf.train)    # make available the names of variables from training dataset
 net.c = my.datf.train[,1] # dependent variable is the first column in Training set
-RegrMethod <- "pls.WSel" # type of regression
+RegrMethod <- "glmStepAIC" # type of regression
 
 # Define the CV conditions
-ctrlw <- rfeControl(method = 'boot', number = 25,saveDetails=T)
-ctrl  <- trainControl(method = sCV, number = 10,repeats = 1,
-                      summaryFunction = defaultSummary,savePred=T)
-
-subsets<- seq(5,dim(my.datf.train)[2]-1,by=10)
-
-
-
+ctrl<- trainControl(method = sCV, number = 10,repeats = 10,
+                    summaryFunction = defaultSummary)
 
 # Train the model using only training set
 set.seed(iSplit)
-
-pls.fit<- rfe(net.c~.,data=my.datf.train, 
-              method = 'pls',
-              rfeControl = ctrlw, trControl=ctrl, sizes=subsets, importance=T,
-              metric = 'RMSE',
-              tuneGrid=expand.grid(.ncomp=c(1:5)))
+lm.fit<- train(net.c~.,data=my.datf.train,
+                method = 'lm', tuneLength = 10, trControl = ctrl,
+                metric = 'RMSE')
 
 #------------------------------
 # Training RESULTS
 #------------------------------
-
-pls.fit.best <- subset(pls.fit$results, pls.fit$results$Variables == 5) # best selected fit
-
-RMSE.tr  <- pls.fit.best$RMSE
-R2.tr    <- pls.fit.best$Rsquared
+RMSE.tr  <- lm.fit$results[,2]
+R2.tr    <- lm.fit$results[,3]
 if (sCV == "repeatedcv"){ # if 10-fold CV
-  RMSEsd.tr <- pls.fit.best$RMSESD
-  R2sd.tr   <- pls.fit.best$RsquaredSD
+  RMSEsd.tr <- lm.fit$results[,4]
+  R2sd.tr   <- lm.fit$results[,5]
 }
 if (sCV == "LOOCV"){ # if LOOCV
   RMSEsd.tr <- 0 # formulas will be added later!
@@ -268,19 +258,19 @@ if (sCV == "LOOCV"){ # if LOOCV
 #------------------------------------------------
 # RMSE & R^2, for train/test respectively
 #------------------------------------------------
-lm.train.res <- pls.fit # ??
-lm.test.res  <- postResample(predict(pls.fit,my.datf.test),my.datf.test[,1])
+lm.train.res <- getTrainPerf(lm.fit)
+lm.test.res  <- postResample(predict(lm.fit,my.datf.test),my.datf.test[,1])
 
 #------------------------------------------------
 # Adj R2, Pearson correlation
 #------------------------------------------------
-pred.tr     <- predict(pls.fit,my.datf.train) # predicted Y
-pred.ts     <- predict(pls.fit,my.datf.test)  # predicted Y
-noFeats.fit <- length(predictors(pls.fit))    # no. of features from the fitted model
-Feats.fit   <- paste(predictors(pls.fit),collapse="+") # string with the features included in the fitted model
+pred.tr     <- predict(lm.fit,my.datf.train) # predicted Y
+pred.ts     <- predict(lm.fit,my.datf.test)  # predicted Y
+noFeats.fit <- length(predictors(lm.fit))    # no. of features from the fitted model
+Feats.fit   <- paste(predictors(lm.fit),collapse="+") # string with the features included in the fitted model
 
 ds.full     <- rbind(my.datf.train,my.datf.test)
-pred.both   <- predict(pls.fit,ds.full)       # predicted Y
+pred.both   <- predict(lm.fit,ds.full)       # predicted Y
 adjR2.tr    <- r2.adj.funct(my.datf.train[,1],pred.tr,noFeats.fit)
 adjR2.ts    <- r2.adj.funct(my.datf.test[,1],pred.ts,noFeats.fit)
 corP.ts     <- cor(my.datf.test[,1],pred.ts)
@@ -300,12 +290,10 @@ my.stats <- list("RegrMeth"     = RegrMethod,
                  "NoModelFeats" = as.numeric(noFeats.fit),
                  "ModelFeats"   = Feats.fit,
                  "adjR2.tr"  = as.numeric(adjR2.tr),
-                 
-                 "RMSE.tr"   = as.numeric(RMSE.tr),  # these 4 lines correspond to the min of RMSE.tr !!!
-                 "R2.tr"     = as.numeric(R2.tr),  
+                 "RMSE.tr"   = as.numeric(RMSE.tr),
+                 "R2.tr"     = as.numeric(R2.tr),
                  "RMSEsd.tr" = as.numeric(RMSEsd.tr),
                  "R2sd.tr"   = as.numeric(R2sd.tr),
-                 
                  "adjR2.ts"= as.numeric(adjR2.ts),
                  "RMSE.ts" = as.numeric((lm.test.res["RMSE"][[1]])),
                  "R2.ts"   = as.numeric((lm.test.res["Rsquared"][[1]])),
@@ -327,17 +315,16 @@ if (fDet==TRUE) {   # if flag for details if true, print details about any resut
   write.table("Test Set Summary: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
   write.table(summary(my.datf.test), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)   
   
+  write.table("Fitting Summary: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
+  write.table(data.frame(summary(lm.fit)$coefficients), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
   
   write.table("Predictors: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-  write.table(predictors(pls.fit), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
+  write.table(predictors(lm.fit), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
   
   write.table("Trainig Results: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
   write.table(predictors(lm.train.res), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
   write.table("Test Results: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
   write.table(predictors(lm.test.res), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
-  
-  write.table("NNet variable importance: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-  AppendList2txt(varImp(pls.fit),outFile)
   
   write.table("Full Statistics: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
   write.table(my.stats, file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
@@ -349,3 +336,6 @@ print("*** RESULTS ***")
 print(dfRes)
 print(length(my.stats))
 # print(dfRes[which.min(dfRes$RMSE.tr),])
+
+# print a list such as lm.fit
+# sapply(names(lm.fit),function(x) paste(x,paste(lm.fit[[x]],collapse=" ")))

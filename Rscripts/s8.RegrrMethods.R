@@ -82,45 +82,47 @@ LMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=FALSE,outFile="")
   
   # Train the model using only training set
   set.seed(iSplit)
-  X <- as.matrix(my.datf.train[,2:dim(my.datf.train)[2]])
-  Y <- as.matrix(my.datf.train[,1])
-  lm.fit<- lm(Y~X)
-  lm.fit.sum<- summary(lm.fit)
+  lm.fit<- train(net.c~.,data=my.datf.train,
+                 method = 'lm', tuneLength = 10, trControl = ctrl,
+                 metric = 'RMSE')
   
   #------------------------------
   # Training RESULTS
   #------------------------------
-  RMSE.tr  <- 0 # to be calculated
-  R2.tr    <- lm.fit.sum$r.squared
-  
-  RMSEsd.tr <- 0 # formulas will be added later!
-  R2sd.tr   <- 0 # formulas will be added later!
+  RMSE.tr  <- lm.fit$results[,2]
+  R2.tr    <- lm.fit$results[,3]
+  if (sCV == "repeatedcv"){ # if 10-fold CV
+    RMSEsd.tr <- lm.fit$results[,4]
+    R2sd.tr   <- lm.fit$results[,5]
+  }
+  if (sCV == "LOOCV"){ # if LOOCV
+    RMSEsd.tr <- 0 # formulas will be added later!
+    R2sd.tr   <- 0 # formulas will be added later!
+  }
   
   #------------------------------------------------
   # RMSE & R^2, for train/test respectively
   #------------------------------------------------
-  lm.train.res <- 0
-  lm.test.res  <- 0
+  lm.train.res <- getTrainPerf(lm.fit)
+  lm.test.res  <- postResample(predict(lm.fit,my.datf.test),my.datf.test[,1])
   
   #------------------------------------------------
   # Adj R2, Pearson correlation
   #------------------------------------------------
-  pred.tr     <- 0 # predicted Y
-  pred.ts     <- 0  # predicted Y
-  noFeats.fit <- dim(lm.fit.sum$coefficients)[1] - 1    # no. of features from the fitted model
-  Feats.fit   <- paste(names(my.datf.train)[-1],collapse = "+") # string with the features included in the fitted model (all the training features!)
+  pred.tr     <- predict(lm.fit,my.datf.train) # predicted Y
+  pred.ts     <- predict(lm.fit,my.datf.test)  # predicted Y
+  noFeats.fit <- length(predictors(lm.fit))    # no. of features from the fitted model
+  Feats.fit   <- paste(predictors(lm.fit),collapse="+") # string with the features included in the fitted model
   
   ds.full     <- rbind(my.datf.train,my.datf.test)
-  pred.both   <- 0       # predicted Y
-  adjR2.tr    <- lm.fit.sum$adj.r.squared
-  adjR2.ts    <- 0
-  corP.ts     <- 0
+  pred.both   <- predict(lm.fit,ds.full)       # predicted Y
+  adjR2.tr    <- r2.adj.funct(my.datf.train[,1],pred.tr,noFeats.fit)
+  adjR2.ts    <- r2.adj.funct(my.datf.test[,1],pred.ts,noFeats.fit)
+  corP.ts     <- cor(my.datf.test[,1],pred.ts)
   
-  adjR2.both  <- 0
-  RMSE.both   <- 0
-  r2.both     <- 0
-  # zero values should be corrected!!!
-  
+  adjR2.both  <- r2.adj.funct(ds.full[,1],pred.both,noFeats.fit)
+  RMSE.both   <- rmse.funct(ds.full[,1],pred.both)
+  r2.both     <- r2.funct(ds.full[,1],pred.both)
   
   # Generate the output list with statistics for each cross-validation type
   # --------------------------------------------------------------------
@@ -129,19 +131,17 @@ LMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=FALSE,outFile="")
   
   my.stats <- list("RegrMeth"     = RegrMethod,
                    "Split No"     = as.numeric(iSplit),     # from function param
-                   "CVtype"       = "no CV",                # from function param
+                   "CVtype"       = sCV,                    # from function param
                    "NoModelFeats" = as.numeric(noFeats.fit),
                    "ModelFeats"   = Feats.fit,
                    "adjR2.tr"  = as.numeric(adjR2.tr),
-                   
-                   "RMSE.tr"   = RMSE.tr,  # these 4 lines correspond to the min of RMSE.tr !!!
-                   "R2.tr"     = R2.tr,  
-                   "RMSEsd.tr" = RMSEsd.tr,
-                   "R2sd.tr"   = R2sd.tr,
-                   
+                   "RMSE.tr"   = as.numeric(RMSE.tr),
+                   "R2.tr"     = as.numeric(R2.tr),
+                   "RMSEsd.tr" = as.numeric(RMSEsd.tr),
+                   "R2sd.tr"   = as.numeric(R2sd.tr),
                    "adjR2.ts"= as.numeric(adjR2.ts),
-                   "RMSE.ts" = 0,
-                   "R2.ts"   = 0,
+                   "RMSE.ts" = as.numeric((lm.test.res["RMSE"][[1]])),
+                   "R2.ts"   = as.numeric((lm.test.res["Rsquared"][[1]])),
                    "corP.ts" = as.numeric(corP.ts),
                    "adjR2.both" = as.numeric(adjR2.both),
                    "RMSE.both"  = as.numeric(RMSE.both),
@@ -160,14 +160,20 @@ LMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=FALSE,outFile="")
     write.table("Test Set Summary: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
     write.table(summary(my.datf.test), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)   
     
-    # TO BE MODIFIED!
-    #write.table("Fitting results: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    #AppendList2txt(lm.fit.sum,outFile)
+    write.table("Fitting Summary: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
+    write.table(data.frame(summary(lm.fit)$coefficients), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
+    
+    write.table("Predictors: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
+    write.table(predictors(lm.fit), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
+    
+    write.table("Trainig Results: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
+    write.table(predictors(lm.train.res), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
+    write.table("Test Results: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
+    write.table(predictors(lm.test.res), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
     
     write.table("Full Statistics: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
     write.table(my.stats, file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
   }
-  
   return(my.stats)  # return a list with statistics
 }
 
