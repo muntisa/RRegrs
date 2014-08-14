@@ -54,11 +54,11 @@ fFeatureSel  = FALSE  # flag for wrapper methods for feature selection (7)
 cutoff       = 0.9   # cut off for correlated features
 fLM          = TRUE  # flag to run LM            (8.1)
 fGLM         = TRUE  # flag to run GLM           (8.2)
-fPLS         = FALSE  # flag to run PLS           (8.3)
-fLASSO       = FALSE  # flag to run LASSO         (8.4)
-fRBFdda      = FALSE  # flat to run RBF DDA       (8.5)
-fSVLM        = FALSE # flat to run svmRadial.RMSE (8.6)
-fNN          = FALSE  # flat to run NN            (8.8)
+fPLS         = TRUE  # flag to run PLS           (8.3)
+fLASSO       = TRUE  # flag to run LASSO         (8.4)
+fRBFdda      = TRUE  # flat to run RBF DDA       (8.5)
+fSVLM        = TRUE # flat to run svmRadial.RMSE (8.6)
+fNN          = TRUE  # flat to run NN            (8.8)
 
 # ----------------------------------------------------------------------------------------
 iScaling = 1 # 1 = normalization; 2 = standardization, 3 = other; any other: no scaling
@@ -129,7 +129,9 @@ ds<- as.data.frame(cbind(net.c,t(ds.dat1)))
 # 2.2 Custom filter (percentage threshold)
 # 2.3 Processing of missing values - use of preProcess();
 #     caret employs knnImpute algorithm to impute values from a neighborhood of k
-cat("-> [2] Filtering dataset ... No filter!\n")
+if (fFilters==TRUE) {
+  # cat("-> [2] Filtering dataset ... \n")
+}
 
 # -----------------------------------------------------------------------
 # (3) Remove near zero variance columns
@@ -458,24 +460,10 @@ for (i in 1:iSplitTimes) {                      # Step splitting number = i
   # --------------------------------------------
   
   # END OF REGRESSION Functions !!!
-  
-  #------------------------------------------------------------------------------
-  # 9. Results from all models - ordered by 10 fold CV adjR2 (averaged values)
-  #                             (if require, additional plots will be created)
-  #-------------------------------------------------------------------------------
-  
-  #------------------------------------------------------------------------------
-  # 10. Best model selection - detailed statistics
-  #-------------------------------------------------------------------------------
-  
-  #------------------------------------------------------------------------------
-  # 11. Test best model with test dataset
-  #                   (+ Y randomization 100 times, bootstaping)
-  #-------------------------------------------------------------------------------
 }
 
 #------------------------------------------------------------------------------
-# 12. Report all results for 10 splittings
+# 9. Results for all splittings (not ordered)
 #-------------------------------------------------------------------------------
 cat("[12] Results for all splitings ...\n")
 df.res <- data.frame(dfRes)
@@ -512,9 +500,9 @@ dt.mean.ord <- dt.mean[order(-rank(adjR2.ts.Avg))]      # descendent order the a
 #-------------------------------------------------------------------------------
 write.csv(data.frame(dt.mean.ord), file = ResAvgsF)    # write statistics data frame into a CSV output file
 
-#----------------------------------------------------------
-# Best model = first row of the ordered results
-#----------------------------------------------------------
+#------------------------------------------------------------------------------
+# 10. Best model selection - detailed statistics
+#-------------------------------------------------------------------------------
 cat("-> Best model analysis ...\n")
 
 # ADD an algorithm to verifty similar adjR2 values:
@@ -524,9 +512,8 @@ best.dt  <- dt.mean.ord[1] # the best model should be the first value in the des
 best.reg <- paste(best.dt$RegrMeth,collapse="") # best regrression method
 
 #----------------------------------------------------------
-# Best model detailed statistics 
+# 11. Best model detailed statistics 
 #----------------------------------------------------------
-
 # Write the best model statistics
 ResBestF <- file.path(PathDataSet,ResBest)
 write.table("Averaged values for all spits: ", file = ResBestF, append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
@@ -560,11 +547,22 @@ if (best.reg=="nnet") {
   my.stats.reg  <- NNreg(ds.train,ds.test,"repeatedcv",i,TRUE,ResBestF) # run NNet for each CV and regr method
 } 
 
+#------------------------------------------------------------------------------
+# 12. Test best model with test dataset
+#                   (+ Y randomization 100 times, bootstaping)
+#-------------------------------------------------------------------------------
 
 #------------------------------------------------------------------------------
 # 13. Assessment of Applicability Domain (plot leverage)
 #-------------------------------------------------------------------------------
 
-#------------------------------------------------------------------------------
-# 14. Output regression model as QMFR (to be implemented in the future)
-#-------------------------------------------------------------------------------
+#----------------------------
+# Indicate main result files
+#----------------------------
+cat("\n MAIN RESULT FILES:\n")
+cat("===================================\n")
+cat("Statistics for each data set splitting/method/CV type:",ResBySplits,"\n")
+cat("Averages for all data set splittings by method/CV type:",ResAvgsF,"\n")
+cat("Best model statistics:",ResBestF,"\n")
+cat("\n* if you choose Details, additional CSV files will be create for each method.\n")
+

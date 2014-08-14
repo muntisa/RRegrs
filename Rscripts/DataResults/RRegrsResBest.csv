@@ -1,8 +1,8 @@
 1 Averaged values for all spits: 
 RegrMeth,CVtype,adjR2.tr.Avg,RMSE.tr.Avg,R2.tr.Avg,RMSEsd.tr.Avg,R2sd.tr.Avg,adjR2.ts.Avg,RMSE.ts.Avg,R2.ts.Avg,corP.ts.Avg,adjR2.both.Avg,RMSE.both.Avg,R2.both.Avg
-1,glmStepAIC,repeatedcv,0.999214631537019,0.00509058732908933,NA,0.00472198070994085,NA,Inf,0.00426517713579105,NA,NA,0.999195258069327,0.00355973638557439,0.999436680648529
+1,nnet,repeatedcv,0.999162506423735,0,0.00462982154117766,NA,0.0041476364443212,Inf,0.004906998196291,NA,NA,0.99909765160462,0.0037595442230905,0.999368356123234
 RRegr package | eNanoMapper
-1,Regression method:  glmStepAIC
+1,Regression method:  nnet
 1,Split no.:  2
 1,CV type:  repeatedcv
 1,Training Set Summary: 
@@ -21,10 +21,6 @@ RRegr package | eNanoMapper
 ,Mean   :0.1911  ,Mean   :0.3673  ,Mean   :0.08615  ,Mean   :0.03911  
 ,3rd Qu.:0.2311  ,3rd Qu.:0.4454  ,3rd Qu.:0.08674  ,3rd Qu.:0.04111  
 ,Max.   :0.2712  ,Max.   :0.5234  ,Max.   :0.08734  ,Max.   :0.04311  
-1,Fitting Summary: 
-Estimate,Std..Error,t.value,Pr...t..
-(Intercept),0.00859058592077218,0.00251139264548614,3.42064628412945,0.0111256369262368
-V2,0.502098594337755,0.00421363925572075,119.160318163466,7.73014589569245e-13
 1,Predictors: 
 x
 1,V2
@@ -36,6 +32,18 @@ x
 1,Test Results: 
 x
 1,NA
+1,NNet variable importance: 
+importance
+ Overall
+V2 100
+V5 0
+V7 28.5899933094148
+model
+ x
+1 nnet
+calledFrom
+ x
+1 varImp
 1,Full Statistics: 
 RegrMeth,Split.No,CVtype,NoModelFeats,ModelFeats,adjR2.tr,RMSE.tr,R2.tr,RMSEsd.tr,R2sd.tr,adjR2.ts,RMSE.ts,R2.ts,corP.ts,adjR2.both,RMSE.both,R2.both
-1,glmStepAIC,2,repeatedcv,3,V2+V5+V7,0.999211610800603,0.00651954634516343,NA,0.0063778777009419,NA,1.00051050495645,0.00255924204816293,1,1,0.999280590178572,0.00337047167371395,0.999496413125001
+1,nnet,2,repeatedcv,3,V2+V5+V7,0.999236270670763,0,0.0050863236366826,NA,0.00499220915116175,1.00079376924419,0.00319123300388023,1,1,0.99925888825982,0.00342093125428837,0.999481221781874
