@@ -82,13 +82,13 @@ ResAvgs        = "RRegsResAvgs.csv"       # the output file with averaged statis
 ResBySplits    = "RRegrsResBySplit.csv"   # the output file with statistics for each split and the averaged values
 ResBest        = "RRegrsResBest.csv"      # the output file with statistics for the best model
 
-lmFile         = "8.1.LM.details.txt"           # LM output file for details
-glmFile        = "8.2.GLM.details.txt"          # GLM output file for details
-plsFile        = "8.3.PLS.details.txt"          # PLS output file for details
-lassoFile      = "8.4.LASSO.details.txt"        # Lasoo Radial output file for details
-rbfDDAFile     = "8.5.RBF_DDA.details.txt"      # RBF DDA output file for details
-svlmFile       = "8.6.SVMRadial.details.txt"    # SVM Radial output file for details
-nnFile         = "8.8.NN.details.txt"           # NN Radial output file for details
+lmFile         = "8.1.LM.details.csv"           # LM output file for details
+glmFile        = "8.2.GLM.details.csv"          # GLM output file for details
+plsFile        = "8.3.PLS.details.csv"          # PLS output file for details
+lassoFile      = "8.4.LASSO.details.csv"        # Lasoo Radial output file for details
+rbfDDAFile     = "8.5.RBF_DDA.details.csv"      # RBF DDA output file for details
+svlmFile       = "8.6.SVMRadial.details.csv"    # SVM Radial output file for details
+nnFile         = "8.8.NN.details.csv"           # NN Radial output file for details
 
 # Generate path + file name = original dataset
 inFile <- file.path(PathDataSet, DataFileName)
@@ -240,7 +240,7 @@ for (i in 1:iSplitTimes) {                      # Step splitting number = i
   # 8.1. Basic LM : default
   # --------------------------------------------
   if (fLM==TRUE) {   # if LM was selected, run the method
-    cat("-> [8.1] LM no CV ...\n")
+    cat("-> [8.1] LM ...\n")
     outFile.LM <- file.path(PathDataSet,lmFile)   # the same folder as the input is used for the output
     
     # Both wrapper and nont-wrapper function are placed in the same external file s8.RegrrMethods.R
@@ -530,7 +530,8 @@ best.reg <- paste(best.dt$RegrMeth,collapse="") # best regrression method
 # Write the best model statistics
 ResBestF <- file.path(PathDataSet,ResBest)
 write.table("Averaged values for all spits: ", file = ResBestF, append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-write.csv(data.frame(best.dt), file = ResBestF)    # write statistics data frame into a CSV output file
+# write.csv(data.frame(best.dt), file = ResBestF)    # write statistics data frame into a CSV output file
+write.table(data.frame(best.dt), file = ResBestF,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE) # write statistics data frame into a CSV output file
 
 # Use the last split for dataset (ds.train & ds.test) ! (or chose other one?)
 

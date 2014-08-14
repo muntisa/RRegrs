@@ -152,27 +152,27 @@ LMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=FALSE,outFile="")
   #---------------------------------------------------------------------
   if (fDet==TRUE) {   # if flag for details if true, print details about any resut
     write("RRegr package | eNanoMapper", file = outFile, append = TRUE)
-    write.table(paste("Regression method: ", RegrMethod), file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(paste("Split no.: ", iSplit), file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(paste("CV type: ", sCV), file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table("Training Set Summary: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(summary(my.datf.train), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
-    write.table("Test Set Summary: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(summary(my.datf.test), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)   
+    write.table(paste("Regression method: ", RegrMethod), file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table(paste("Split no.: ", iSplit), file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table(paste("CV type: ", sCV), file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table("Training Set Summary: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table(summary(my.datf.train), file = outFile,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE)
+    write.table("Test Set Summary: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table(summary(my.datf.test), file = outFile,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE)   
     
-    write.table("Fitting Summary: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(data.frame(summary(lm.fit)$coefficients), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
+    write.table("Fitting Summary: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table(data.frame(summary(lm.fit)$coefficients), file = outFile,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE)
     
-    write.table("Predictors: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(predictors(lm.fit), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
+    write.table("Predictors: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table(predictors(lm.fit), file = outFile,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE)
     
-    write.table("Trainig Results: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(predictors(lm.train.res), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
-    write.table("Test Results: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(predictors(lm.test.res), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
+    write.table("Trainig Results: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table(predictors(lm.train.res), file = outFile,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE)
+    write.table("Test Results: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table(predictors(lm.test.res), file = outFile,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE)
     
-    write.table("Full Statistics: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(my.stats, file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
+    write.table("Full Statistics: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table(my.stats, file = outFile,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE)
   }
   return(my.stats)  # return a list with statistics
 }
@@ -272,27 +272,27 @@ GLMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=FALSE,outFile=""
   #---------------------------------------------------------------------
   if (fDet==TRUE) {   # if flag for details if true, print details about any resut
     write("RRegr package | eNanoMapper", file = outFile,append = TRUE)
-    write.table(paste("Regression method: ", RegrMethod), file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(paste("Split no.: ", iSplit), file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(paste("CV type: ", sCV), file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table("Training Set Summary: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(summary(my.datf.train), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
-    write.table("Test Set Summary: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(summary(my.datf.test), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)   
+    write.table(paste("Regression method: ", RegrMethod), file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table(paste("Split no.: ", iSplit), file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table(paste("CV type: ", sCV), file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table("Training Set Summary: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table(summary(my.datf.train), file = outFile,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE)
+    write.table("Test Set Summary: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table(summary(my.datf.test), file = outFile,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE)   
     
-    write.table("Fitting Summary: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(data.frame(summary(glm.fit)$coefficients), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
+    write.table("Fitting Summary: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table(data.frame(summary(glm.fit)$coefficients), file = outFile,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE)
     
-    write.table("Predictors: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(predictors(glm.fit), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
+    write.table("Predictors: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table(predictors(glm.fit), file = outFile,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE)
     
-    write.table("Trainig Results: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(predictors(lm.train.res), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
-    write.table("Test Results: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(predictors(lm.test.res), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
+    write.table("Trainig Results: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table(predictors(lm.train.res), file = outFile,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE)
+    write.table("Test Results: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table(predictors(lm.test.res), file = outFile,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE)
     
-    write.table("Full Statistics: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(my.stats, file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
+    write.table("Full Statistics: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table(my.stats, file = outFile,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE)
   }
   
   # my.stats.full <- c(my.stats.dsInfo,my.stats.10CV,my.stats.LOOCV)   # merge the CV results into one list that contains the names of each field!
@@ -388,25 +388,25 @@ PLSreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=FALSE,outFile=""
   #---------------------------------------------------------------------
   if (fDet==TRUE) {   # if flag for details if true, print details about any resut
     write("RRegr package | eNanoMapper", file = outFile,append = TRUE)
-    write.table(paste("Regression method: ", RegrMethod), file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(paste("Split no.: ", iSplit), file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(paste("CV type: ", sCV), file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table("Training Set Summary: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(summary(my.datf.train), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
-    write.table("Test Set Summary: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(summary(my.datf.test), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)   
+    write.table(paste("Regression method: ", RegrMethod), file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table(paste("Split no.: ", iSplit), file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table(paste("CV type: ", sCV), file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table("Training Set Summary: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table(summary(my.datf.train), file = outFile,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE)
+    write.table("Test Set Summary: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table(summary(my.datf.test), file = outFile,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE)   
     
     
-    write.table("Predictors: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(predictors(pls.fit), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
+    write.table("Predictors: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table(predictors(pls.fit), file = outFile,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE)
     
-    write.table("Trainig Results: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(predictors(lm.train.res), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
-    write.table("Test Results: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(predictors(lm.test.res), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
+    write.table("Trainig Results: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table(predictors(lm.train.res), file = outFile,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE)
+    write.table("Test Results: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table(predictors(lm.test.res), file = outFile,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE)
     
-    write.table("Full Statistics: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(my.stats, file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
+    write.table("Full Statistics: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table(my.stats, file = outFile,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE)
   }
   
   return(my.stats)  # return a list with statistics
@@ -508,28 +508,28 @@ PLSregWSel <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=FALSE,outFil
   #---------------------------------------------------------------------
   if (fDet==TRUE) {   # if flag for details if true, print details about any resut
     write("RRegr package | eNanoMapper", file = outFile,append = TRUE)
-    write.table(paste("Regression method: ", RegrMethod), file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(paste("Split no.: ", iSplit), file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(paste("CV type: ", sCV), file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table("Training Set Summary: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(summary(my.datf.train), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
-    write.table("Test Set Summary: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(summary(my.datf.test), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)   
+    write.table(paste("Regression method: ", RegrMethod), file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table(paste("Split no.: ", iSplit), file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table(paste("CV type: ", sCV), file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table("Training Set Summary: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table(summary(my.datf.train), file = outFile,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE)
+    write.table("Test Set Summary: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table(summary(my.datf.test), file = outFile,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE)   
     
     
-    write.table("Predictors: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(predictors(pls.fit), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
+    write.table("Predictors: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table(predictors(pls.fit), file = outFile,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE)
     
-    write.table("Trainig Results: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(predictors(lm.train.res), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
-    write.table("Test Results: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(predictors(lm.test.res), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
+    write.table("Trainig Results: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table(predictors(lm.train.res), file = outFile,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE)
+    write.table("Test Results: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table(predictors(lm.test.res), file = outFile,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE)
     
-    write.table("NNet variable importance: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
+    write.table("NNet variable importance: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
     AppendList2txt(varImp(pls.fit),outFile)
     
-    write.table("Full Statistics: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(my.stats, file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
+    write.table("Full Statistics: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table(my.stats, file = outFile,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE)
   }
   
   return(my.stats)  # return a list with statistics
@@ -625,25 +625,25 @@ LASSOreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=FALSE,outFile=
   #---------------------------------------------------------------------
   if (fDet==TRUE) {   # if flag for details if true, print details about any resut
     write("RRegr package | eNanoMapper", file = outFile,append = TRUE)
-    write.table(paste("Regression method: ", RegrMethod), file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(paste("Split no.: ", iSplit), file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(paste("CV type: ", sCV), file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table("Training Set Summary: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(summary(my.datf.train), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
-    write.table("Test Set Summary: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(summary(my.datf.test), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)   
+    write.table(paste("Regression method: ", RegrMethod), file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table(paste("Split no.: ", iSplit), file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table(paste("CV type: ", sCV), file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table("Training Set Summary: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table(summary(my.datf.train), file = outFile,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE)
+    write.table("Test Set Summary: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table(summary(my.datf.test), file = outFile,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE)   
     
     
-    write.table("Predictors: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(predictors(las.fit), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
+    write.table("Predictors: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table(predictors(las.fit), file = outFile,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE)
     
-    write.table("Trainig Results: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(predictors(lm.train.res), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
-    write.table("Test Results: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(predictors(lm.test.res), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
+    write.table("Trainig Results: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table(predictors(lm.train.res), file = outFile,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE)
+    write.table("Test Results: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table(predictors(lm.test.res), file = outFile,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE)
     
-    write.table("Full Statistics: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(my.stats, file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
+    write.table("Full Statistics: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table(my.stats, file = outFile,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE)
   }
   
   return(my.stats)  # return a list with statistics
@@ -736,25 +736,25 @@ RBF_DDAreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=FALSE,outFil
   #---------------------------------------------------------------------
   if (fDet==TRUE) {   # if flag for details if true, print details about any resut
     write("RRegr package | eNanoMapper", file = outFile,append = TRUE)
-    write.table(paste("Regression method: ", RegrMethod), file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(paste("Split no.: ", iSplit), file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(paste("CV type: ", sCV), file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table("Training Set Summary: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(summary(my.datf.train), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
-    write.table("Test Set Summary: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(summary(my.datf.test), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)   
+    write.table(paste("Regression method: ", RegrMethod), file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table(paste("Split no.: ", iSplit), file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table(paste("CV type: ", sCV), file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table("Training Set Summary: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table(summary(my.datf.train), file = outFile,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE)
+    write.table("Test Set Summary: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table(summary(my.datf.test), file = outFile,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE)   
     
     
-    write.table("Predictors: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(predictors(rbf.fit), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
+    write.table("Predictors: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table(predictors(rbf.fit), file = outFile,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE)
     
-    write.table("Trainig Results: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(predictors(lm.train.res), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
-    write.table("Test Results: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(predictors(lm.test.res), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
+    write.table("Trainig Results: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table(predictors(lm.train.res), file = outFile,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE)
+    write.table("Test Results: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table(predictors(lm.test.res), file = outFile,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE)
     
-    write.table("Full Statistics: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(my.stats, file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
+    write.table("Full Statistics: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table(my.stats, file = outFile,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE)
   }
   
   return(my.stats)  # return a list with statistics
@@ -849,25 +849,25 @@ SVLMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=FALSE,outFile="
   #---------------------------------------------------------------------
   if (fDet==TRUE) {   # if flag for details if true, print details about any resut
     write("RRegr package | eNanoMapper", file = outFile,append = TRUE)
-    write.table(paste("Regression method: ", RegrMethod), file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(paste("Split no.: ", iSplit), file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(paste("CV type: ", sCV), file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table("Training Set Summary: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(summary(my.datf.train), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
-    write.table("Test Set Summary: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(summary(my.datf.test), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)   
+    write.table(paste("Regression method: ", RegrMethod), file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table(paste("Split no.: ", iSplit), file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table(paste("CV type: ", sCV), file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table("Training Set Summary: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table(summary(my.datf.train), file = outFile,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE)
+    write.table("Test Set Summary: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table(summary(my.datf.test), file = outFile,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE)   
     
     
-    write.table("Predictors: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(predictors(svmL.fit), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
+    write.table("Predictors: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table(predictors(svmL.fit), file = outFile,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE)
     
-    write.table("Trainig Results: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(predictors(lm.train.res), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
-    write.table("Test Results: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(predictors(lm.test.res), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
+    write.table("Trainig Results: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table(predictors(lm.train.res), file = outFile,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE)
+    write.table("Test Results: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table(predictors(lm.test.res), file = outFile,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE)
     
-    write.table("Full Statistics: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(my.stats, file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
+    write.table("Full Statistics: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table(my.stats, file = outFile,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE)
   }
   
   return(my.stats)  # return a list with statistics
@@ -964,31 +964,31 @@ NNreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=FALSE,outFile="")
   #---------------------------------------------------------------------
   if (fDet==TRUE) {   # if flag for details if true, print details about any resut
     write("RRegr package | eNanoMapper", file = outFile,append = TRUE)
-    write.table(paste("Regression method: ", RegrMethod), file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(paste("Split no.: ", iSplit), file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(paste("CV type: ", sCV), file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table("Training Set Summary: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(summary(my.datf.train), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
-    write.table("Test Set Summary: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(summary(my.datf.test), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)   
+    write.table(paste("Regression method: ", RegrMethod), file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table(paste("Split no.: ", iSplit), file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table(paste("CV type: ", sCV), file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table("Training Set Summary: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table(summary(my.datf.train), file = outFile,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE)
+    write.table("Test Set Summary: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table(summary(my.datf.test), file = outFile,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE)   
     
     
-    write.table("Predictors: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(predictors(nn.fit), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
+    write.table("Predictors: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table(predictors(nn.fit), file = outFile,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE)
     
-    write.table("Trainig Results: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(predictors(lm.train.res), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
-    write.table("Test Results: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(predictors(lm.test.res), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
+    write.table("Trainig Results: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table(predictors(lm.train.res), file = outFile,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE)
+    write.table("Test Results: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table(predictors(lm.test.res), file = outFile,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE)
     
-    #write.table("NNet fitting resuts: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
+    #write.table("NNet fitting resuts: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
     #AppendList2txt(list(nn.fit),outFile)
     
-    write.table("NNet variable importance: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
+    write.table("NNet variable importance: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
     AppendList2txt(varImp(nn.fit),outFile)
     
-    write.table("Full Statistics: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(my.stats, file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
+    write.table("Full Statistics: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table(my.stats, file = outFile,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE)
   }
   return(my.stats)  # return a list with statistics
 }
@@ -1120,25 +1120,25 @@ CaretReg <- function(RegrMethod,my.datf.train,my.datf.test,sCV,iSplit=1,fDet=FAL
   #---------------------------------------------------------------------
   if (fDet==TRUE) {   # if flag for details if true, print details about any resut
     write("RRegr package | eNanoMapper", file = outFile,append = TRUE)
-    write.table(paste("Regression method: ", RegrMethod), file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(paste("Split no.: ", iSplit), file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(paste("CV type: ", sCV), file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table("Training Set Summary: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(summary(my.datf.train), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
-    write.table("Test Set Summary: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(summary(my.datf.test), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)   
+    write.table(paste("Regression method: ", RegrMethod), file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table(paste("Split no.: ", iSplit), file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table(paste("CV type: ", sCV), file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table("Training Set Summary: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table(summary(my.datf.train), file = outFile,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE)
+    write.table("Test Set Summary: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table(summary(my.datf.test), file = outFile,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE)   
     
     
-    write.table("Predictors: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(predictors(reg.fit), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
+    write.table("Predictors: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table(predictors(reg.fit), file = outFile,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE)
     
-    write.table("Trainig Results: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(predictors(lm.train.res), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
-    write.table("Test Results: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(predictors(lm.test.res), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
+    write.table("Trainig Results: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table(predictors(lm.train.res), file = outFile,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE)
+    write.table("Test Results: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table(predictors(lm.test.res), file = outFile,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE)
     
-    write.table("Full Statistics: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-    write.table(my.stats, file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
+    write.table("Full Statistics: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+    write.table(my.stats, file = outFile,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE)
   }
   
   return(my.stats)  # return a list with statistics
