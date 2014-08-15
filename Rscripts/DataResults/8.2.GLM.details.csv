@@ -4,24 +4,24 @@ RRegr package | eNanoMapper
 1,CV type:  repeatedcv
 1,Training Set Summary: 
     net.c,      V2,      V5,      V7
-,Min.   :0.1110  ,Min.   :0.2111  ,Min.   :0.0001338  ,Min.   :0.03510  
-,1st Qu.:0.1911  ,1st Qu.:0.3753  ,1st Qu.:0.0081800  ,1st Qu.:0.03510  
-,Median :0.2712  ,Median :0.5234  ,Median :0.0273091  ,Median :0.03510  
-,Mean   :0.2889  ,Mean   :0.5604  ,Mean   :0.0384304  ,Mean   :0.03794  
-,3rd Qu.:0.3913  ,3rd Qu.:0.7717  ,3rd Qu.:0.0849620  ,3rd Qu.:0.04004  
-,Max.   :0.5114  ,Max.   :1.0000  ,Max.   :0.0873374  ,Max.   :0.04311  
+,Min.   :0.07092  ,Min.   :0.1190  ,Min.   :0.0001338  ,Min.   :0.03510  
+,1st Qu.:0.19106  ,1st Qu.:0.3753  ,1st Qu.:0.0074114  ,1st Qu.:0.03510  
+,Median :0.27115  ,Median :0.5234  ,Median :0.0081800  ,Median :0.03510  
+,Mean   :0.26880  ,Mean   :0.5183  ,Mean   :0.0246639  ,Mean   :0.03669  
+,3rd Qu.:0.39129  ,3rd Qu.:0.7717  ,3rd Qu.:0.0273091  ,3rd Qu.:0.03970  
+,Max.   :0.51143  ,Max.   :1.0000  ,Max.   :0.0873374  ,Max.   :0.04311  
 1,Test Set Summary: 
     net.c,      V2,      V5,      V7
-,Min.   :0.07092  ,Min.   :0.119  ,Min.   :0.007411  ,Min.   :0.0351  
-,1st Qu.:0.07092  ,1st Qu.:0.119  ,1st Qu.:0.007411  ,1st Qu.:0.0351  
-,Median :0.07092  ,Median :0.119  ,Median :0.007411  ,Median :0.0351  
-,Mean   :0.07092  ,Mean   :0.119  ,Mean   :0.007411  ,Mean   :0.0351  
-,3rd Qu.:0.07092  ,3rd Qu.:0.119  ,3rd Qu.:0.007411  ,3rd Qu.:0.0351  
-,Max.   :0.07092  ,Max.   :0.119  ,Max.   :0.007411  ,Max.   :0.0351  
+,Min.   :0.07092  ,Min.   :0.1190  ,Min.   :0.007411  ,Min.   :0.03510  
+,1st Qu.:0.11096  ,1st Qu.:0.2111  ,1st Qu.:0.039808  ,1st Qu.:0.03510  
+,Median :0.11096  ,Median :0.2111  ,Median :0.084962  ,Median :0.04311  
+,Mean   :0.18305  ,Mean   :0.3504  ,Mean   :0.060421  ,Mean   :0.03991  
+,3rd Qu.:0.11096  ,3rd Qu.:0.2111  ,3rd Qu.:0.084962  ,3rd Qu.:0.04311  
+,Max.   :0.51143  ,Max.   :1.0000  ,Max.   :0.084962  ,Max.   :0.04311  
 1,Fitting Summary: 
 Estimate,Std..Error,t.value,Pr...t..
-(Intercept),0.00456971521840347,0.00264083705201597,1.73040408340038,0.127175149132273
-V2,0.507479179581166,0.00424243633852083,119.619751267288,7.52478522750549e-13
+(Intercept),0.00874719186721607,0.00188752199630505,4.63421983125987,0.000324238676540578
+V2,0.501768783477987,0.00320847702898581,156.388460613849,1.63078156158717e-25
 1,Predictors: 
 x
 1,V2
@@ -35,31 +35,80 @@ x
 1,NA
 1,Full Statistics: 
 RegrMeth,Split.No,CVtype,NoModelFeats,ModelFeats,adjR2.tr,RMSE.tr,R2.tr,RMSEsd.tr,R2sd.tr,adjR2.ts,RMSE.ts,R2.ts,corP.ts,adjR2.both,RMSE.both,R2.both
-1,glmStepAIC,1,repeatedcv,3,V2+V5+V7,0.999217652273435,0.00366162831301524,NA,0.00306608371893981,NA,Inf,0.00597111222341917,NA,NA,0.999109925960082,0.00374900109743482,0.999376948172057
+1,glmStepAIC,1,repeatedcv,3,V2+V5+V7,0.999245616461068,0.00404205010742375,1,0.00152544048917312,0,0.998589565996911,0.00309688943607044,0.99976849337558,0.9998842399876,0.999409067122197,0.00338025265247171,0.99949348610474
+RRegr package | eNanoMapper
+1,Regression method:  glmStepAIC
+1,Split no.:  1
+1,CV type:  repeatedcv
+1,Training Set Summary: 
+    net.c,      V2,      V5,      V7
+,Min.   :0.07092  ,Min.   :0.1190  ,Min.   :0.0001338  ,Min.   :0.03510  
+,1st Qu.:0.19106  ,1st Qu.:0.3753  ,1st Qu.:0.0074114  ,1st Qu.:0.03510  
+,Median :0.27115  ,Median :0.5234  ,Median :0.0081800  ,Median :0.03510  
+,Mean   :0.26880  ,Mean   :0.5183  ,Mean   :0.0246639  ,Mean   :0.03669  
+,3rd Qu.:0.39129  ,3rd Qu.:0.7717  ,3rd Qu.:0.0273091  ,3rd Qu.:0.03970  
+,Max.   :0.51143  ,Max.   :1.0000  ,Max.   :0.0873374  ,Max.   :0.04311  
+1,Test Set Summary: 
+    net.c,      V2,      V5,      V7
+,Min.   :0.07092  ,Min.   :0.1190  ,Min.   :0.007411  ,Min.   :0.03510  
+,1st Qu.:0.11096  ,1st Qu.:0.2111  ,1st Qu.:0.039808  ,1st Qu.:0.03510  
+,Median :0.11096  ,Median :0.2111  ,Median :0.084962  ,Median :0.04311  
+,Mean   :0.18305  ,Mean   :0.3504  ,Mean   :0.060421  ,Mean   :0.03991  
+,3rd Qu.:0.11096  ,3rd Qu.:0.2111  ,3rd Qu.:0.084962  ,3rd Qu.:0.04311  
+,Max.   :0.51143  ,Max.   :1.0000  ,Max.   :0.084962  ,Max.   :0.04311  
+1,Fitting Summary: 
+Estimate,Std..Error,t.value,Pr...t..
+(Intercept),0.00874719186721607,0.00188752199630505,4.63421983125987,0.000324238676540578
+V2,0.501768783477987,0.00320847702898581,156.388460613849,1.63078156158717e-25
+1,Predictors: 
+x
+1,V2
+2,V5
+3,V7
+1,Trainig Results: 
+x
+1,NA
+1,Test Results: 
+x
+1,NA
+1,Full Statistics: 
+RegrMeth,Split.No,CVtype,NoModelFeats,ModelFeats,adjR2.tr,RMSE.tr,R2.tr,RMSEsd.tr,R2sd.tr,adjR2.ts,RMSE.ts,R2.ts,corP.ts,adjR2.both,RMSE.both,R2.both
+1,glmStepAIC,1,repeatedcv,3,V2+V5+V7,0.999245616461068,0.00404205010742375,1,0.00152544048917312,0,0.998589565996911,0.00309688943607044,0.99976849337558,0.9998842399876,0.999409067122197,0.00338025265247171,0.99949348610474
+importance
+,Overall
+V2,0.999678004550739
+V5,0.743641970755852
+V7,0.00433292092240589
+model
+,x
+1,loess r-squared
+calledFrom
+,x
+1,varImp
 RRegr package | eNanoMapper
 1,Regression method:  glmStepAIC
 1,Split no.:  1
 1,CV type:  LOOCV
 1,Training Set Summary: 
     net.c,      V2,      V5,      V7
-,Min.   :0.1110  ,Min.   :0.2111  ,Min.   :0.0001338  ,Min.   :0.03510  
-,1st Qu.:0.1911  ,1st Qu.:0.3753  ,1st Qu.:0.0081800  ,1st Qu.:0.03510  
-,Median :0.2712  ,Median :0.5234  ,Median :0.0273091  ,Median :0.03510  
-,Mean   :0.2889  ,Mean   :0.5604  ,Mean   :0.0384304  ,Mean   :0.03794  
-,3rd Qu.:0.3913  ,3rd Qu.:0.7717  ,3rd Qu.:0.0849620  ,3rd Qu.:0.04004  
-,Max.   :0.5114  ,Max.   :1.0000  ,Max.   :0.0873374  ,Max.   :0.04311  
+,Min.   :0.07092  ,Min.   :0.1190  ,Min.   :0.0001338  ,Min.   :0.03510  
+,1st Qu.:0.19106  ,1st Qu.:0.3753  ,1st Qu.:0.0074114  ,1st Qu.:0.03510  
+,Median :0.27115  ,Median :0.5234  ,Median :0.0081800  ,Median :0.03510  
+,Mean   :0.26880  ,Mean   :0.5183  ,Mean   :0.0246639  ,Mean   :0.03669  
+,3rd Qu.:0.39129  ,3rd Qu.:0.7717  ,3rd Qu.:0.0273091  ,3rd Qu.:0.03970  
+,Max.   :0.51143  ,Max.   :1.0000  ,Max.   :0.0873374  ,Max.   :0.04311  
 1,Test Set Summary: 
     net.c,      V2,      V5,      V7
-,Min.   :0.07092  ,Min.   :0.119  ,Min.   :0.007411  ,Min.   :0.0351  
-,1st Qu.:0.07092  ,1st Qu.:0.119  ,1st Qu.:0.007411  ,1st Qu.:0.0351  
-,Median :0.07092  ,Median :0.119  ,Median :0.007411  ,Median :0.0351  
-,Mean   :0.07092  ,Mean   :0.119  ,Mean   :0.007411  ,Mean   :0.0351  
-,3rd Qu.:0.07092  ,3rd Qu.:0.119  ,3rd Qu.:0.007411  ,3rd Qu.:0.0351  
-,Max.   :0.07092  ,Max.   :0.119  ,Max.   :0.007411  ,Max.   :0.0351  
+,Min.   :0.07092  ,Min.   :0.1190  ,Min.   :0.007411  ,Min.   :0.03510  
+,1st Qu.:0.11096  ,1st Qu.:0.2111  ,1st Qu.:0.039808  ,1st Qu.:0.03510  
+,Median :0.11096  ,Median :0.2111  ,Median :0.084962  ,Median :0.04311  
+,Mean   :0.18305  ,Mean   :0.3504  ,Mean   :0.060421  ,Mean   :0.03991  
+,3rd Qu.:0.11096  ,3rd Qu.:0.2111  ,3rd Qu.:0.084962  ,3rd Qu.:0.04311  
+,Max.   :0.51143  ,Max.   :1.0000  ,Max.   :0.084962  ,Max.   :0.04311  
 1,Fitting Summary: 
 Estimate,Std..Error,t.value,Pr...t..
-(Intercept),0.00456971521840347,0.00264083705201597,1.73040408340038,0.127175149132273
-V2,0.507479179581166,0.00424243633852083,119.619751267288,7.52478522750549e-13
+(Intercept),0.00874719186721607,0.00188752199630505,4.63421983125987,0.000324238676540578
+V2,0.501768783477987,0.00320847702898581,156.388460613849,1.63078156158717e-25
 1,Predictors: 
 x
 1,V2
@@ -73,7 +122,18 @@ x
 1,NA
 1,Full Statistics: 
 RegrMeth,Split.No,CVtype,NoModelFeats,ModelFeats,adjR2.tr,RMSE.tr,R2.tr,RMSEsd.tr,R2sd.tr,adjR2.ts,RMSE.ts,R2.ts,corP.ts,adjR2.both,RMSE.both,R2.both
-1,glmStepAIC,1,LOOCV,3,V2+V5+V7,0.999217652273435,0.00476486486378096,0.998806307158697,0,0,Inf,0.00597111222341917,NA,NA,0.999109925960082,0.00374900109743482,0.999376948172057
+1,glmStepAIC,1,LOOCV,3,V2+V5+V7,0.999245616461068,0.00427212462990319,0.999066622255224,0,0,0.998589565996911,0.00309688943607044,0.99976849337558,0.9998842399876,0.999409067122197,0.00338025265247171,0.99949348610474
+importance
+,Overall
+V2,0.999678004550739
+V5,0.743641970755852
+V7,0.00433292092240589
+model
+,x
+1,loess r-squared
+calledFrom
+,x
+1,varImp
 RRegr package | eNanoMapper
 1,Regression method:  glmStepAIC
 1,Split no.:  2
@@ -81,23 +141,23 @@ RRegr package | eNanoMapper
 1,Training Set Summary: 
     net.c,      V2,      V5,      V7
 ,Min.   :0.07092  ,Min.   :0.1190  ,Min.   :0.0001338  ,Min.   :0.03510  
-,1st Qu.:0.11096  ,1st Qu.:0.2111  ,1st Qu.:0.0074114  ,1st Qu.:0.03510  
-,Median :0.23110  ,Median :0.4353  ,Median :0.0081800  ,Median :0.03510  
-,Mean   :0.26225  ,Mean   :0.5052  ,Mean   :0.0209330  ,Mean   :0.03705  
-,3rd Qu.:0.39129  ,3rd Qu.:0.7717  ,3rd Qu.:0.0273091  ,3rd Qu.:0.03970  
-,Max.   :0.51143  ,Max.   :1.0000  ,Max.   :0.0849620  ,Max.   :0.04311  
+,1st Qu.:0.19106  ,1st Qu.:0.3753  ,1st Qu.:0.0074114  ,1st Qu.:0.03510  
+,Median :0.27115  ,Median :0.5234  ,Median :0.0105903  ,Median :0.03510  
+,Mean   :0.27115  ,Mean   :0.5237  ,Mean   :0.0292257  ,Mean   :0.03717  
+,3rd Qu.:0.39129  ,3rd Qu.:0.7717  ,3rd Qu.:0.0398080  ,3rd Qu.:0.03970  
+,Max.   :0.51143  ,Max.   :1.0000  ,Max.   :0.0873374  ,Max.   :0.04311  
 1,Test Set Summary: 
     net.c,      V2,      V5,      V7
-,Min.   :0.1110  ,Min.   :0.2111  ,Min.   :0.08496  ,Min.   :0.03510  
-,1st Qu.:0.1510  ,1st Qu.:0.2892  ,1st Qu.:0.08556  ,1st Qu.:0.03710  
-,Median :0.1911  ,Median :0.3673  ,Median :0.08615  ,Median :0.03911  
-,Mean   :0.1911  ,Mean   :0.3673  ,Mean   :0.08615  ,Mean   :0.03911  
-,3rd Qu.:0.2311  ,3rd Qu.:0.4454  ,3rd Qu.:0.08674  ,3rd Qu.:0.04111  
-,Max.   :0.2712  ,Max.   :0.5234  ,Max.   :0.08734  ,Max.   :0.04311  
+,Min.   :0.07092  ,Min.   :0.1190  ,Min.   :0.007411  ,Min.   :0.03510  
+,1st Qu.:0.07092  ,1st Qu.:0.1190  ,1st Qu.:0.007411  ,1st Qu.:0.03510  
+,Median :0.11096  ,Median :0.2111  ,Median :0.039808  ,Median :0.03510  
+,Mean   :0.17504  ,Mean   :0.3320  ,Mean   :0.044911  ,Mean   :0.03830  
+,3rd Qu.:0.11096  ,3rd Qu.:0.2111  ,3rd Qu.:0.084962  ,3rd Qu.:0.04311  
+,Max.   :0.51143  ,Max.   :1.0000  ,Max.   :0.084962  ,Max.   :0.04311  
 1,Fitting Summary: 
 Estimate,Std..Error,t.value,Pr...t..
-(Intercept),0.00859058592077218,0.00251139264548614,3.42064628412945,0.0111256369262368
-V2,0.502098594337755,0.00421363925572075,119.160318163466,7.73014589569245e-13
+(Intercept),0.00748209901784163,0.00194892718186045,3.83908597893289,0.00160940172099139
+V2,0.503491507490199,0.00330432990057562,152.373256496723,2.40843423437134e-25
 1,Predictors: 
 x
 1,V2
@@ -111,7 +171,18 @@ x
 1,NA
 1,Full Statistics: 
 RegrMeth,Split.No,CVtype,NoModelFeats,ModelFeats,adjR2.tr,RMSE.tr,R2.tr,RMSEsd.tr,R2sd.tr,adjR2.ts,RMSE.ts,R2.ts,corP.ts,adjR2.both,RMSE.both,R2.both
-1,glmStepAIC,2,repeatedcv,3,V2+V5+V7,0.999211610800603,0.00651954634516343,NA,0.0063778777009419,NA,1.00051050495645,0.00255924204816293,1,1,0.999280590178572,0.00337047167371395,0.999496413125001
+1,glmStepAIC,2,repeatedcv,3,V2+V5+V7,0.999205360955079,0.00393520587568298,1,0.00145576070680538,0,0.99885904804944,0.00285671881075271,0.999723372943923,0.999861676905322,0.999422120033618,0.00334271157255136,0.99950467431453
+importance
+,Overall
+V2,0.999642626348428
+V5,0.727149833877927
+V7,0.269972451790634
+model
+,x
+1,loess r-squared
+calledFrom
+,x
+1,varImp
 RRegr package | eNanoMapper
 1,Regression method:  glmStepAIC
 1,Split no.:  2
@@ -119,23 +190,23 @@ RRegr package | eNanoMapper
 1,Training Set Summary: 
     net.c,      V2,      V5,      V7
 ,Min.   :0.07092  ,Min.   :0.1190  ,Min.   :0.0001338  ,Min.   :0.03510  
-,1st Qu.:0.11096  ,1st Qu.:0.2111  ,1st Qu.:0.0074114  ,1st Qu.:0.03510  
-,Median :0.23110  ,Median :0.4353  ,Median :0.0081800  ,Median :0.03510  
-,Mean   :0.26225  ,Mean   :0.5052  ,Mean   :0.0209330  ,Mean   :0.03705  
-,3rd Qu.:0.39129  ,3rd Qu.:0.7717  ,3rd Qu.:0.0273091  ,3rd Qu.:0.03970  
-,Max.   :0.51143  ,Max.   :1.0000  ,Max.   :0.0849620  ,Max.   :0.04311  
+,1st Qu.:0.19106  ,1st Qu.:0.3753  ,1st Qu.:0.0074114  ,1st Qu.:0.03510  
+,Median :0.27115  ,Median :0.5234  ,Median :0.0105903  ,Median :0.03510  
+,Mean   :0.27115  ,Mean   :0.5237  ,Mean   :0.0292257  ,Mean   :0.03717  
+,3rd Qu.:0.39129  ,3rd Qu.:0.7717  ,3rd Qu.:0.0398080  ,3rd Qu.:0.03970  
+,Max.   :0.51143  ,Max.   :1.0000  ,Max.   :0.0873374  ,Max.   :0.04311  
 1,Test Set Summary: 
     net.c,      V2,      V5,      V7
-,Min.   :0.1110  ,Min.   :0.2111  ,Min.   :0.08496  ,Min.   :0.03510  
-,1st Qu.:0.1510  ,1st Qu.:0.2892  ,1st Qu.:0.08556  ,1st Qu.:0.03710  
-,Median :0.1911  ,Median :0.3673  ,Median :0.08615  ,Median :0.03911  
-,Mean   :0.1911  ,Mean   :0.3673  ,Mean   :0.08615  ,Mean   :0.03911  
-,3rd Qu.:0.2311  ,3rd Qu.:0.4454  ,3rd Qu.:0.08674  ,3rd Qu.:0.04111  
-,Max.   :0.2712  ,Max.   :0.5234  ,Max.   :0.08734  ,Max.   :0.04311  
+,Min.   :0.07092  ,Min.   :0.1190  ,Min.   :0.007411  ,Min.   :0.03510  
+,1st Qu.:0.07092  ,1st Qu.:0.1190  ,1st Qu.:0.007411  ,1st Qu.:0.03510  
+,Median :0.11096  ,Median :0.2111  ,Median :0.039808  ,Median :0.03510  
+,Mean   :0.17504  ,Mean   :0.3320  ,Mean   :0.044911  ,Mean   :0.03830  
+,3rd Qu.:0.11096  ,3rd Qu.:0.2111  ,3rd Qu.:0.084962  ,3rd Qu.:0.04311  
+,Max.   :0.51143  ,Max.   :1.0000  ,Max.   :0.084962  ,Max.   :0.04311  
 1,Fitting Summary: 
 Estimate,Std..Error,t.value,Pr...t..
-(Intercept),0.00859058592077218,0.00251139264548614,3.42064628412945,0.0111256369262368
-V2,0.502098594337755,0.00421363925572075,119.160318163466,7.73014589569245e-13
+(Intercept),0.00748209901784163,0.00194892718186045,3.83908597893289,0.00160940172099139
+V2,0.503491507490199,0.00330432990057562,152.373256496723,2.40843423437134e-25
 1,Predictors: 
 x
 1,V2
@@ -149,4 +220,15 @@ x
 1,NA
 1,Full Statistics: 
 RegrMeth,Split.No,CVtype,NoModelFeats,ModelFeats,adjR2.tr,RMSE.tr,R2.tr,RMSEsd.tr,R2sd.tr,adjR2.ts,RMSE.ts,R2.ts,corP.ts,adjR2.both,RMSE.both,R2.both
-1,glmStepAIC,2,LOOCV,3,V2+V5+V7,0.999211610800603,0.00909559444173896,0.996974678597317,0,0,1.00051050495645,0.00255924204816293,1,1,0.999280590178572,0.00337047167371395,0.999496413125001
+1,glmStepAIC,2,LOOCV,3,V2+V5+V7,0.999205360955079,0.00432529943407822,0.998998500612197,0,0,0.99885904804944,0.00285671881075271,0.999723372943923,0.999861676905322,0.999422120033618,0.00334271157255136,0.99950467431453
+importance
+,Overall
+V2,0.999642626348428
+V5,0.727149833877927
+V7,0.269972451790634
+model
+,x
+1,loess r-squared
+calledFrom
+,x
+1,varImp

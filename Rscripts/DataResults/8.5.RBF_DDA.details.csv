@@ -4,20 +4,20 @@ RRegr package | eNanoMapper
 1,CV type:  repeatedcv
 1,Training Set Summary: 
     net.c,      V2,      V5,      V7
-,Min.   :0.1110  ,Min.   :0.2111  ,Min.   :0.0001338  ,Min.   :0.03510  
-,1st Qu.:0.1911  ,1st Qu.:0.3753  ,1st Qu.:0.0081800  ,1st Qu.:0.03510  
-,Median :0.2712  ,Median :0.5234  ,Median :0.0273091  ,Median :0.03510  
-,Mean   :0.2889  ,Mean   :0.5604  ,Mean   :0.0384304  ,Mean   :0.03794  
-,3rd Qu.:0.3913  ,3rd Qu.:0.7717  ,3rd Qu.:0.0849620  ,3rd Qu.:0.04004  
-,Max.   :0.5114  ,Max.   :1.0000  ,Max.   :0.0873374  ,Max.   :0.04311  
+,Min.   :0.07092  ,Min.   :0.1190  ,Min.   :0.0001338  ,Min.   :0.03510  
+,1st Qu.:0.19106  ,1st Qu.:0.3753  ,1st Qu.:0.0074114  ,1st Qu.:0.03510  
+,Median :0.27115  ,Median :0.5234  ,Median :0.0081800  ,Median :0.03510  
+,Mean   :0.26880  ,Mean   :0.5183  ,Mean   :0.0246639  ,Mean   :0.03669  
+,3rd Qu.:0.39129  ,3rd Qu.:0.7717  ,3rd Qu.:0.0273091  ,3rd Qu.:0.03970  
+,Max.   :0.51143  ,Max.   :1.0000  ,Max.   :0.0873374  ,Max.   :0.04311  
 1,Test Set Summary: 
     net.c,      V2,      V5,      V7
-,Min.   :0.07092  ,Min.   :0.119  ,Min.   :0.007411  ,Min.   :0.0351  
-,1st Qu.:0.07092  ,1st Qu.:0.119  ,1st Qu.:0.007411  ,1st Qu.:0.0351  
-,Median :0.07092  ,Median :0.119  ,Median :0.007411  ,Median :0.0351  
-,Mean   :0.07092  ,Mean   :0.119  ,Mean   :0.007411  ,Mean   :0.0351  
-,3rd Qu.:0.07092  ,3rd Qu.:0.119  ,3rd Qu.:0.007411  ,3rd Qu.:0.0351  
-,Max.   :0.07092  ,Max.   :0.119  ,Max.   :0.007411  ,Max.   :0.0351  
+,Min.   :0.07092  ,Min.   :0.1190  ,Min.   :0.007411  ,Min.   :0.03510  
+,1st Qu.:0.11096  ,1st Qu.:0.2111  ,1st Qu.:0.039808  ,1st Qu.:0.03510  
+,Median :0.11096  ,Median :0.2111  ,Median :0.084962  ,Median :0.04311  
+,Mean   :0.18305  ,Mean   :0.3504  ,Mean   :0.060421  ,Mean   :0.03991  
+,3rd Qu.:0.11096  ,3rd Qu.:0.2111  ,3rd Qu.:0.084962  ,3rd Qu.:0.04311  
+,Max.   :0.51143  ,Max.   :1.0000  ,Max.   :0.084962  ,Max.   :0.04311  
 1,Predictors: 
 x
 1,V2
@@ -31,27 +31,38 @@ x
 1,NA
 1,Full Statistics: 
 RegrMeth,Split.No,CVtype,NoModelFeats,ModelFeats,adjR2.tr,RMSE.tr,R2.tr,RMSEsd.tr,R2sd.tr,adjR2.ts,RMSE.ts,R2.ts,corP.ts,adjR2.both,RMSE.both,R2.both
-1,rbfDDA,1,repeatedcv,3,V2+V5+V7,-73.9278637245934,0.469265922711419,NA,0.244604689255968,NA,Inf,0.670910543659569,NA,NA,-50.1103746987998,0.898373706853044,-34.7772622891598
+1,rbfDDA,1,repeatedcv,3,V2+V5+V7,-100.267625057857,0.740831486358981,1,0.565814646320638,0,-262.191248154042,1.33778104365713,0.190103877412172,-0.43600903363597,-84.2291795348292,1.2837316222051,-72.053582458425
+importance
+,Overall
+V2,0.999678004550739
+V5,0.743641970755852
+V7,0.00433292092240589
+model
+,x
+1,loess r-squared
+calledFrom
+,x
+1,varImp
 RRegr package | eNanoMapper
 1,Regression method:  rbfDDA
 1,Split no.:  1
 1,CV type:  LOOCV
 1,Training Set Summary: 
     net.c,      V2,      V5,      V7
-,Min.   :0.1110  ,Min.   :0.2111  ,Min.   :0.0001338  ,Min.   :0.03510  
-,1st Qu.:0.1911  ,1st Qu.:0.3753  ,1st Qu.:0.0081800  ,1st Qu.:0.03510  
-,Median :0.2712  ,Median :0.5234  ,Median :0.0273091  ,Median :0.03510  
-,Mean   :0.2889  ,Mean   :0.5604  ,Mean   :0.0384304  ,Mean   :0.03794  
-,3rd Qu.:0.3913  ,3rd Qu.:0.7717  ,3rd Qu.:0.0849620  ,3rd Qu.:0.04004  
-,Max.   :0.5114  ,Max.   :1.0000  ,Max.   :0.0873374  ,Max.   :0.04311  
+,Min.   :0.07092  ,Min.   :0.1190  ,Min.   :0.0001338  ,Min.   :0.03510  
+,1st Qu.:0.19106  ,1st Qu.:0.3753  ,1st Qu.:0.0074114  ,1st Qu.:0.03510  
+,Median :0.27115  ,Median :0.5234  ,Median :0.0081800  ,Median :0.03510  
+,Mean   :0.26880  ,Mean   :0.5183  ,Mean   :0.0246639  ,Mean   :0.03669  
+,3rd Qu.:0.39129  ,3rd Qu.:0.7717  ,3rd Qu.:0.0273091  ,3rd Qu.:0.03970  
+,Max.   :0.51143  ,Max.   :1.0000  ,Max.   :0.0873374  ,Max.   :0.04311  
 1,Test Set Summary: 
     net.c,      V2,      V5,      V7
-,Min.   :0.07092  ,Min.   :0.119  ,Min.   :0.007411  ,Min.   :0.0351  
-,1st Qu.:0.07092  ,1st Qu.:0.119  ,1st Qu.:0.007411  ,1st Qu.:0.0351  
-,Median :0.07092  ,Median :0.119  ,Median :0.007411  ,Median :0.0351  
-,Mean   :0.07092  ,Mean   :0.119  ,Mean   :0.007411  ,Mean   :0.0351  
-,3rd Qu.:0.07092  ,3rd Qu.:0.119  ,3rd Qu.:0.007411  ,3rd Qu.:0.0351  
-,Max.   :0.07092  ,Max.   :0.119  ,Max.   :0.007411  ,Max.   :0.0351  
+,Min.   :0.07092  ,Min.   :0.1190  ,Min.   :0.007411  ,Min.   :0.03510  
+,1st Qu.:0.11096  ,1st Qu.:0.2111  ,1st Qu.:0.039808  ,1st Qu.:0.03510  
+,Median :0.11096  ,Median :0.2111  ,Median :0.084962  ,Median :0.04311  
+,Mean   :0.18305  ,Mean   :0.3504  ,Mean   :0.060421  ,Mean   :0.03991  
+,3rd Qu.:0.11096  ,3rd Qu.:0.2111  ,3rd Qu.:0.084962  ,3rd Qu.:0.04311  
+,Max.   :0.51143  ,Max.   :1.0000  ,Max.   :0.084962  ,Max.   :0.04311  
 1,Predictors: 
 x
 1,V2
@@ -65,7 +76,18 @@ x
 1,NA
 1,Full Statistics: 
 RegrMeth,Split.No,CVtype,NoModelFeats,ModelFeats,adjR2.tr,RMSE.tr,R2.tr,RMSEsd.tr,R2sd.tr,adjR2.ts,RMSE.ts,R2.ts,corP.ts,adjR2.both,RMSE.both,R2.both
-1,rbfDDA,1,LOOCV,3,V2+V5+V7,-73.9278637245934,0.528561412033463,0.636304930860769,NA,NA,Inf,0.670910543659569,NA,NA,-50.1103746987998,0.898373706853044,-34.7772622891598
+1,rbfDDA,1,LOOCV,3,V2+V5+V7,-100.267625057857,0.956496099265473,0.55940293674329,NA,NA,-262.191248154042,1.33778104365713,0.190103877412172,-0.43600903363597,-84.2291795348292,1.2837316222051,-72.053582458425
+importance
+,Overall
+V2,0.999678004550739
+V5,0.743641970755852
+V7,0.00433292092240589
+model
+,x
+1,loess r-squared
+calledFrom
+,x
+1,varImp
 RRegr package | eNanoMapper
 1,Regression method:  rbfDDA
 1,Split no.:  2
@@ -73,19 +95,19 @@ RRegr package | eNanoMapper
 1,Training Set Summary: 
     net.c,      V2,      V5,      V7
 ,Min.   :0.07092  ,Min.   :0.1190  ,Min.   :0.0001338  ,Min.   :0.03510  
-,1st Qu.:0.11096  ,1st Qu.:0.2111  ,1st Qu.:0.0074114  ,1st Qu.:0.03510  
-,Median :0.23110  ,Median :0.4353  ,Median :0.0081800  ,Median :0.03510  
-,Mean   :0.26225  ,Mean   :0.5052  ,Mean   :0.0209330  ,Mean   :0.03705  
-,3rd Qu.:0.39129  ,3rd Qu.:0.7717  ,3rd Qu.:0.0273091  ,3rd Qu.:0.03970  
-,Max.   :0.51143  ,Max.   :1.0000  ,Max.   :0.0849620  ,Max.   :0.04311  
+,1st Qu.:0.19106  ,1st Qu.:0.3753  ,1st Qu.:0.0074114  ,1st Qu.:0.03510  
+,Median :0.27115  ,Median :0.5234  ,Median :0.0105903  ,Median :0.03510  
+,Mean   :0.27115  ,Mean   :0.5237  ,Mean   :0.0292257  ,Mean   :0.03717  
+,3rd Qu.:0.39129  ,3rd Qu.:0.7717  ,3rd Qu.:0.0398080  ,3rd Qu.:0.03970  
+,Max.   :0.51143  ,Max.   :1.0000  ,Max.   :0.0873374  ,Max.   :0.04311  
 1,Test Set Summary: 
     net.c,      V2,      V5,      V7
-,Min.   :0.1110  ,Min.   :0.2111  ,Min.   :0.08496  ,Min.   :0.03510  
-,1st Qu.:0.1510  ,1st Qu.:0.2892  ,1st Qu.:0.08556  ,1st Qu.:0.03710  
-,Median :0.1911  ,Median :0.3673  ,Median :0.08615  ,Median :0.03911  
-,Mean   :0.1911  ,Mean   :0.3673  ,Mean   :0.08615  ,Mean   :0.03911  
-,3rd Qu.:0.2311  ,3rd Qu.:0.4454  ,3rd Qu.:0.08674  ,3rd Qu.:0.04111  
-,Max.   :0.2712  ,Max.   :0.5234  ,Max.   :0.08734  ,Max.   :0.04311  
+,Min.   :0.07092  ,Min.   :0.1190  ,Min.   :0.007411  ,Min.   :0.03510  
+,1st Qu.:0.07092  ,1st Qu.:0.1190  ,1st Qu.:0.007411  ,1st Qu.:0.03510  
+,Median :0.11096  ,Median :0.2111  ,Median :0.039808  ,Median :0.03510  
+,Mean   :0.17504  ,Mean   :0.3320  ,Mean   :0.044911  ,Mean   :0.03830  
+,3rd Qu.:0.11096  ,3rd Qu.:0.2111  ,3rd Qu.:0.084962  ,3rd Qu.:0.04311  
+,Max.   :0.51143  ,Max.   :1.0000  ,Max.   :0.084962  ,Max.   :0.04311  
 1,Predictors: 
 x
 1,V2
@@ -99,7 +121,18 @@ x
 1,NA
 1,Full Statistics: 
 RegrMeth,Split.No,CVtype,NoModelFeats,ModelFeats,adjR2.tr,RMSE.tr,R2.tr,RMSEsd.tr,R2sd.tr,adjR2.ts,RMSE.ts,R2.ts,corP.ts,adjR2.both,RMSE.both,R2.both
-1,rbfDDA,2,repeatedcv,3,V2+V5+V7,-57.3161764882111,0.561698218211721,NA,0.317633775600863,NA,4.17423279581383,0.20180446376604,1,-1,-47.1044518647239,0.871555675817197,-32.6731163053067
+1,rbfDDA,2,repeatedcv,3,V2+V5+V7,-33.8497462729651,0.386372883867956,1,0.203191919632272,0,-214.867532225716,1.2425889301834,0.324711414033463,-0.569834549701458,-38.2853023561912,0.871555675817197,-32.6731163053067
+importance
+,Overall
+V2,0.999642626348428
+V5,0.727149833877927
+V7,0.269972451790634
+model
+,x
+1,loess r-squared
+calledFrom
+,x
+1,varImp
 RRegr package | eNanoMapper
 1,Regression method:  rbfDDA
 1,Split no.:  2
@@ -107,19 +140,19 @@ RRegr package | eNanoMapper
 1,Training Set Summary: 
     net.c,      V2,      V5,      V7
 ,Min.   :0.07092  ,Min.   :0.1190  ,Min.   :0.0001338  ,Min.   :0.03510  
-,1st Qu.:0.11096  ,1st Qu.:0.2111  ,1st Qu.:0.0074114  ,1st Qu.:0.03510  
-,Median :0.23110  ,Median :0.4353  ,Median :0.0081800  ,Median :0.03510  
-,Mean   :0.26225  ,Mean   :0.5052  ,Mean   :0.0209330  ,Mean   :0.03705  
-,3rd Qu.:0.39129  ,3rd Qu.:0.7717  ,3rd Qu.:0.0273091  ,3rd Qu.:0.03970  
-,Max.   :0.51143  ,Max.   :1.0000  ,Max.   :0.0849620  ,Max.   :0.04311  
+,1st Qu.:0.19106  ,1st Qu.:0.3753  ,1st Qu.:0.0074114  ,1st Qu.:0.03510  
+,Median :0.27115  ,Median :0.5234  ,Median :0.0105903  ,Median :0.03510  
+,Mean   :0.27115  ,Mean   :0.5237  ,Mean   :0.0292257  ,Mean   :0.03717  
+,3rd Qu.:0.39129  ,3rd Qu.:0.7717  ,3rd Qu.:0.0398080  ,3rd Qu.:0.03970  
+,Max.   :0.51143  ,Max.   :1.0000  ,Max.   :0.0873374  ,Max.   :0.04311  
 1,Test Set Summary: 
     net.c,      V2,      V5,      V7
-,Min.   :0.1110  ,Min.   :0.2111  ,Min.   :0.08496  ,Min.   :0.03510  
-,1st Qu.:0.1510  ,1st Qu.:0.2892  ,1st Qu.:0.08556  ,1st Qu.:0.03710  
-,Median :0.1911  ,Median :0.3673  ,Median :0.08615  ,Median :0.03911  
-,Mean   :0.1911  ,Mean   :0.3673  ,Mean   :0.08615  ,Mean   :0.03911  
-,3rd Qu.:0.2311  ,3rd Qu.:0.4454  ,3rd Qu.:0.08674  ,3rd Qu.:0.04111  
-,Max.   :0.2712  ,Max.   :0.5234  ,Max.   :0.08734  ,Max.   :0.04311  
+,Min.   :0.07092  ,Min.   :0.1190  ,Min.   :0.007411  ,Min.   :0.03510  
+,1st Qu.:0.07092  ,1st Qu.:0.1190  ,1st Qu.:0.007411  ,1st Qu.:0.03510  
+,Median :0.11096  ,Median :0.2111  ,Median :0.039808  ,Median :0.03510  
+,Mean   :0.17504  ,Mean   :0.3320  ,Mean   :0.044911  ,Mean   :0.03830  
+,3rd Qu.:0.11096  ,3rd Qu.:0.2111  ,3rd Qu.:0.084962  ,3rd Qu.:0.04311  
+,Max.   :0.51143  ,Max.   :1.0000  ,Max.   :0.084962  ,Max.   :0.04311  
 1,Predictors: 
 x
 1,V2
@@ -133,4 +166,15 @@ x
 1,NA
 1,Full Statistics: 
 RegrMeth,Split.No,CVtype,NoModelFeats,ModelFeats,adjR2.tr,RMSE.tr,R2.tr,RMSEsd.tr,R2sd.tr,adjR2.ts,RMSE.ts,R2.ts,corP.ts,adjR2.both,RMSE.both,R2.both
-1,rbfDDA,2,LOOCV,3,V2+V5+V7,-57.3161764882111,0.644418412400057,0.609026243659404,NA,NA,4.17423279581383,0.20180446376604,1,-1,-47.1044518647239,0.871555675817197,-32.6731163053067
+1,rbfDDA,2,LOOCV,3,V2+V5+V7,-33.8497462729651,0.438911586545461,0.390332868816328,NA,NA,-214.867532225716,1.2425889301834,0.324711414033463,-0.569834549701458,-38.2853023561912,0.871555675817197,-32.6731163053067
+importance
+,Overall
+V2,0.999642626348428
+V5,0.727149833877927
+V7,0.269972451790634
+model
+,x
+1,loess r-squared
+calledFrom
+,x
+1,varImp

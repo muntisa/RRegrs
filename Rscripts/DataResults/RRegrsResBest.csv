@@ -1,6 +1,6 @@
 1 Averaged values for all spits: 
 RegrMeth,CVtype,adjR2.tr.Avg,RMSE.tr.Avg,R2.tr.Avg,RMSEsd.tr.Avg,R2sd.tr.Avg,adjR2.ts.Avg,RMSE.ts.Avg,R2.ts.Avg,corP.ts.Avg,adjR2.both.Avg,RMSE.both.Avg,R2.both.Avg
-1,nnet,repeatedcv,0.999162506423735,0,0.00462982154117766,NA,0.0041476364443212,Inf,0.004906998196291,NA,NA,0.99909765160462,0.0037595442230905,0.999368356123234
+1,nnet,repeatedcv,0.999340906624208,0,0.00404994551838486,1,0.00224702665541542,0.999814257771996,0.00111372456940241,0.99997657692645,0.999988288391047,0.999576304019364,0.00286214564681901,0.999636832016597
 RRegr package | eNanoMapper
 1,Regression method:  nnet
 1,Split no.:  2
@@ -8,19 +8,19 @@ RRegr package | eNanoMapper
 1,Training Set Summary: 
     net.c,      V2,      V5,      V7
 ,Min.   :0.07092  ,Min.   :0.1190  ,Min.   :0.0001338  ,Min.   :0.03510  
-,1st Qu.:0.11096  ,1st Qu.:0.2111  ,1st Qu.:0.0074114  ,1st Qu.:0.03510  
-,Median :0.23110  ,Median :0.4353  ,Median :0.0081800  ,Median :0.03510  
-,Mean   :0.26225  ,Mean   :0.5052  ,Mean   :0.0209330  ,Mean   :0.03705  
-,3rd Qu.:0.39129  ,3rd Qu.:0.7717  ,3rd Qu.:0.0273091  ,3rd Qu.:0.03970  
-,Max.   :0.51143  ,Max.   :1.0000  ,Max.   :0.0849620  ,Max.   :0.04311  
+,1st Qu.:0.19106  ,1st Qu.:0.3753  ,1st Qu.:0.0074114  ,1st Qu.:0.03510  
+,Median :0.27115  ,Median :0.5234  ,Median :0.0105903  ,Median :0.03510  
+,Mean   :0.27115  ,Mean   :0.5237  ,Mean   :0.0292257  ,Mean   :0.03717  
+,3rd Qu.:0.39129  ,3rd Qu.:0.7717  ,3rd Qu.:0.0398080  ,3rd Qu.:0.03970  
+,Max.   :0.51143  ,Max.   :1.0000  ,Max.   :0.0873374  ,Max.   :0.04311  
 1,Test Set Summary: 
     net.c,      V2,      V5,      V7
-,Min.   :0.1110  ,Min.   :0.2111  ,Min.   :0.08496  ,Min.   :0.03510  
-,1st Qu.:0.1510  ,1st Qu.:0.2892  ,1st Qu.:0.08556  ,1st Qu.:0.03710  
-,Median :0.1911  ,Median :0.3673  ,Median :0.08615  ,Median :0.03911  
-,Mean   :0.1911  ,Mean   :0.3673  ,Mean   :0.08615  ,Mean   :0.03911  
-,3rd Qu.:0.2311  ,3rd Qu.:0.4454  ,3rd Qu.:0.08674  ,3rd Qu.:0.04111  
-,Max.   :0.2712  ,Max.   :0.5234  ,Max.   :0.08734  ,Max.   :0.04311  
+,Min.   :0.07092  ,Min.   :0.1190  ,Min.   :0.007411  ,Min.   :0.03510  
+,1st Qu.:0.07092  ,1st Qu.:0.1190  ,1st Qu.:0.007411  ,1st Qu.:0.03510  
+,Median :0.11096  ,Median :0.2111  ,Median :0.039808  ,Median :0.03510  
+,Mean   :0.17504  ,Mean   :0.3320  ,Mean   :0.044911  ,Mean   :0.03830  
+,3rd Qu.:0.11096  ,3rd Qu.:0.2111  ,3rd Qu.:0.084962  ,3rd Qu.:0.04311  
+,Max.   :0.51143  ,Max.   :1.0000  ,Max.   :0.084962  ,Max.   :0.04311  
 1,Predictors: 
 x
 1,V2
@@ -32,18 +32,17 @@ x
 1,Test Results: 
 x
 1,NA
-1,NNet variable importance: 
-importance
- Overall
-V2 100
-V5 0
-V7 28.5899933094148
-model
- x
-1 nnet
-calledFrom
- x
-1 varImp
 1,Full Statistics: 
 RegrMeth,Split.No,CVtype,NoModelFeats,ModelFeats,adjR2.tr,RMSE.tr,R2.tr,RMSEsd.tr,R2sd.tr,adjR2.ts,RMSE.ts,R2.ts,corP.ts,adjR2.both,RMSE.both,R2.both
-1,nnet,2,repeatedcv,3,V2+V5+V7,0.999236270670763,0,0.0050863236366826,NA,0.00499220915116175,1.00079376924419,0.00319123300388023,1,1,0.99925888825982,0.00342093125428837,0.999481221781874
+1,nnet,2,repeatedcv,3,V2+V5+V7,0.999329162673429,0,0.00399507019319846,1,0.00188970561981456,0.999885091681237,0.000906587135627628,0.999981941455475,0.999990970686973,0.999583469320291,0.00283794244179008,0.999642973703107
+importance
+,Overall
+V2,34.5401720159498
+V5,29.4142466352567
+V7,36.0455813487936
+model
+,x
+1,nnet
+calledFrom
+,x
+1,varImp

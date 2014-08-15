@@ -70,7 +70,7 @@ AppendList2txt <- function(l,csvFile) {
 }  
 
 #====================================================================================================
-# 8.1. Basic LM no CV
+# 8.1. Basic LM
 #====================================================================================================
 LMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=FALSE,outFile="") {
   net.c = my.datf.train[,1]   # make available the names of variables from training dataset
@@ -109,8 +109,8 @@ LMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=FALSE,outFile="")
   #------------------------------------------------
   # Adj R2, Pearson correlation
   #------------------------------------------------
-  pred.tr     <- predict(lm.fit,my.datf.train) # predicted Y
-  pred.ts     <- predict(lm.fit,my.datf.test)  # predicted Y
+  pred.tr     <- predict(lm.fit,my.datf.train) # predicted Y for training
+  pred.ts     <- predict(lm.fit,my.datf.test)  # predicted Y for test
   noFeats.fit <- length(predictors(lm.fit))    # no. of features from the fitted model
   Feats.fit   <- paste(predictors(lm.fit),collapse="+") # string with the features included in the fitted model
   
@@ -173,6 +173,25 @@ LMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=FALSE,outFile="")
     
     write.table("Full Statistics: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
     write.table(my.stats, file = outFile,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE)
+    
+    # Variable Importance (max top 20)
+    FeatImp <- varImp(lm.fit, scale = FALSE)
+    components = length(FeatImp)  # default plot all feature importance
+    if (length(FeatImp)>20){     # if the number of features is greater than 20, use only 20
+      components = 20
+    }
+    # Append feature importance to output details
+    AppendList2CSv(FeatImp,outFile)
+    
+    # PDF plots
+    pdf(file=paste(outFile,".",sCV,".","split",iSplit,".pdf"))
+      par(mfrow = c(2, 2))
+      plot(my.datf.train[,1],pred.tr,xlab="Yobs", ylab="Ypred", type="b", main="Train Yobs-Ypred")
+      plot(my.datf.test[,1], pred.ts,xlab="Yobs", ylab="Ypred", type="b", main="Test Yobs-Ypred")
+      dotchart(as.matrix(FeatImp$importance),main="Feature Importance")
+      #plot(FeatImp, top = components,main="Feature Importance")
+    dev.off()
+    
   }
   return(my.stats)  # return a list with statistics
 }
@@ -293,6 +312,24 @@ GLMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=FALSE,outFile=""
     
     write.table("Full Statistics: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
     write.table(my.stats, file = outFile,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE)
+    
+    # Variable Importance (max top 20)
+    FeatImp <- varImp(glm.fit, scale = FALSE)
+    components = length(FeatImp)  # default plot all feature importance
+    if (length(FeatImp)>20){     # if the number of features is greater than 20, use only 20
+      components = 20
+    }
+    # Append feature importance to output details
+    AppendList2CSv(FeatImp,outFile)
+    
+    # PDF plots
+    pdf(file=paste(outFile,".",sCV,".","split",iSplit,".pdf"))
+    par(mfrow = c(2, 2))
+    plot(my.datf.train[,1],pred.tr,xlab="Yobs", ylab="Ypred", type="b", main="Train Yobs-Ypred")
+    plot(my.datf.test[,1], pred.ts,xlab="Yobs", ylab="Ypred", type="b", main="Test Yobs-Ypred")
+    dotchart(as.matrix(FeatImp$importance),main="Feature Importance")
+    #plot(FeatImp, top = components,main="Feature Importance")
+    dev.off()
   }
   
   # my.stats.full <- c(my.stats.dsInfo,my.stats.10CV,my.stats.LOOCV)   # merge the CV results into one list that contains the names of each field!
@@ -407,6 +444,24 @@ PLSreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=FALSE,outFile=""
     
     write.table("Full Statistics: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
     write.table(my.stats, file = outFile,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE)
+    
+    # Variable Importance (max top 20)
+    FeatImp <- varImp(pls.fit, scale = FALSE)
+    components = length(FeatImp)  # default plot all feature importance
+    if (length(FeatImp)>20){     # if the number of features is greater than 20, use only 20
+      components = 20
+    }
+    # Append feature importance to output details
+    AppendList2CSv(FeatImp,outFile)
+    
+    # PDF plots
+    pdf(file=paste(outFile,".",sCV,".","split",iSplit,".pdf"))
+    par(mfrow = c(2, 2))
+    plot(my.datf.train[,1],pred.tr,xlab="Yobs", ylab="Ypred", type="b", main="Train Yobs-Ypred")
+    plot(my.datf.test[,1], pred.ts,xlab="Yobs", ylab="Ypred", type="b", main="Test Yobs-Ypred")
+    dotchart(as.matrix(FeatImp$importance),main="Feature Importance")
+    #plot(FeatImp, top = components,main="Feature Importance")
+    dev.off()
   }
   
   return(my.stats)  # return a list with statistics
@@ -644,6 +699,24 @@ LASSOreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=FALSE,outFile=
     
     write.table("Full Statistics: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
     write.table(my.stats, file = outFile,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE)
+    
+    # Variable Importance (max top 20)
+    FeatImp <- varImp(las.fit, scale = FALSE)
+    components = length(FeatImp)  # default plot all feature importance
+    if (length(FeatImp)>20){     # if the number of features is greater than 20, use only 20
+      components = 20
+    }
+    # Append feature importance to output details
+    AppendList2CSv(FeatImp,outFile)
+    
+    # PDF plots
+    pdf(file=paste(outFile,".",sCV,".","split",iSplit,".pdf"))
+    par(mfrow = c(2, 2))
+    plot(my.datf.train[,1],pred.tr,xlab="Yobs", ylab="Ypred", type="b", main="Train Yobs-Ypred")
+    plot(my.datf.test[,1], pred.ts,xlab="Yobs", ylab="Ypred", type="b", main="Test Yobs-Ypred")
+    dotchart(as.matrix(FeatImp$importance),main="Feature Importance")
+    #plot(FeatImp, top = components,main="Feature Importance")
+    dev.off()
   }
   
   return(my.stats)  # return a list with statistics
@@ -755,6 +828,24 @@ RBF_DDAreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=FALSE,outFil
     
     write.table("Full Statistics: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
     write.table(my.stats, file = outFile,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE)
+    
+    # Variable Importance (max top 20)
+    FeatImp <- varImp(rbf.fit, scale = FALSE)
+    components = length(FeatImp)  # default plot all feature importance
+    if (length(FeatImp)>20){     # if the number of features is greater than 20, use only 20
+      components = 20
+    }
+    # Append feature importance to output details
+    AppendList2CSv(FeatImp,outFile)
+    
+    # PDF plots
+    pdf(file=paste(outFile,".",sCV,".","split",iSplit,".pdf"))
+    par(mfrow = c(2, 2))
+    plot(my.datf.train[,1],pred.tr,xlab="Yobs", ylab="Ypred", type="b", main="Train Yobs-Ypred")
+    plot(my.datf.test[,1], pred.ts,xlab="Yobs", ylab="Ypred", type="b", main="Test Yobs-Ypred")
+    dotchart(as.matrix(FeatImp$importance),main="Feature Importance")
+    #plot(FeatImp, top = components,main="Feature Importance")
+    dev.off()
   }
   
   return(my.stats)  # return a list with statistics
@@ -868,6 +959,24 @@ SVLMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=FALSE,outFile="
     
     write.table("Full Statistics: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
     write.table(my.stats, file = outFile,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE)
+    
+    # Variable Importance (max top 20)
+    FeatImp <- varImp(svmL.fit, scale = FALSE)
+    components = length(FeatImp)  # default plot all feature importance
+    if (length(FeatImp)>20){     # if the number of features is greater than 20, use only 20
+      components = 20
+    }
+    # Append feature importance to output details
+    AppendList2CSv(FeatImp,outFile)
+    
+    # PDF plots
+    pdf(file=paste(outFile,".",sCV,".","split",iSplit,".pdf"))
+    par(mfrow = c(2, 2))
+    plot(my.datf.train[,1],pred.tr,xlab="Yobs", ylab="Ypred", type="b", main="Train Yobs-Ypred")
+    plot(my.datf.test[,1], pred.ts,xlab="Yobs", ylab="Ypred", type="b", main="Test Yobs-Ypred")
+    dotchart(as.matrix(FeatImp$importance),main="Feature Importance")
+    #plot(FeatImp, top = components,main="Feature Importance")
+    dev.off()
   }
   
   return(my.stats)  # return a list with statistics
@@ -981,14 +1090,26 @@ NNreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=FALSE,outFile="")
     write.table("Test Results: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
     write.table(predictors(lm.test.res), file = outFile,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE)
     
-    #write.table("NNet fitting resuts: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
-    #AppendList2txt(list(nn.fit),outFile)
-    
-    write.table("NNet variable importance: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
-    AppendList2txt(varImp(nn.fit),outFile)
-    
     write.table("Full Statistics: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
     write.table(my.stats, file = outFile,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE)
+    
+    # Variable Importance (max top 20)
+    FeatImp <- varImp(nn.fit, scale = FALSE)
+    components = length(FeatImp)  # default plot all feature importance
+    if (length(FeatImp)>20){     # if the number of features is greater than 20, use only 20
+      components = 20
+    }
+    # Append feature importance to output details
+    AppendList2CSv(FeatImp,outFile)
+    
+    # PDF plots
+    pdf(file=paste(outFile,".",sCV,".","split",iSplit,".pdf"))
+    par(mfrow = c(2, 2))
+    plot(my.datf.train[,1],pred.tr,xlab="Yobs", ylab="Ypred", type="b", main="Train Yobs-Ypred")
+    plot(my.datf.test[,1], pred.ts,xlab="Yobs", ylab="Ypred", type="b", main="Test Yobs-Ypred")
+    dotchart(as.matrix(FeatImp$importance),main="Feature Importance")
+    #plot(FeatImp, top = components,main="Feature Importance")
+    dev.off()
   }
   return(my.stats)  # return a list with statistics
 }
@@ -1139,6 +1260,24 @@ CaretReg <- function(RegrMethod,my.datf.train,my.datf.test,sCV,iSplit=1,fDet=FAL
     
     write.table("Full Statistics: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
     write.table(my.stats, file = outFile,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE)
+    
+    # Variable Importance (max top 20)
+    FeatImp <- varImp(reg.fit, scale = FALSE)
+    components = length(FeatImp)  # default plot all feature importance
+    if (length(FeatImp)>20){     # if the number of features is greater than 20, use only 20
+      components = 20
+    }
+    # Append feature importance to output details
+    AppendList2CSv(FeatImp,outFile)
+    
+    # PDF plots
+    pdf(file=paste(outFile,".",sCV,".","split",iSplit,".pdf"))
+    par(mfrow = c(2, 2))
+    plot(my.datf.train[,1],pred.tr,xlab="Yobs", ylab="Ypred", type="b", main="Train Yobs-Ypred")
+    plot(my.datf.test[,1], pred.ts,xlab="Yobs", ylab="Ypred", type="b", main="Test Yobs-Ypred")
+    dotchart(as.matrix(FeatImp$importance),main="Feature Importance")
+    #plot(FeatImp, top = components,main="Feature Importance")
+    dev.off()
   }
   
   return(my.stats)  # return a list with statistics

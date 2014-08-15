@@ -72,10 +72,13 @@ fRemCorr     = TRUE  # flag for Removal of correlated columns         (5)
 fFeatureSel  = FALSE  # flag for wrapper methods for feature selection (7)
 
 cutoff       = 0.9   # cut off for correlated features
-fGLM         = FALSE  # flag to run GLM (8.2)
-fLASSO       = FALSE  # flag to run LASSO (8.4) 
-fSVLM        = FALSE # flat to run svmRadial.RMSE (8.6)
-fNN          = TRUE  # flat to run NN (8.6)
+fLM          = TRUE  # flag to run LM            (8.1)
+fGLM         = TRUE  # flag to run GLM           (8.2)
+fPLS         = TRUE  # flag to run PLS           (8.3)
+fLASSO       = TRUE  # flag to run LASSO         (8.4)
+fRBFdda      = TRUE  # flat to run RBF DDA       (8.5)
+fSVLM        = TRUE # flat to run svmRadial.RMSE (8.6)
+fNN          = TRUE  # flat to run NN            (8.8)
 
 # ----------------------------------------------------------------------------------------
 iScaling = 1 # 1 = normalization; 2 = standardization, 3 = other; any other: no scaling
@@ -95,12 +98,21 @@ No0NearVarFile = "ds3.No0Var.csv"         # output step 3 = ds without zero near
 ScaledFile     = "ds4.scaled.csv"         # output step 4 = scaled ds file name (in the same folder)
 NoCorrFile     = "ds5.scaled.NoCorrs.csv" # output step 5 = dataset after correction removal
 
-ResAvgs        = "RRegsRes.csv"           # the main output file with averaged statistics for each regression method
+ResAvgs        = "RRegsResAvgs.csv"       # the output file with averaged statistics for each regression method
 ResBySplits    = "RRegrsResBySplit.csv"   # the output file with statistics for each split and the averaged values
-glmFile        = "8.2.GLM.details.txt"    # GLM output file for details
+ResBest        = "RRegrsResBest.csv"      # the output file with statistics for the best model
+
+lmFile         = "8.1.LM.details.csv"           # LM output file for details
+glmFile        = "8.2.GLM.details.csv"          # GLM output file for details
+plsFile        = "8.3.PLS.details.csv"          # PLS output file for details
+lassoFile      = "8.4.LASSO.details.csv"        # Lasoo Radial output file for details
+rbfDDAFile     = "8.5.RBF_DDA.details.csv"      # RBF DDA output file for details
+svlmFile       = "8.6.SVMRadial.details.csv"    # SVM Radial output file for details
+nnFile         = "8.8.NN.details.csv"           # NN Radial output file for details
 
 # Generate path + file name = original dataset
 inFile <- file.path(PathDataSet, DataFileName)
+
 
 cat("======================================================================
     RRegrs - R Regression Models
@@ -219,16 +231,14 @@ my.datf.test
 
 sCV = 'repeatedcv'
 iSplit=1
-RegrMethod='rbfDDA'
+RegrMethod='lm'
+outFile <- file.path(PathDataSet,lmFile)
 
 ####################
 # TO TEST
 ####################
-
-
-library(caret)
-#attach(my.datf.train)   # make available the names of variables from training dataset
-net.c = my.datf.train[,1] # dependent variable is the first column in Training set
+net.c = my.datf.train[,1]   # make available the names of variables from training dataset
+RegrMethod <- "lm" # type of regression
 
 # Define the CV conditions
 ctrl<- trainControl(method = sCV, number = 10,repeats = 10,
@@ -236,51 +246,18 @@ ctrl<- trainControl(method = sCV, number = 10,repeats = 10,
 
 # Train the model using only training set
 set.seed(iSplit)
-
-if (RegrMethod=="lm" | RegrMethod=="glmStepAIC") {
-  reg.fit<- train(net.c~.,data=my.datf.train,
-                  method = 'lm', tuneLength = 10, trControl = ctrl,
-                  metric = 'RMSE')
-}
-if (RegrMethod=="pls") {
-  reg.fit<- train(net.c~.,data=my.datf.train,
-                  method = 'pls', tuneLength = 10, trControl = ctrl,
-                  metric = 'RMSE',
-                  tuneGrid=expand.grid(.ncomp=c(1:(dim(my.datf.train)[2]-1))))
-}
-if (RegrMethod=="lasso") {
-  reg.fit<- train(net.c~.,data=my.datf.train,
-                  method = 'lasso', tuneLength = 10, trControl = ctrl,
-                  metric = 'RMSE',
-                  tuneGrid=expand.grid(.fraction= seq(0.1,1,by=0.1)))
-}
-if (RegrMethod=="rbfDDA") {  
-  reg.fit<- train(net.c~.,data=my.datf.train,
-                  method = 'rbfDDA',trControl = ctrl,
-                  tuneGrid=expand.grid(.negativeThreshold=seq(0,1,0.1)))
-}
-if (RegrMethod=="svmRadial") {  
-  reg.fit<- train(net.c~.,data=my.datf.train,
-                  method = 'svmRadial', tuneLength = 10, trControl = ctrl,
-                  metric = 'RMSE',
-                  tuneGrid=expand.grid(.sigma=seq(0,1,0.1),.C= c(1:10)))
-}
-if (RegrMethod=="nnet") {  
-  reg.fit<- train(net.c~.,data=my.datf.train,
-                  method = 'nnet',trControl = ctrl,
-                  linout=TRUE, trace = FALSE,MaxNWts=20000,
-                  tuneGrid=expand.grid(.size=c(1,5,10,15),.decay=c(0,0.001,0.1)))
-} 
-
+lm.fit<- train(net.c~.,data=my.datf.train,
+               method = 'lm', tuneLength = 10, trControl = ctrl,
+               metric = 'RMSE')
 
 #------------------------------
 # Training RESULTS
 #------------------------------
-RMSE.tr  <- reg.fit$results[,2]
-R2.tr    <- reg.fit$results[,3]
+RMSE.tr  <- lm.fit$results[,2]
+R2.tr    <- lm.fit$results[,3]
 if (sCV == "repeatedcv"){ # if 10-fold CV
-  RMSEsd.tr <- reg.fit$results[,4]
-  R2sd.tr   <- reg.fit$results[,5]
+  RMSEsd.tr <- lm.fit$results[,4]
+  R2sd.tr   <- lm.fit$results[,5]
 }
 if (sCV == "LOOCV"){ # if LOOCV
   RMSEsd.tr <- 0 # formulas will be added later!
@@ -290,19 +267,19 @@ if (sCV == "LOOCV"){ # if LOOCV
 #------------------------------------------------
 # RMSE & R^2, for train/test respectively
 #------------------------------------------------
-lm.train.res <- getTrainPerf(reg.fit)
-lm.test.res  <- postResample(predict(reg.fit,my.datf.test),my.datf.test[,1])
+lm.train.res <- getTrainPerf(lm.fit)
+lm.test.res  <- postResample(predict(lm.fit,my.datf.test),my.datf.test[,1])
 
 #------------------------------------------------
 # Adj R2, Pearson correlation
 #------------------------------------------------
-pred.tr     <- predict(reg.fit,my.datf.train) # predicted Y
-pred.ts     <- predict(reg.fit,my.datf.test)  # predicted Y
-noFeats.fit <- length(predictors(reg.fit))    # no. of features from the fitted model
-Feats.fit   <- paste(predictors(reg.fit),collapse="+") # string with the features included in the fitted model
+pred.tr     <- predict(lm.fit,my.datf.train) # predicted Y for training
+pred.ts     <- predict(lm.fit,my.datf.test)  # predicted Y for test
+noFeats.fit <- length(predictors(lm.fit))    # no. of features from the fitted model
+Feats.fit   <- paste(predictors(lm.fit),collapse="+") # string with the features included in the fitted model
 
 ds.full     <- rbind(my.datf.train,my.datf.test)
-pred.both   <- predict(reg.fit,ds.full)       # predicted Y
+pred.both   <- predict(lm.fit,ds.full)       # predicted Y
 adjR2.tr    <- r2.adj.funct(my.datf.train[,1],pred.tr,noFeats.fit)
 adjR2.ts    <- r2.adj.funct(my.datf.test[,1],pred.ts,noFeats.fit)
 corP.ts     <- cor(my.datf.test[,1],pred.ts)
@@ -322,12 +299,10 @@ my.stats <- list("RegrMeth"     = RegrMethod,
                  "NoModelFeats" = as.numeric(noFeats.fit),
                  "ModelFeats"   = Feats.fit,
                  "adjR2.tr"  = as.numeric(adjR2.tr),
-                 
-                 "RMSE.tr"   = as.numeric(min(RMSE.tr)),  # these 4 lines correspond to the min of RMSE.tr !!!
-                 "R2.tr"     = as.numeric(R2.tr[which.min(RMSE.tr)]),  
-                 "RMSEsd.tr" = as.numeric(RMSEsd.tr[which.min(RMSE.tr)]),
-                 "R2sd.tr"   = as.numeric(R2sd.tr[which.min(RMSE.tr)]),
-                 
+                 "RMSE.tr"   = as.numeric(RMSE.tr),
+                 "R2.tr"     = as.numeric(R2.tr),
+                 "RMSEsd.tr" = as.numeric(RMSEsd.tr),
+                 "R2sd.tr"   = as.numeric(R2sd.tr),
                  "adjR2.ts"= as.numeric(adjR2.ts),
                  "RMSE.ts" = as.numeric((lm.test.res["RMSE"][[1]])),
                  "R2.ts"   = as.numeric((lm.test.res["Rsquared"][[1]])),
@@ -340,27 +315,50 @@ my.stats <- list("RegrMeth"     = RegrMethod,
 # Write to file DETAILS for GLM for each cross-validation method
 #---------------------------------------------------------------------
 if (fDet==TRUE) {   # if flag for details if true, print details about any resut
-  write("RRegr package | eNanoMapper", file = outFile)
-  write.table(paste("Regression method: ", RegrMethod), file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-  write.table(paste("Split no.: ", iSplit), file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-  write.table(paste("CV type: ", sCV), file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-  write.table("Training Set Summary: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-  write.table(summary(my.datf.train), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
-  write.table("Test Set Summary: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-  write.table(summary(my.datf.test), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)   
+  write("RRegr package | eNanoMapper", file = outFile, append = TRUE)
+  write.table(paste("Regression method: ", RegrMethod), file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+  write.table(paste("Split no.: ", iSplit), file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+  write.table(paste("CV type: ", sCV), file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+  write.table("Training Set Summary: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+  write.table(summary(my.datf.train), file = outFile,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE)
+  write.table("Test Set Summary: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+  write.table(summary(my.datf.test), file = outFile,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE)   
+  
+  write.table("Fitting Summary: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+  write.table(data.frame(summary(lm.fit)$coefficients), file = outFile,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE)
+  
+  write.table("Predictors: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+  write.table(predictors(lm.fit), file = outFile,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE)
+  
+  write.table("Trainig Results: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+  write.table(predictors(lm.train.res), file = outFile,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE)
+  write.table("Test Results: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+  write.table(predictors(lm.test.res), file = outFile,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE)
+  
+  write.table("Full Statistics: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
+  write.table(my.stats, file = outFile,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE)
   
   
-  write.table("Predictors: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-  write.table(predictors(reg.fit), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
-  
-  write.table("Trainig Results: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-  write.table(predictors(lm.train.res), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
-  write.table("Test Results: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-  write.table(predictors(lm.test.res), file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
-  
-  write.table("Full Statistics: ", file = outFile,append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
-  write.table(my.stats, file = outFile,append = TRUE, sep = " ",col.names = TRUE,quote = FALSE)
-}
+  # Variable Importance (max top 20)
+  FeatImp <- varImp(lm.fit, scale = FALSE)
+  components = length(FeatImp)  # default plot all feature importance
+  if (length(FeatImp)>20){     # if the number of features is greater than 20, use only 20
+    components = 20
+  }
+  # Append feature importance to output details
+  AppendList2CSv(FeatImp,outFile)
+}  
+
+
+
+# PDF plots
+pdf(file=paste(outFile,".",sCV,".","split",iSplit,".pdf"))
+par(mfrow = c(1, 3))
+barplot(row.names(data.frame(FeatImp$importance)),data.frame(FeatImp$importance)[,1],main="Feature Importance")
+plot(my.datf.train[,1],pred.tr,xlab="Yobs", ylab="Ypred", type="b", main="Train Yobs-Ypred")
+plot(my.datf.test[,1], pred.ts,xlab="Yobs", ylab="Ypred", type="b", main="Test Yobs-Ypred")
+dev.off()
+
 
 
 #####################################################
