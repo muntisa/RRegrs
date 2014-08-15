@@ -73,6 +73,13 @@ AppendList2txt <- function(l,csvFile) {
 # 8.1. Basic LM
 #====================================================================================================
 LMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=FALSE,outFile="") {
+  # ------------------------------------------
+  # only Linux or Mac: parallel calculations
+  # ------------------------------------------
+  #library(doMC)
+  #registerDoMC(cores = 2) # CPU cores
+  # ------------------------------------------
+  
   net.c = my.datf.train[,1]   # make available the names of variables from training dataset
   RegrMethod <- "lm" # type of regression
   
@@ -210,6 +217,12 @@ LMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=FALSE,outFile="")
 #   (tr = train, ts = test, both = tr+ts = full dataset)
 # ---------------------------------------------------------------------------------------------------
 GLMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=FALSE,outFile="") {
+  # ------------------------------------------
+  # only Linux or Mac: parallel calculations
+  # ------------------------------------------
+  #library(doMC)
+  #registerDoMC(cores = 2) # CPU cores
+  # ------------------------------------------
   library(caret)
   #attach(my.datf.train)    # make available the names of variables from training dataset
   net.c = my.datf.train[,1] # dependent variable is the first column in Training set
@@ -341,6 +354,12 @@ GLMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=FALSE,outFile=""
 # 8.3. PLS regression (caret)
 #====================================================================================================
 PLSreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=FALSE,outFile="") {
+  # ------------------------------------------
+  # only Linux or Mac: parallel calculations
+  # ------------------------------------------
+  #library(doMC)
+  #registerDoMC(cores = 2) # CPU cores
+  # ------------------------------------------
   library(caret)
   #attach(my.datf.train)   # make available the names of variables from training dataset
   net.c = my.datf.train[,1] # dependent variable is the first column in Training set
@@ -471,6 +490,12 @@ PLSreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=FALSE,outFile=""
 # 8.3W. PLS regression with wrapper feature selection (caret)
 #====================================================================================================
 PLSregWSel <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=FALSE,outFile="") {
+  # ------------------------------------------
+  # only Linux or Mac: parallel calculations
+  # ------------------------------------------
+  #library(doMC)
+  #registerDoMC(cores = 2) # CPU cores
+  # ------------------------------------------
   library(caret)
   
   net.c = my.datf.train[,1] # dependent variable is the first column in Training set
@@ -595,6 +620,12 @@ PLSregWSel <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=FALSE,outFil
 # 8.4 Lasso Regression (caret)
 #====================================================================================================
 LASSOreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=FALSE,outFile="") {
+  # ------------------------------------------
+  # only Linux or Mac: parallel calculations
+  # ------------------------------------------
+  #library(doMC)
+  #registerDoMC(cores = 2) # CPU cores
+  # ------------------------------------------
   library(caret)
   #attach(my.datf.train)   # make available the names of variables from training dataset
   net.c = my.datf.train[,1] # dependent variable is the first column in Training set
@@ -726,6 +757,12 @@ LASSOreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=FALSE,outFile=
 # 8.5. RBF network with the DDA algorithm regression (caret)
 #====================================================================================================
 RBF_DDAreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=FALSE,outFile="") {
+  # ------------------------------------------
+  # only Linux or Mac: parallel calculations
+  # ------------------------------------------
+  #library(doMC)
+  #registerDoMC(cores = 2) # CPU cores
+  # ------------------------------------------
   library(caret)
   #attach(my.datf.train)   # make available the names of variables from training dataset
   net.c = my.datf.train[,1] # dependent variable is the first column in Training set
@@ -855,6 +892,12 @@ RBF_DDAreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=FALSE,outFil
 # 8.6 SVM Radial Regression (caret)
 #====================================================================================================
 SVLMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=FALSE,outFile="") {
+  # ------------------------------------------
+  # only Linux or Mac: parallel calculations
+  # ------------------------------------------
+  #library(doMC)
+  #registerDoMC(cores = 2) # CPU cores
+  # ------------------------------------------
   library(caret)
   #attach(my.datf.train)   # make available the names of variables from training dataset
   net.c = my.datf.train[,1] # dependent variable is the first column in Training set
@@ -986,6 +1029,12 @@ SVLMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=FALSE,outFile="
 # 8.8 Neural Network Regression (caret)
 #====================================================================================================
 NNreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=FALSE,outFile="") {
+  # ------------------------------------------
+  # only Linux or Mac: parallel calculations
+  # ------------------------------------------
+  #library(doMC)
+  #registerDoMC(cores = 2) # CPU cores
+  # ------------------------------------------
   library(caret)
   #attach(my.datf.train)   # make available the names of variables from training dataset
   net.c = my.datf.train[,1] # dependent variable is the first column in Training set
@@ -1127,6 +1176,12 @@ GLMregW <- function(my.datf,my.datf.train,my.datf.test,fDet=FALSE,outFile="") { 
 # General regression (caret) UNDER CONSTRUCTION !!!
 #====================================================================================================
 CaretReg <- function(RegrMethod,my.datf.train,my.datf.test,sCV,iSplit=1,fDet=FALSE,outFile="") {
+  # ------------------------------------------
+  # only Linux or Mac: parallel calculations
+  # ------------------------------------------
+  #library(doMC)
+  #registerDoMC(cores = 2) # CPU cores
+  # ------------------------------------------
   library(caret)
   #attach(my.datf.train)   # make available the names of variables from training dataset
   net.c = my.datf.train[,1] # dependent variable is the first column in Training set
