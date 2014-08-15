@@ -37,3 +37,11 @@ The main statistics will be printed into:
 - RRegrsResBySplit.csv = statistics for each split, regression method and cross-validation type
 - RRegsResAvgs.csv     = averaged statistics for all splittings by method and cross-validation
 - RRegrsResBest.csv    = best model statistics (best test adjR2)
+
+To be done:
+- Y randomization for the best model
+- Applicability Domain for the best model 
+- Corrections of formulas
+- Wrapper functions
+- Specific detailed outputs for each type of regression method
+- General function for all regression methods with particular details for each regression type
