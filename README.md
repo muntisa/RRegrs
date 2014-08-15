@@ -13,17 +13,27 @@ The script will be modular in order to create flexible APIs.
 The main authors are from the National Technical University of Athens (NTUA) and Maastricht University (UM) joining efforts for the EU eNanoMapper project.
 
 The current implemented methods:
+- Basic LM
 - GLM based on AIC
+- PLS
 - Lasso
 - RBF
 - SVM radial
 - Neural Networks
 
 The methods to be implemented:
-- Basic LM
-- PLS
 - SVM linear
 - SOM
 - Recursive Feature Extraction (SVM-RFE)
 
 In addition, all methods will contain a wrapper version.
+
+Outputs:
+- CSV files for statistics
+- PDF files for plots
+
+For the best model, the last split of dataset will be used and additional files will be created.
+The main statistics will be printed into:
+- RRegrsResBySplit.csv = statistics for each split, regression method and cross-validation type
+- RRegsResAvgs.csv     = averaged statistics for all splittings by method and cross-validation
+- RRegrsResBest.csv    = best model statistics (best test adjR2)
