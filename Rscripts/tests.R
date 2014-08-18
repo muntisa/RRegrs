@@ -1,5 +1,6 @@
 # TESTING ANY CODE
 
+source("s8.RegrrMethods.R")  # add external function
 library(caret)
 #----------------------------------------------------------------------------------------------------------------------
 # General functions
@@ -226,29 +227,36 @@ dsList <- DsSplit(ds,trainFrac,fDet,PathDataSet,iSeed) # return a list with 2 da
 my.datf.train <- dsList$train
 my.datf.test  <- dsList$test
 
-my.datf.train
-my.datf.test
+ds.train <- my.datf.train
+ds.test  <- my.datf.test
 
 sCV = 'repeatedcv'
 iSplit=1
 RegrMethod='lm'
 outFile <- file.path(PathDataSet,lmFile)
-
+fDet = T
 ####################
 # TO TEST
 ####################
+# ------------------------------------------
+# only Linux or Mac: parallel calculations
+# ------------------------------------------
+#library(doMC)
+#registerDoMC(cores = 2) # CPU cores
+# ------------------------------------------
+
 net.c = my.datf.train[,1]   # make available the names of variables from training dataset
 RegrMethod <- "lm" # type of regression
 
 # Define the CV conditions
-ctrl<- trainControl(method = sCV, number = 10,repeats = 10,
-                    summaryFunction = defaultSummary)
+ctrl<- trainControl(method=sCV, number=10,repeats=10,
+                    summaryFunction=defaultSummary)
 
 # Train the model using only training set
 set.seed(iSplit)
 lm.fit<- train(net.c~.,data=my.datf.train,
-               method = 'lm', tuneLength = 10, trControl = ctrl,
-               metric = 'RMSE')
+               method='lm', tuneLength = 10,trControl=ctrl,
+               metric='RMSE')
 
 #------------------------------
 # Training RESULTS
@@ -314,59 +322,47 @@ my.stats <- list("RegrMeth"     = RegrMethod,
 #---------------------------------------------------------------------
 # Write to file DETAILS for GLM for each cross-validation method
 #---------------------------------------------------------------------
-if (fDet==TRUE) {   # if flag for details if true, print details about any resut
-  write("RRegr package | eNanoMapper", file = outFile, append = TRUE)
-  write.table(paste("Regression method: ", RegrMethod), file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
-  write.table(paste("Split no.: ", iSplit), file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
-  write.table(paste("CV type: ", sCV), file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
-  write.table("Training Set Summary: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
-  write.table(summary(my.datf.train), file = outFile,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE)
-  write.table("Test Set Summary: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
-  write.table(summary(my.datf.test), file = outFile,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE)   
+if (fDet==T) {   # if flag for details if T, print details about any resut
+  write("RRegr package | eNanoMapper", file=outFile, append=T)
+  write.table(paste("Regression method: ", RegrMethod), file=outFile,append=T,sep=",",col.names=F,quote=F)
+  write.table(paste("Split no.: ", iSplit), file=outFile,append=T,sep=",",col.names=F,quote=F)
+  write.table(paste("CV type: ", sCV),      file=outFile,append=T,sep=",",col.names=F,quote=F)
+  write.table("Training Set Summary: ",     file=outFile,append=T,sep=",",col.names=F,quote=F)
+  write.table(summary(my.datf.train),       file=outFile,append=T,sep=",",col.names=T,quote=F)
+  write.table("Test Set Summary: ",         file=outFile,append=T,sep=",",col.names=F,quote=F)
+  write.table(summary(my.datf.test),        file=outFile,append=T,sep=",",col.names=T,quote=F)   
   
-  write.table("Fitting Summary: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
-  write.table(data.frame(summary(lm.fit)$coefficients), file = outFile,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE)
+  write.table("Fitting Summary: ",                      file=outFile,append=T,sep=",",col.names=F,quote=F)
+  write.table(data.frame(summary(lm.fit)$coefficients), file=outFile,append=T,sep=",",col.names=T,quote=F)
   
-  write.table("Predictors: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
-  write.table(predictors(lm.fit), file = outFile,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE)
+  write.table("Predictors: ",     file=outFile,append=T,sep=",",col.names=F,quote=F)
+  write.table(predictors(lm.fit), file=outFile,append=T,sep=",",col.names=T,quote=F)
   
-  write.table("Trainig Results: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
-  write.table(predictors(lm.train.res), file = outFile,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE)
-  write.table("Test Results: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
-  write.table(predictors(lm.test.res), file = outFile,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE)
+  write.table("Trainig Results: ",     file=outFile,append=T,sep=",",col.names=F,quote=F)
+  write.table(predictors(lm.train.res),file=outFile,append=T,sep=",",col.names=T,quote=F)
+  write.table("Test Results: ",        file=outFile,append=T,sep=",",col.names=F,quote=F)
+  write.table(predictors(lm.test.res), file=outFile,append=T,sep=",",col.names=T,quote=F)
   
-  write.table("Full Statistics: ", file = outFile,append = TRUE, sep = ",",col.names = FALSE,quote = FALSE)
-  write.table(my.stats, file = outFile,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE)
-  
+  write.table("Full Statistics: ", file=outFile,append=T,sep=",",col.names=F,quote=F)
+  write.table(my.stats,            file=outFile,append=T,sep=",",col.names=T,quote=F)
   
   # Variable Importance (max top 20)
-  FeatImp <- varImp(lm.fit, scale = FALSE)
+  FeatImp <- varImp(lm.fit, scale = F)
   components = length(FeatImp)  # default plot all feature importance
   if (length(FeatImp)>20){     # if the number of features is greater than 20, use only 20
     components = 20
   }
   # Append feature importance to output details
   AppendList2CSv(FeatImp,outFile)
-}  
+  
+  # PDF plots
+  pdf(file=paste(outFile,".",sCV,".","split",iSplit,".pdf"))
+  par(mfrow = c(2, 2))
+  plot(my.datf.train[,1],pred.tr,xlab="Yobs", ylab="Ypred", type="b", main="Train Yobs-Ypred")
+  plot(my.datf.test[,1], pred.ts,xlab="Yobs", ylab="Ypred", type="b", main="Test Yobs-Ypred")
+  dotchart(as.matrix(FeatImp$importance),main="Feature Importance")
+  #plot(FeatImp, top = components,main="Feature Importance")
+  dev.off()
+  
+}
 
-
-
-# PDF plots
-pdf(file=paste(outFile,".",sCV,".","split",iSplit,".pdf"))
-par(mfrow = c(1, 3))
-barplot(row.names(data.frame(FeatImp$importance)),data.frame(FeatImp$importance)[,1],main="Feature Importance")
-plot(my.datf.train[,1],pred.tr,xlab="Yobs", ylab="Ypred", type="b", main="Train Yobs-Ypred")
-plot(my.datf.test[,1], pred.ts,xlab="Yobs", ylab="Ypred", type="b", main="Test Yobs-Ypred")
-dev.off()
-
-
-
-#####################################################
-dfRes = data.frame(my.stats)
-print("*** RESULTS ***")
-print(dfRes)
-print(length(my.stats))
-# print(dfRes[which.min(dfRes$RMSE.tr),])
-
-# print a list such as lm.fit
-# sapply(names(lm.fit),function(x) paste(x,paste(lm.fit[[x]],collapse=" ")))

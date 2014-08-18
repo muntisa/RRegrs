@@ -54,18 +54,19 @@ fFeatureSel  = FALSE  # flag for wrapper methods for feature selection (7)
 cutoff       = 0.9   # cut off for correlated features
 fLM          = TRUE  # flag to run LM            (8.1)
 fGLM         = TRUE  # flag to run GLM           (8.2)
-fPLS         = TRUE  # flag to run PLS           (8.3)
-fLASSO       = TRUE  # flag to run LASSO         (8.4)
-fRBFdda      = TRUE  # flat to run RBF DDA       (8.5)
-fSVLM        = TRUE # flat to run svmRadial.RMSE (8.6)
-fNN          = TRUE  # flat to run NN            (8.8)
+fPLS         = FALSE  # flag to run PLS           (8.3)
+fLASSO       = FALSE  # flag to run LASSO         (8.4)
+fRBFdda      = FALSE  # flat to run RBF DDA       (8.5)
+fSVLM        = FALSE # flat to run svmRadial.RMSE (8.6)
+fNN          = FALSE  # flat to run NN            (8.8)
 
 # ----------------------------------------------------------------------------------------
 iScaling = 1 # 1 = normalization; 2 = standardization, 3 = other; any other: no scaling
 iScalCol = 1 # 1 = including dependent variable in scaling; 2: only all features; etc.
 # ----------------------------------------------------------------------------------------
-trainFrac  = 3/4 # the fraction of training set from the entire dataset; trainFrac = the rest of dataset, the test set
-iSplitTimes = 2 # default is 10; time to split the data in train and test (steps 6-11); report each step + average
+trainFrac   = 3/4 # the fraction of training set from the entire dataset; trainFrac = the rest of dataset, the test set
+iSplitTimes = 2   # default is 10; time to split the data in train and test (steps 6-11); report each step + average
+noYrand     = 3   # number of Y randomization (default = 100)
 
 CVtypes    <- c("repeatedcv","LOOCV")             # cross-validation types: 10-CV and LOOCV
 
@@ -551,6 +552,8 @@ if (best.reg=="nnet") {
 # 12. Test best model with test dataset
 #                   (+ Y randomization 100 times, bootstaping)
 #-------------------------------------------------------------------------------
+# ratios Yrand R2 - Best model R2 / Best model R2
+R2Diff.Yrand <- Yrandom(best.reg,my.stats.reg$R2.ts,noYrand,ResBestF) 
 
 #------------------------------------------------------------------------------
 # 13. Assessment of Applicability Domain (plot leverage)
