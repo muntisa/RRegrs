@@ -366,3 +366,5 @@ if (fDet==T) {   # if flag for details if T, print details about any resut
   
 }
 
+
+

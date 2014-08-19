@@ -44,21 +44,21 @@ library(caret)
 # -----------------------------------------------------------------------
 # Option to run any step
 # -----------------------------------------------------------------------
-fDet         = TRUE  # flag to calculate and print details for all the functions
-fFilters     = TRUE  # flag to apply filters                          (2)
-fScaling     = TRUE  # flag for dataset Scaling                       (3)
-fRemNear0Var = TRUE  # flag for Removal of near zero variance columns (4)
-fRemCorr     = TRUE  # flag for Removal of correlated columns         (5)
-fFeatureSel  = FALSE  # flag for wrapper methods for feature selection (7)
+fDet         = T  # flag to calculate and print details for all the functions
+fFilters     = T  # flag to apply filters                          (2)
+fScaling     = T  # flag for dataset Scaling                       (3)
+fRemNear0Var = T  # flag for Removal of near zero variance columns (4)
+fRemCorr     = T  # flag for Removal of correlated columns         (5)
+fFeatureSel  = F  # flag for wrapper methods for feature selection (7)
 
 cutoff       = 0.9   # cut off for correlated features
-fLM          = TRUE  # flag to run LM            (8.1)
-fGLM         = TRUE  # flag to run GLM           (8.2)
-fPLS         = FALSE  # flag to run PLS           (8.3)
-fLASSO       = FALSE  # flag to run LASSO         (8.4)
-fRBFdda      = FALSE  # flat to run RBF DDA       (8.5)
-fSVLM        = FALSE # flat to run svmRadial.RMSE (8.6)
-fNN          = FALSE  # flat to run NN            (8.8)
+fLM          = T  # flag to run LM            (8.1)
+fGLM         = T  # flag to run GLM           (8.2)
+fPLS         = T  # flag to run PLS           (8.3)
+fLASSO       = F  # flag to run LASSO         (8.4)
+fRBFdda      = F  # flat to run RBF DDA       (8.5)
+fSVLM        = F # flat to run svmRadial.RMSE (8.6)
+fNN          = F  # flat to run NN            (8.8)
 
 # ----------------------------------------------------------------------------------------
 iScaling = 1 # 1 = normalization; 2 = standardization, 3 = other; any other: no scaling
@@ -130,14 +130,14 @@ ds<- as.data.frame(cbind(net.c,t(ds.dat1)))
 # 2.2 Custom filter (percentage threshold)
 # 2.3 Processing of missing values - use of preProcess();
 #     caret employs knnImpute algorithm to impute values from a neighborhood of k
-if (fFilters==TRUE) {
+if (fFilters==T) {
   # cat("-> [2] Filtering dataset ... \n")
 }
 
 # -----------------------------------------------------------------------
 # (3) Remove near zero variance columns
 # -----------------------------------------------------------------------
-if (fRemNear0Var==TRUE) {
+if (fRemNear0Var==T) {
   cat("-> [3] Removal of near zero variance columns ...\n")
   outFile <- file.path(PathDataSet,No0NearVarFile) # the same folder as input  
   
@@ -151,7 +151,7 @@ if (fRemNear0Var==TRUE) {
 # -----------------------------------------------------------------------
 # (4) Scaling dataset: normalization (default), standardization, other
 # -----------------------------------------------------------------------
-if (fScaling==TRUE) {
+if (fScaling==T) {
   cat("-> [4] Scaling original dataset ...\n")
   outFile <- file.path(PathDataSet,ScaledFile)       # the same folder as input
   
@@ -165,7 +165,7 @@ if (fScaling==TRUE) {
 # -----------------------------------------------------------------------
 # (5) Remove correlated features
 # -----------------------------------------------------------------------
-if (fRemCorr==TRUE) {    
+if (fRemCorr==T) {    
   cat("-> [5] Removing correlated features ...\n") 
   outFile <- file.path(PathDataSet,NoCorrFile)    # the same folder as the input
   
@@ -229,7 +229,7 @@ for (i in 1:iSplitTimes) {                      # Step splitting number = i
   # Two types of regression funtions:
   # -> without wrapper methods (no feature selection excepts the built-in feature selection: Lasso, PLS)
   # -> with wrapper methods (all the functions without built-in feature selection)
-  # ===>>>> if fFeatureSel = TRUE, the wrapper versions will be used in step 8
+  # ===>>>> if fFeatureSel = T, the wrapper versions will be used in step 8
   
   # Note: additional feature selection could be implemented in the future
   
@@ -242,12 +242,12 @@ for (i in 1:iSplitTimes) {                      # Step splitting number = i
   # --------------------------------------------
   # 8.1. Basic LM : default
   # --------------------------------------------
-  if (fLM==TRUE) {   # if LM was selected, run the method
+  if (fLM==T) {   # if LM was selected, run the method
     cat("-> [8.1] LM ...\n")
     outFile.LM <- file.path(PathDataSet,lmFile)   # the same folder as the input is used for the output
     
     # Both wrapper and nont-wrapper function are placed in the same external file s8.RegrrMethods.R
-    if (fFeatureSel==FALSE) {    # if there is no need of feature selection ->> use normal functions
+    if (fFeatureSel==F) {    # if there is no need of feature selection ->> use normal functions
       
       # For each type of CV do all the statistics
       # -----------------------------------------------------
@@ -258,7 +258,7 @@ for (i in 1:iSplitTimes) {                      # Step splitting number = i
         # Add output from GLM to the list of results
         #-------------------------------------------------------
         # List of results for each splitting, CV type & regression method
-        dfRes = mapply(c, my.stats.LM, dfRes, SIMPLIFY=FALSE)
+        dfRes = mapply(c, my.stats.LM, dfRes, SIMPLIFY=F)
         
       } # end CV types
     } 
@@ -272,12 +272,12 @@ for (i in 1:iSplitTimes) {                      # Step splitting number = i
   # -----------------------------------------------------------------------------------------
   # (8.2) GLM based on AIC regression - Generalized Linear Model with Stepwise Feature Selection
   # -----------------------------------------------------------------------------------------
-  if (fGLM==TRUE) {   # if GLM was selected, run the method
+  if (fGLM==T) {   # if GLM was selected, run the method
     cat("-> [8.2] GLM stepwise - based on AIC ...\n")
     outFile.GLM <- file.path(PathDataSet,glmFile)   # the same folder as the input is used for the output
 
     # Both wrapper and nont-wrapper function are placed in the same external file s8.RegrrMethods.R
-    if (fFeatureSel==FALSE) {    # if there is no need of feature selection ->> use normal functions
+    if (fFeatureSel==F) {    # if there is no need of feature selection ->> use normal functions
       
       # List with data set and method information
       #my.stats.dsInfo <- list("RegrMethod"= RegrMethod,           # regression method name
@@ -296,7 +296,7 @@ for (i in 1:iSplitTimes) {                      # Step splitting number = i
         # Add output from GLM to the list of results
         #-------------------------------------------------------
         # List of results for each splitting, CV type & regression method
-        dfRes = mapply(c, my.stats.GLM, dfRes, SIMPLIFY=FALSE)
+        dfRes = mapply(c, my.stats.GLM, dfRes, SIMPLIFY=F)
       
         } # end CV types
     } 
@@ -310,12 +310,12 @@ for (i in 1:iSplitTimes) {                      # Step splitting number = i
   # --------------------------------------------
   # 8.3. PLS
   # --------------------------------------------
-  if (fPLS==TRUE) {   # if LASSO was selected, run the method
+  if (fPLS==T) {   # if LASSO was selected, run the method
     outFile.PLS <- file.path(PathDataSet,plsFile)   # the same folder as the input is used for the output
     
     # Both wrapper and nont-wrapper function are placed in the same external file s8.RegrrMethods.R
     
-    if (fFeatureSel==FALSE) {    # if there is no need of feature selection ->> use normal functions
+    if (fFeatureSel==F) {    # if there is no need of feature selection ->> use normal functions
       cat("-> [8.3] PLS ...\n")
       # For each type of CV do all the statistics
       # -----------------------------------------------------
@@ -325,7 +325,7 @@ for (i in 1:iSplitTimes) {                      # Step splitting number = i
         # Add output from GLM to the list of results
         #-------------------------------------------------------
         # List of results for each splitting, CV type & regression method
-        dfRes = mapply(c, my.stats.PLS, dfRes, SIMPLIFY=FALSE)
+        dfRes = mapply(c, my.stats.PLS, dfRes, SIMPLIFY=F)
       } # end CV types
     } 
     else    # if there is a need for previous feature selection ->> use wrapper functions
@@ -339,7 +339,7 @@ for (i in 1:iSplitTimes) {                      # Step splitting number = i
         # Add output from GLM to the list of results
         #-------------------------------------------------------
         # List of results for each splitting, CV type & regression method
-        dfRes = mapply(c, my.stats.PLS, dfRes, SIMPLIFY=FALSE)
+        dfRes = mapply(c, my.stats.PLS, dfRes, SIMPLIFY=F)
       } # end CV types 
     }
     
@@ -348,12 +348,12 @@ for (i in 1:iSplitTimes) {                      # Step splitting number = i
   # --------------------------------------------
   # 8.4. LASSO regression
   # --------------------------------------------
-  if (fLASSO==TRUE) {   # if LASSO was selected, run the method
+  if (fLASSO==T) {   # if LASSO was selected, run the method
     cat("-> [8.4] LASSO ...\n")
     outFile.LASSO <- file.path(PathDataSet,lassoFile)   # the same folder as the input is used for the output
     
     # Both wrapper and nont-wrapper function are placed in the same external file s8.RegrrMethods.R
-    if (fFeatureSel==FALSE) {    # if there is no need of feature selection ->> use normal functions
+    if (fFeatureSel==F) {    # if there is no need of feature selection ->> use normal functions
       # For each type of CV do all the statistics
       # -----------------------------------------------------
       for (cv in 1:length(CVtypes)) {
@@ -362,7 +362,7 @@ for (i in 1:iSplitTimes) {                      # Step splitting number = i
         # Add output from GLM to the list of results
         #-------------------------------------------------------
         # List of results for each splitting, CV type & regression method
-        dfRes = mapply(c, my.stats.LASSO, dfRes, SIMPLIFY=FALSE)
+        dfRes = mapply(c, my.stats.LASSO, dfRes, SIMPLIFY=F)
       } # end CV types
     } 
     else    # if there is a need for previous feature selection ->> use wrapper functions
@@ -375,12 +375,12 @@ for (i in 1:iSplitTimes) {                      # Step splitting number = i
   # --------------------------------------------
   # 8.5. RBF network with the DDA algorithm regression (caret)
   # --------------------------------------------
-  if (fRBFdda==TRUE) {   # if SVM Radial was selected, run the method
+  if (fRBFdda==T) {   # if SVM Radial was selected, run the method
     cat("-> [8.6] RBF network with the DDA ...\n")
     outFile.rbfDDA <- file.path(PathDataSet,rbfDDAFile)   # the same folder as the input is used for the output
     
     # Both wrapper and nont-wrapper function are placed in the same external file s8.RegrrMethods.R
-    if (fFeatureSel==FALSE) {    # if there is no need of feature selection ->> use normal functions
+    if (fFeatureSel==F) {    # if there is no need of feature selection ->> use normal functions
       # For each type of CV do all the statistics
       # -----------------------------------------------------
       for (cv in 1:length(CVtypes)) {
@@ -389,7 +389,7 @@ for (i in 1:iSplitTimes) {                      # Step splitting number = i
         # Add output from SVM Radial to the list of results
         #-------------------------------------------------------
         # List of results for each splitting, CV type & regression method
-        dfRes = mapply(c, my.stats.rbfDDA, dfRes, SIMPLIFY=FALSE)
+        dfRes = mapply(c, my.stats.rbfDDA, dfRes, SIMPLIFY=F)
       } # end CV types
     } 
     else    # if there is a need for previous feature selection ->> use wrapper functions
@@ -402,12 +402,12 @@ for (i in 1:iSplitTimes) {                      # Step splitting number = i
   # --------------------------------------------
   # 8.6. SVM radial regression
   # --------------------------------------------
-  if (fSVLM==TRUE) {   # if SVM Radial was selected, run the method
+  if (fSVLM==T) {   # if SVM Radial was selected, run the method
     cat("-> [8.6] SVM radial ...\n")
     outFile.SVLM <- file.path(PathDataSet,svlmFile)   # the same folder as the input is used for the output
     
     # Both wrapper and nont-wrapper function are placed in the same external file s8.RegrrMethods.R
-    if (fFeatureSel==FALSE) {    # if there is no need of feature selection ->> use normal functions
+    if (fFeatureSel==F) {    # if there is no need of feature selection ->> use normal functions
       # For each type of CV do all the statistics
       # -----------------------------------------------------
       for (cv in 1:length(CVtypes)) {
@@ -416,7 +416,7 @@ for (i in 1:iSplitTimes) {                      # Step splitting number = i
         # Add output from SVM Radial to the list of results
         #-------------------------------------------------------
         # List of results for each splitting, CV type & regression method
-        dfRes = mapply(c, my.stats.SVLM, dfRes, SIMPLIFY=FALSE)
+        dfRes = mapply(c, my.stats.SVLM, dfRes, SIMPLIFY=F)
       } # end CV types
     } 
     else    # if there is a need for previous feature selection ->> use wrapper functions
@@ -433,12 +433,12 @@ for (i in 1:iSplitTimes) {                      # Step splitting number = i
   # --------------------------------------------
   # 8.8. Neural Networks Regression
   # --------------------------------------------
-  if (fNN==TRUE) {   # if NNet was selected, run the method
+  if (fNN==T) {   # if NNet was selected, run the method
     cat("-> [8.8] Neural Networks ...\n")
     outFile.NN <- file.path(PathDataSet,nnFile)   # the same folder as the input is used for the output
     
     # Both wrapper and nont-wrapper function are placed in the same external file s8.RegrrMethods.R
-    if (fFeatureSel==FALSE) {    # if there is no need of feature selection ->> use normal functions
+    if (fFeatureSel==F) {    # if there is no need of feature selection ->> use normal functions
       # For each type of CV do all the statistics
       # -----------------------------------------------------
       for (cv in 1:length(CVtypes)) {
@@ -447,7 +447,7 @@ for (i in 1:iSplitTimes) {                      # Step splitting number = i
         # Add output from NNet to the list of results
         #-------------------------------------------------------
         # List of results for each splitting, CV type & regression method
-        dfRes = mapply(c, my.stats.NN, dfRes, SIMPLIFY=FALSE)
+        dfRes = mapply(c, my.stats.NN, dfRes, SIMPLIFY=F)
       } # end CV types
     } 
     else    # if there is a need for previous feature selection ->> use wrapper functions
@@ -517,9 +517,9 @@ best.reg <- paste(best.dt$RegrMeth,collapse="") # best regrression method
 #----------------------------------------------------------
 # Write the best model statistics
 ResBestF <- file.path(PathDataSet,ResBest)
-write.table("Averaged values for all spits: ", file = ResBestF, append = TRUE, sep = " ",col.names = FALSE,quote = FALSE)
+write.table("Averaged values for all spits: ",file=ResBestF, append=T, sep=" ",col.names=F, quote=F)
 # write.csv(data.frame(best.dt), file = ResBestF)    # write statistics data frame into a CSV output file
-write.table(data.frame(best.dt), file = ResBestF,append = TRUE, sep = ",",col.names = TRUE,quote = FALSE) # write statistics data frame into a CSV output file
+write.table(data.frame(best.dt), file=ResBestF,append=T,sep=",",col.names=T,quote=F) # write statistics data frame into a CSV output file
 
 # Use the last split for dataset (ds.train & ds.test) ! (or chose other one?)
 
@@ -527,25 +527,25 @@ write.table(data.frame(best.dt), file = ResBestF,append = TRUE, sep = ",",col.na
 # and append the details in the best model output file
 
 if (best.reg=="lm") {
-  my.stats.reg  <- LMreg(ds.train,ds.test,"repeatedcv",i,TRUE,ResBestF) # run GLM for each CV and regr method
+  my.stats.reg  <- LMreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF) # run GLM for each CV and regr method
 }
 if (best.reg=="glmStepAIC") {
-  my.stats.reg  <- GLMreg(ds.train,ds.test,"repeatedcv",i,TRUE,ResBestF) # run GLM for each CV and regr method
+  my.stats.reg  <- GLMreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF) # run GLM for each CV and regr method
 }
 if (best.reg=="pls") {
-  my.stats.reg  <- PLSreg(ds.train,ds.test,"repeatedcv",i,TRUE,ResBestF) # run SVLM Radial for each CV and regr method
+  my.stats.reg  <- PLSreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF) # run SVLM Radial for each CV and regr method
 }
 if (best.reg=="lasso") {
-  my.stats.reg  <- LASSOreg(ds.train,ds.test,"repeatedcv",i,TRUE,ResBestF) # run SVLM Radial for each CV and regr method
+  my.stats.reg  <- LASSOreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF) # run SVLM Radial for each CV and regr method
 }
 if (best.reg=="rbfDDA") {  
-  my.stats.reg  <- RBF_DDAreg(ds.train,ds.test,"repeatedcv",i,TRUE,ResBestF) # run SVLM Radial for each CV and regr method
+  my.stats.reg  <- RBF_DDAreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF) # run SVLM Radial for each CV and regr method
 }
 if (best.reg=="svmRadial") {  
-  my.stats.reg  <- SVLMreg(ds.train,ds.test,"repeatedcv",i,TRUE,ResBestF) # run SVLM Radial for each CV and regr method
+  my.stats.reg  <- SVLMreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF) # run SVLM Radial for each CV and regr method
 }
 if (best.reg=="nnet") {  
-  my.stats.reg  <- NNreg(ds.train,ds.test,"repeatedcv",i,TRUE,ResBestF) # run NNet for each CV and regr method
+  my.stats.reg  <- NNreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF) # run NNet for each CV and regr method
 } 
 
 #------------------------------------------------------------------------------
@@ -564,7 +564,7 @@ R2Diff.Yrand <- Yrandom(best.reg,my.stats.reg$R2.ts,noYrand,ResBestF)
 #----------------------------
 cat("\n MAIN RESULT FILES:\n")
 cat("===================================\n")
-cat("Statistics for each data set splitting/method/CV type:",ResBySplits,"\n")
+cat("Statistics for each data set splitting/method/CV type:", ResBySplits,"\n")
 cat("Averages for all data set splittings by method/CV type:",ResAvgsF,"\n")
 cat("Best model statistics:",ResBestF,"\n")
 cat("\n* if you choose Details, additional CSV files will be create for each method.\n")

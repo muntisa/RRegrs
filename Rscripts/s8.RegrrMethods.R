@@ -680,6 +680,24 @@ PLSregWSel <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile=""
     
     write.table("Full Statistics: ", file=outFile,append=T,sep=",",col.names=F,quote=F)
     write.table(my.stats, file=outFile,append=T,sep=",",col.names=T,quote=F)
+    
+    # Variable Importance (max top 20)
+    FeatImp <- varImp(pls.fit, scale = F)
+    components = length(FeatImp)  # default plot all feature importance
+    if (length(FeatImp)>20){     # if the number of features is greater than 20, use only 20
+      components = 20
+    }
+    # Append feature importance to output details
+    AppendList2CSv(FeatImp,outFile)
+    
+    # PDF plots
+    pdf(file=paste(outFile,".",sCV,".","split",iSplit,".pdf"))
+    par(mfrow = c(2, 2))
+    plot(my.datf.train[,1],pred.tr,xlab="Yobs", ylab="Ypred", type="b", main="Train Yobs-Ypred")
+    plot(my.datf.test[,1], pred.ts,xlab="Yobs", ylab="Ypred", type="b", main="Test Yobs-Ypred")
+    dotchart(as.matrix(FeatImp$importance),main="Feature Importance")
+    #plot(FeatImp, top = components,main="Feature Importance")
+    dev.off()
   }
   
   return(my.stats)  # return a list with statistics
