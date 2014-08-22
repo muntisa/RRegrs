@@ -35,6 +35,7 @@
 # - all the input and output files are placed into the same folder
 
 library(caret)
+paramFile="Parameters.csv"
 
 #==========================================================================================
 # (1) Load dataset and parameters
@@ -44,52 +45,58 @@ library(caret)
 # -----------------------------------------------------------------------
 # Option to run any step
 # -----------------------------------------------------------------------
-fDet         = T  # flag to calculate and print details for all the functions
-fFilters     = T  # flag to apply filters                          (2)
-fScaling     = T  # flag for dataset Scaling                       (3)
-fRemNear0Var = T  # flag for Removal of near zero variance columns (4)
-fRemCorr     = T  # flag for Removal of correlated columns         (5)
-fFeatureSel  = F  # flag for wrapper methods for feature selection (7)
 
-cutoff       = 0.9   # cut off for correlated features
-fLM          = T  # flag to run LM            (8.1)
-fGLM         = T  # flag to run GLM           (8.2)
-fPLS         = T  # flag to run PLS           (8.3)
-fLASSO       = F  # flag to run LASSO         (8.4)
-fRBFdda      = F  # flat to run RBF DDA       (8.5)
-fSVLM        = F # flat to run svmRadial.RMSE (8.6)
-fNN          = F  # flat to run NN            (8.8)
+#-------------------------
+# Read parameters from a file as data frame
+# -----------------------------------------
+Param.df <- read.csv(paramFile,header=T)
+
+fDet         = as.logical(Param.df[which(Param.df$RRegrs.Parameters=="fDet"),2])         # flag to calculate and print details for all the functions
+fFilters     = as.logical(Param.df[which(Param.df$RRegrs.Parameters=="fFilters"),2])     # flag to apply filters                          (2)
+fScaling     = as.logical(Param.df[which(Param.df$RRegrs.Parameters=="fScaling"),2])     # flag for dataset Scaling                       (3)
+fRemNear0Var = as.logical(Param.df[which(Param.df$RRegrs.Parameters=="fRemNear0Var"),2]) # flag for Removal of near zero variance columns (4)
+fRemCorr     = as.logical(Param.df[which(Param.df$RRegrs.Parameters=="fRemCorr"),2])     # flag for Removal of correlated columns         (5)
+fFeatureSel  = as.logical(Param.df[which(Param.df$RRegrs.Parameters=="fFeatureSel"),2])  # flag for wrapper methods for feature selection (7)
+
+cutoff       = as.numeric(as.character(Param.df[which(Param.df$RRegrs.Parameters=="cutoff"),2]))  # cut off for correlated features
+fLM          = as.logical(Param.df[which(Param.df$RRegrs.Parameters=="fLM"),2])     # flag to run LM            (8.1)
+fGLM         = as.logical(Param.df[which(Param.df$RRegrs.Parameters=="fGLM"),2])    # flag to run GLM           (8.2)
+fPLS         = as.logical(Param.df[which(Param.df$RRegrs.Parameters=="fPLS"),2])    # flag to run PLS           (8.3)
+fLASSO       = as.logical(Param.df[which(Param.df$RRegrs.Parameters=="fLASSO"),2])  # flag to run LASSO         (8.4)
+fRBFdda      = as.logical(Param.df[which(Param.df$RRegrs.Parameters=="fRBFdda"),2]) # flat to run RBF DDA       (8.5)
+fSVLM        = as.logical(Param.df[which(Param.df$RRegrs.Parameters=="fSVLM"),2])   # flat to run svmRadial     (8.6)
+fNN          = as.logical(Param.df[which(Param.df$RRegrs.Parameters=="fNN"),2])     # flat to run NN            (8.8)
 
 # ----------------------------------------------------------------------------------------
-iScaling = 1 # 1 = normalization; 2 = standardization, 3 = other; any other: no scaling
-iScalCol = 1 # 1 = including dependent variable in scaling; 2: only all features; etc.
+iScaling = as.numeric(as.character(Param.df[which(Param.df$RRegrs.Parameters=="iScaling"),2])) # 1 = normalization; 2 = standardization, 3 = other; any other: no scaling
+iScalCol = as.numeric(as.character(Param.df[which(Param.df$RRegrs.Parameters=="iScalCol"),2])) # 1 = including dependent variable in scaling; 2: only all features; etc.
 # ----------------------------------------------------------------------------------------
-trainFrac   = 3/4 # the fraction of training set from the entire dataset; trainFrac = the rest of dataset, the test set
-iSplitTimes = 2   # default is 10; time to split the data in train and test (steps 6-11); report each step + average
-noYrand     = 3   # number of Y randomization (default = 100)
+trainFrac   = as.numeric(as.character(Param.df[which(Param.df$RRegrs.Parameters=="trainFrac"),2]))   # the fraction of training set from the entire dataset; trainFrac = the rest of dataset, the test set
+iSplitTimes = as.numeric(as.character(Param.df[which(Param.df$RRegrs.Parameters=="iSplitTimes"),2])) # default is 10; time to split the data in train and test (steps 6-11); report each step + average
+noYrand     = as.numeric(as.character(Param.df[which(Param.df$RRegrs.Parameters=="noYrand"),2]))     # number of Y randomization (default = 100)
 
-CVtypes    <- c("repeatedcv","LOOCV")             # cross-validation types: 10-CV and LOOCV
+CVtypes = strsplit(as.character(Param.df[which(Param.df$RRegrs.Parameters=="CVtypes"),2]),";")[[1]] # types of cross-validation methods
 
 # -------------------------------------------------------------------------------------------------------
 # Files
 # -------------------------------------------------------------------------------------------------------
-PathDataSet    = "DataResults"            # dataset folder for input and output files
-DataFileName   = "ds.csv"                 # input step 1 = ds original file name
-No0NearVarFile = "ds3.No0Var.csv"         # output step 3 = ds without zero near vars
-ScaledFile     = "ds4.scaled.csv"         # output step 4 = scaled ds file name (in the same folder)
-NoCorrFile     = "ds5.scaled.NoCorrs.csv" # output step 5 = dataset after correction removal
+PathDataSet    = as.character(Param.df[which(Param.df$RRegrs.Parameters=="PathDataSet"),2])    # dataset folder for input and output files
+DataFileName   = as.character(Param.df[which(Param.df$RRegrs.Parameters=="DataFileName"),2])   # input step 1 = ds original file name
+No0NearVarFile = as.character(Param.df[which(Param.df$RRegrs.Parameters=="No0NearVarFile"),2]) # output step 3 = ds without zero near vars
+ScaledFile     = as.character(Param.df[which(Param.df$RRegrs.Parameters=="ScaledFile"),2])     # output step 4 = scaled ds file name (in the same folder)
+NoCorrFile     = as.character(Param.df[which(Param.df$RRegrs.Parameters=="NoCorrFile"),2])     # output step 5 = dataset after correction removal
 
-ResAvgs        = "RRegsResAvgs.csv"       # the output file with averaged statistics for each regression method
-ResBySplits    = "RRegrsResBySplit.csv"   # the output file with statistics for each split and the averaged values
-ResBest        = "RRegrsResBest.csv"      # the output file with statistics for the best model
+ResAvgs        = as.character(Param.df[which(Param.df$RRegrs.Parameters=="ResAvgs"),2])     # the output file with averaged statistics for each regression method
+ResBySplits    = as.character(Param.df[which(Param.df$RRegrs.Parameters=="ResBySplits"),2]) # the output file with statistics for each split and the averaged values
+ResBest        = as.character(Param.df[which(Param.df$RRegrs.Parameters=="ResBest"),2])     # the output file with statistics for the best model
 
-lmFile         = "8.1.LM.details.csv"           # LM output file for details
-glmFile        = "8.2.GLM.details.csv"          # GLM output file for details
-plsFile        = "8.3.PLS.details.csv"          # PLS output file for details
-lassoFile      = "8.4.LASSO.details.csv"        # Lasoo Radial output file for details
-rbfDDAFile     = "8.5.RBF_DDA.details.csv"      # RBF DDA output file for details
-svlmFile       = "8.6.SVMRadial.details.csv"    # SVM Radial output file for details
-nnFile         = "8.8.NN.details.csv"           # NN Radial output file for details
+lmFile         = as.character(Param.df[which(Param.df$RRegrs.Parameters=="lmFile"),2])     # LM output file for details
+glmFile        = as.character(Param.df[which(Param.df$RRegrs.Parameters=="glmFile"),2])    # GLM output file for details
+plsFile        = as.character(Param.df[which(Param.df$RRegrs.Parameters=="plsFile"),2])    # PLS output file for details
+lassoFile      = as.character(Param.df[which(Param.df$RRegrs.Parameters=="lassoFile"),2])  # Lasoo Radial output file for details
+rbfDDAFile     = as.character(Param.df[which(Param.df$RRegrs.Parameters=="rbfDDAFile"),2]) # RBF DDA output file for details
+svlmFile       = as.character(Param.df[which(Param.df$RRegrs.Parameters=="svlmFile"),2])   # SVM Radial output file for details
+nnFile         = as.character(Param.df[which(Param.df$RRegrs.Parameters=="nnFile"),2])     # NN Radial output file for details
 
 # Generate path + file name = original dataset
 inFile <- file.path(PathDataSet, DataFileName)
