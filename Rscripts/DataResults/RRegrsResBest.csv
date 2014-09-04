@@ -46,3 +46,116 @@ model
 calledFrom
 ,x
 1,varImp
+1 Averaged values for all spits: 
+1 Averaged values for all spits: 
+RegrMeth,CVtype,adjR2.tr.Avg,RMSE.tr.Avg,R2.tr.Avg,RMSEsd.tr.Avg,R2sd.tr.Avg,adjR2.ts.Avg,RMSE.ts.Avg,R2.ts.Avg,corP.ts.Avg,adjR2.both.Avg,RMSE.both.Avg,R2.both.Avg
+1,glmStepAIC,repeatedcv,0.999214631537019,0.00509058732908933,NA,0.00472198070994085,NA,Inf,0.00426517713579105,NA,NA,0.999195258069327,0.00355973638557439,0.999436680648529
+RRegr package | eNanoMapper
+1,Regression method:  glmStepAIC
+1,Split no.:  2
+1,CV type:  repeatedcv
+1,Training Set Summary: 
+    net.c,      V2,      V5,      V7
+,Min.   :0.07092  ,Min.   :0.1190  ,Min.   :0.0001338  ,Min.   :0.03510  
+,1st Qu.:0.11096  ,1st Qu.:0.2111  ,1st Qu.:0.0074114  ,1st Qu.:0.03510  
+,Median :0.23110  ,Median :0.4353  ,Median :0.0081800  ,Median :0.03510  
+,Mean   :0.26225  ,Mean   :0.5052  ,Mean   :0.0209330  ,Mean   :0.03705  
+,3rd Qu.:0.39129  ,3rd Qu.:0.7717  ,3rd Qu.:0.0273091  ,3rd Qu.:0.03970  
+,Max.   :0.51143  ,Max.   :1.0000  ,Max.   :0.0849620  ,Max.   :0.04311  
+1,Test Set Summary: 
+    net.c,      V2,      V5,      V7
+,Min.   :0.1110  ,Min.   :0.2111  ,Min.   :0.08496  ,Min.   :0.03510  
+,1st Qu.:0.1510  ,1st Qu.:0.2892  ,1st Qu.:0.08556  ,1st Qu.:0.03710  
+,Median :0.1911  ,Median :0.3673  ,Median :0.08615  ,Median :0.03911  
+,Mean   :0.1911  ,Mean   :0.3673  ,Mean   :0.08615  ,Mean   :0.03911  
+,3rd Qu.:0.2311  ,3rd Qu.:0.4454  ,3rd Qu.:0.08674  ,3rd Qu.:0.04111  
+,Max.   :0.2712  ,Max.   :0.5234  ,Max.   :0.08734  ,Max.   :0.04311  
+1,Fitting Summary: 
+Estimate,Std..Error,t.value,Pr...t..
+(Intercept),0.00859058592077218,0.00251139264548614,3.42064628412945,0.0111256369262368
+V2,0.502098594337755,0.00421363925572075,119.160318163466,7.73014589569245e-13
+1,Predictors: 
+x
+1,V2
+2,V5
+3,V7
+1,Trainig Results: 
+x
+1,NA
+1,Test Results: 
+x
+1,NA
+1,Full Statistics: 
+RegrMeth,Split.No,CVtype,NoModelFeats,ModelFeats,adjR2.tr,RMSE.tr,R2.tr,RMSEsd.tr,R2sd.tr,adjR2.ts,RMSE.ts,R2.ts,corP.ts,adjR2.both,RMSE.both,R2.both
+1,glmStepAIC,2,repeatedcv,3,V2+V5+V7,0.999211610800603,0.00651954634516343,NA,0.0063778777009419,NA,1.00051050495645,0.00255924204816293,1,1,0.999280590178572,0.00337047167371395,0.999496413125001
+importance
+,Overall
+V2,0.999781078786079
+V5,0.851609961927342
+V7,0.0300790366933628
+model
+,x
+1,loess r-squared
+calledFrom
+,x
+1,varImp
+Y randomization test: 
+=====================
+Diffs R2 (Best Model - Y rand):
+,x
+1,NA
+,x
+1,0
+,x
+1,NA
+Summary Difs:
+Min.
+,x
+1,0
+1st Qu.
+,x
+1,0
+Median
+,x
+1,0
+Mean
+,x
+1,0
+3rd Qu.
+,x
+1,0
+Max.
+,x
+1,0
+NA's
+,x
+1,2
+Ratio Diffs R2 / Best R2 (Best Model - Y rand):
+,x
+1,NA
+,x
+1,0
+,x
+1,NA
+Summary Difs %:
+Min.
+,x
+1,0
+1st Qu.
+,x
+1,0
+Median
+,x
+1,0
+Mean
+,x
+1,0
+3rd Qu.
+,x
+1,0
+Max.
+,x
+1,0
+NA's
+,x
+1,2
