@@ -260,15 +260,74 @@ LMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
     # Append feature importance to output details
     AppendList2CSv(FeatImp,outFile)
     
-    # PDF plots
-    pdf(file=paste(outFile,".",sCV,".","split",iSplit,".pdf"))
-      par(mfrow = c(2, 2))
-      plot(my.datf.train[,1],pred.tr,xlab="Yobs", ylab="Ypred", type="b", main="Train Yobs-Ypred")
-      plot(my.datf.test[,1], pred.ts,xlab="Yobs", ylab="Ypred", type="b", main="Test Yobs-Ypred")
-      dotchart(as.matrix(FeatImp$importance),main="Feature Importance")
-      #plot(FeatImp, top = components,main="Feature Importance")
-    dev.off()
     
+    fitModel <- lm.fit$finalModel
+    
+    # =============================================================================
+    # Assessment of Applicability Domain (plot leverage)
+    # =============================================================================
+    
+    resids <- residuals(fitModel) # residuals
+    
+    hat.fit <- hatvalues(fitModel)          # hat values
+    hat.fit.df <- as.data.frame(hat.fit)    # hat data frame
+    hat.mean <- mean(hat.fit)               # mean hat values
+    hat.fit.df$warn <- ifelse(hat.fit.df[, 'hat.fit']>3*hat.mean, 'x3',ifelse(hat.fit.df[, 'hat.fit']>2*hat.mean, 'x2', '-' ))
+    
+    #THRESHOLD values: 3m/n
+    # where m is the number of parameters, and n number of observations
+    
+    thresh.lever<- (3*(dim(my.datf.train)[2]-1))/dim(my.datf.train)[1] # leverage thresh
+    hat.problems<- data.frame(hat.fit[hat.fit>thresh.lever]) # points with high leverage
+    
+    
+    #OTHER things that can be calculated are, e.g.
+    cook.dists<- cooks.distance(fitModel)
+    
+    # Cook distances plot
+    cutoff.Cook <- 4/((nrow(my.datf.train)-length(fitModel$coefficients)-2)) 
+    
+    # Influence
+    infl <- influence(fitModel)#produces several statistics of the kind
+    
+    #PACKAGE 'ouliers' gives you options for outliers tests which is pretty good
+    
+    # PDF plots
+    # --------------------------------------------------------------
+    pdf(file=paste(outFile,".",sCV,".","split",iSplit,".pdf"))
+    par(mfrow = c(3, 4))
+    
+    plot(my.datf.train[,1],pred.tr,xlab="Yobs", ylab="Ypred", type="b", main="Train Yobs-Ypred")
+    
+    plot(my.datf.test[,1], pred.ts,xlab="Yobs", ylab="Ypred", type="b", main="Test Yobs-Ypred")
+    
+    dotchart(as.matrix(FeatImp$importance),main="Feature Importance")
+    
+    # Fitted vs Residuals
+    plot(fitted(fitModel),residuals(fitModel),
+         main="Fitted vs. Residuals for Fitted Model",
+         xlab="Fitted", ylab="Residuals")
+    abline(h = 0, lty = 2)
+    
+    # Leverage plots
+    plot(hat.fit, type = "h",
+         main="Leverage for Fitted Model",
+         xlab="Index", ylab="Hat")
+    abline(h = thresh.lever, lty = 2, col="red") # leverage thresh
+    
+    # Cook's distance
+    plot(cook.dists,
+         main="Cook's Distance for Fitted Model",
+         xlab="Index", ylab="Cook Distance")
+    
+    for (p in 1:6) {
+      plot(fitModel, which=p, cook.levels=cutoff.Cook)
+    }
+    
+    #plot(FeatImp, top = components,main="Feature Importance")
+    dev.off()
+    # --------------------------------------------------------------
+
   }
   return(my.stats)  # return a list with statistics
 }
@@ -405,14 +464,72 @@ GLMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
     # Append feature importance to output details
     AppendList2CSv(FeatImp,outFile)
     
+    fitModel <- glm.fit$finalModel
+    
+    # =============================================================================
+    # Assessment of Applicability Domain (plot leverage)
+    # =============================================================================
+    
+    resids <- residuals(fitModel) # residuals
+    
+    hat.fit <- hatvalues(fitModel)          # hat values
+    hat.fit.df <- as.data.frame(hat.fit)    # hat data frame
+    hat.mean <- mean(hat.fit)               # mean hat values
+    hat.fit.df$warn <- ifelse(hat.fit.df[, 'hat.fit']>3*hat.mean, 'x3',ifelse(hat.fit.df[, 'hat.fit']>2*hat.mean, 'x2', '-' ))
+    
+    #THRESHOLD values: 3m/n
+    # where m is the number of parameters, and n number of observations
+    
+    thresh.lever<- (3*(dim(my.datf.train)[2]-1))/dim(my.datf.train)[1] # leverage thresh
+    hat.problems<- data.frame(hat.fit[hat.fit>thresh.lever]) # points with high leverage
+    
+    
+    #OTHER things that can be calculated are, e.g.
+    cook.dists<- cooks.distance(fitModel)
+    
+    # Cook distances plot
+    cutoff.Cook <- 4/((nrow(my.datf.train)-length(fitModel$coefficients)-2)) 
+    
+    # Influence
+    infl <- influence(fitModel)#produces several statistics of the kind
+    
+    #PACKAGE 'ouliers' gives you options for outliers tests which is pretty good
+    
     # PDF plots
+    # --------------------------------------------------------------
     pdf(file=paste(outFile,".",sCV,".","split",iSplit,".pdf"))
-    par(mfrow = c(2, 2))
+    par(mfrow = c(3, 4))
+    
     plot(my.datf.train[,1],pred.tr,xlab="Yobs", ylab="Ypred", type="b", main="Train Yobs-Ypred")
+    
     plot(my.datf.test[,1], pred.ts,xlab="Yobs", ylab="Ypred", type="b", main="Test Yobs-Ypred")
+    
     dotchart(as.matrix(FeatImp$importance),main="Feature Importance")
+    
+    # Fitted vs Residuals
+    plot(fitted(fitModel),residuals(fitModel),
+         main="Fitted vs. Residuals for Fitted Model",
+         xlab="Fitted", ylab="Residuals")
+    abline(h = 0, lty = 2)
+    
+    # Leverage plots
+    plot(hat.fit, type = "h",
+         main="Leverage for Fitted Model",
+         xlab="Index", ylab="Hat")
+    abline(h = thresh.lever, lty = 2, col="red") # leverage thresh
+    
+    # Cook's distance
+    plot(cook.dists,
+         main="Cook's Distance for Fitted Model",
+         xlab="Index", ylab="Cook Distance")
+    
+    for (p in 1:6) {
+      plot(fitModel, which=p, cook.levels=cutoff.Cook)
+    }
+    
     #plot(FeatImp, top = components,main="Feature Importance")
     dev.off()
+    # --------------------------------------------------------------
   }
   
   # my.stats.full <- c(my.stats.dsInfo,my.stats.10CV,my.stats.LOOCV)   # merge the CV results into one list that contains the names of each field!

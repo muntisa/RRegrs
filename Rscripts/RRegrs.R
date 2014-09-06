@@ -563,7 +563,8 @@ if (best.reg=="nnet") {
 R2Diff.Yrand <- Yrandom(best.reg,my.stats.reg$R2.ts,noYrand,ResBestF) 
 
 #------------------------------------------------------------------------------
-# 13. Assessment of Applicability Domain (plot leverage)
+# Assessment of Applicability Domain (plot leverage) was included as details
+# in lm and glm methods
 #-------------------------------------------------------------------------------
 
 #----------------------------

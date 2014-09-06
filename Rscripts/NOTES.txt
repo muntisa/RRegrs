@@ -1,2 +1,10 @@
 
+General:
+- check the appends in order to create a new output file for each new calculation
+- Add a parallel package depending on the operating system
+- catch the errors in each step
+- check the null results, etc.
+
+Particular:
 - step 1 = reading ds: the names of features are changed!
+
