@@ -383,7 +383,7 @@ for (i in 1:iSplitTimes) {                      # Step splitting number = i
   # 8.5. RBF network with the DDA algorithm regression (caret)
   # --------------------------------------------
   if (fRBFdda==T) {   # if SVM Radial was selected, run the method
-    cat("-> [8.6] RBF network with the DDA ...\n")
+    cat("-> [8.5] RBF network with the DDA ...\n")
     outFile.rbfDDA <- file.path(PathDataSet,rbfDDAFile)   # the same folder as the input is used for the output
     
     # Both wrapper and nont-wrapper function are placed in the same external file s8.RegrrMethods.R
