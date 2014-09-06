@@ -725,8 +725,6 @@ LASSOreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") 
   
   # Train the model using only training set
   set.seed(iSplit)
-  # Train the model using only training set
-  set.seed(iSplit)
   las.fit<- train(net.c~.,data=my.datf.train,
                   method='lasso', tuneLength = 10, trControl = ctrl,
                   metric='RMSE' ,tuneGrid=expand.grid(.fraction= seq(0.1,1,by=0.1)))
@@ -812,9 +810,11 @@ LASSOreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") 
     write.table(predictors(las.fit), file=outFile,append=T,sep=",",col.names=T,quote=F)
     
     write.table("Trainig Results: ",      file=outFile,append=T,sep=",",col.names=F,quote=F)
-    write.table(predictors(lm.train.res), file=outFile,append=T,sep=",",col.names=T,quote=F)
+    AppendList2CSv(predictors(lm.train.res),outFile)
+    #write.table(predictors(lm.train.res), file=outFile,append=T,sep=",",col.names=T,quote=F)
     write.table("Test Results: ",        file=outFile,append=T,sep=",",col.names=F,quote=F)
-    write.table(predictors(lm.test.res), file=outFile,append=T,sep=",",col.names=T,quote=F)
+    AppendList2CSv(predictors(lm.test.res),outFile)
+    #write.table(predictors(lm.test.res), file=outFile,append=T,sep=",",col.names=T,quote=F)
     
     write.table("Full Statistics: ", file=outFile,append=T,sep=",",col.names=F,quote=F)
     write.table(my.stats, file=outFile,append=T,sep=",",col.names=T,quote=F)
@@ -952,7 +952,7 @@ RBF_DDAreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile=""
     write.table(predictors(lm.test.res), file=outFile,append=T,sep=",",col.names=T,quote=F)
     
     write.table("Full Statistics: ", file=outFile,append=T,sep=",",col.names=F,quote=F)
-    write.table(my.stats, file=outFile,append=T,sep=",",col.names=T,quote=F)
+    write.table(my.stats, file=outFile,append=T,sep=",",col.names=T,row.names=F,quote=F)
     
     # Variable Importance (max top 20)
     FeatImp <- varImp(rbf.fit, scale = F)
