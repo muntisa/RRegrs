@@ -149,7 +149,7 @@ if (fRemNear0Var==T) {
   outFile <- file.path(PathDataSet,No0NearVarFile) # the same folder as input  
   
   # get the ds without near zero cols 
-  source("s3.RemNearZeroVar.R")                    # add function         
+  source("s3.RemNearZeroVar.R")                    # add function 
   ds <- cbind("net.c" = ds[,1],RemNear0VarCols(ds[,2:dim(ds)[2]],fDet,outFile))
   # use df without Y (predicted values), reconstruct the ds
   # inputs: ds, flag for details, output file

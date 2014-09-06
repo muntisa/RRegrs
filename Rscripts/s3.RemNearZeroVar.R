@@ -15,15 +15,14 @@
 
 RemNear0VarCols <- function(ds,fDet=FALSE,outFile="ds3.No0Var.csv") {
   # default parameters are no details, with a CSV file name
-  ds.Rem0NearVar <- ds # default output without any modification
-  
   library(caret)
-  
-  ds.var <- nearZeroVar(ds) # get the near zero columns
-  ds.Rem0NearVar <- ds[,-(ds.var)] # get only the columns without this problem
-  if (fDet == TRUE) {
-    # write the corrected ds file
-    write.csv(ds.Rem0NearVar, outFile,row.names=F, quote=F)
+  ds.Rem0NearVar <- ds               # default output without any modification
+  ds.var <- nearZeroVar(ds)          # get the near zero columns
+  if (!length(ds.var) == FALSE) {    # remove the columns only if nearZeroVar identified; if no columns to remove, ds will be the same
+    ds.Rem0NearVar <- ds[,-(ds.var)] # get only the columns without this problem
+    if (fDet == TRUE) {              # write as details the corrected ds file
+      write.csv(ds.Rem0NearVar, outFile,row.names=F, quote=F)
+    }
   }
   return(as.data.frame(ds.Rem0NearVar)) # return the new data frame without near zero variance
 }
