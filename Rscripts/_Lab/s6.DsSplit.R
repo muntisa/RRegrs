@@ -1,16 +1,12 @@
 # ======================================================================
-# Dataset spliting in Training and Test
+# Dataset spliting in Training and Test (Step 6)
 # ======================================================================
-# contact: Cristian R Munteanu | BiGCaT - UM    | muntisa@gmail.com
-#          Georgia Tsiliki     | ChemEng - NTUA | g_tsiliki@hotmail.com
-# ----------------------------------------------------------------------
-
 # Inputs
 # - ds = frame dataset object
 # - fDet = flag for detais (TRUE/FALSE)
 # - PathDataSet = pathway for results
 
-# Output = training and test datasets
+# Output = training and test datasets (to be used for regressions in other functions)
 # if datails = TRUE, output files will be created
 
 # ------------------------------------------

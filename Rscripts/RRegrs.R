@@ -1,18 +1,16 @@
 # ======================================================================
-# RRegrs - R Regression Models
-#
+# RRegrs - R Regressions
+# ======================================================================
 # Get the best regression models for one dataset using R caret methods
 # Developed as tool for nano-toxicity QSAR models
 # NTUA and UM groups, enanomapper.net
 # ----------------------------------------------------------------------
 # Contact: 
-# Cristian R Munteanu, BiGCaT - UM, muntisa [at] gmail [dot] com
+# Cristian R Munteanu, University of A Coruña, muntisa [at] gmail [dot] com
 # Georgia Tsiliki, ChemEng - NTUA, g_tsiliki [at] hotmail [dot] com
-# ======================================================================
-
-# Main input file: CSV
 # ----------------------------------------------------------------------
-# Variable names
+
+# Some variable names
 # -----------------------------------------------------------------------
 # DataSet = dataset including header, Y and X features values
 # Yname, Xnames = names of dependent and features
@@ -21,21 +19,23 @@
 # YData = values of Y
 # XData = values of the features
 # -----------------------------------------------------------------------
-# Note:
+# Notes
 # - Input file = CSV format and extension:
-#    - there is only one input file with the original dataset:
-#      Dependent Variable, Feature 1, ..., Feature n
+#    - there is only one input file with the original dataset: Dependent Variable (Y), Feature 1 (X1), ..., Feature n (Xn)
 #    - the names of the variables are located in the first row
+#    - the first column is the dependent variable (Y)
 # - the main script is importing separate file functions
-# - the functions are reading datafiles in specific folders
-# and it is writing the output as variables or datafiles
+# - the functions are reading datafiles in specific folders and it is writing the output as variables or datafiles
 # - it generates several dataset files for each step
-# - it generates PNG plots for the correlation matrix
-# before and after the correlation removal
+# - it generates PNG plots for the correlation matrix # before and after the correlation removal
 # - all the input and output files are placed into the same folder
+# - CSV and PDF files used for inputs and outputs
 
-library(caret)
 paramFile="Parameters.csv"
+
+# Libraries and external custom functions
+library(caret)                  # add package caret
+source("RRegrs_Functions.R")    # add external functions 
 
 #==========================================================================================
 # (1) Load dataset and parameters
@@ -149,7 +149,6 @@ if (fRemNear0Var==T) {
   outFile <- file.path(PathDataSet,No0NearVarFile) # the same folder as input  
   
   # get the ds without near zero cols 
-  source("s3.RemNearZeroVar.R")                    # add function 
   ds <- cbind("net.c" = ds[,1],RemNear0VarCols(ds[,2:dim(ds)[2]],fDet,outFile))
   # use df without Y (predicted values), reconstruct the ds
   # inputs: ds, flag for details, output file
@@ -163,7 +162,6 @@ if (fScaling==T) {
   outFile <- file.path(PathDataSet,ScaledFile)       # the same folder as input
   
   # run fuction for scaling input dataset file
-  source("s4.ScalingDataSet.R")                      # add function
   ds <- ScalingDS(ds,iScaling,iScalCol,fDet,outFile)
   # use df without Y (predicted values), reconstruct the ds
   # inputs: ds, type of scaling, flag for details, starting column, output file
@@ -177,7 +175,6 @@ if (fRemCorr==T) {
   outFile <- file.path(PathDataSet,NoCorrFile)    # the same folder as the input
   
   # run function to remove the correlations between the features
-  source("s5.RemCorrFeats.R")                     # add function
   ds <- cbind("net.c" = ds[,1],RemCorrs(ds[,2:dim(ds)[2]],fDet,cutoff,outFile))
 }
 
@@ -186,9 +183,6 @@ if (fRemCorr==T) {
 #                  (iSplitTimes = 10, default)
 #=================================================================================================
 
-source("s8.RegrrMethods.R")  # add external functions for regressions (all methods in one file!)
-
-#-------------------------------------------------------------------------------------------------
 # Initialize the list with the statistics results; the same HEADER as the function output
 dfRes <- list("RegrMeth"     = NULL,
               "Split No"     = NULL,    
@@ -214,8 +208,8 @@ for (i in 1:iSplitTimes) {                      # Step splitting number = i
   # (6) Dataset split: Training and Test sets
   # -----------------------------------------------------------------------
   cat("-> [6] Splitting dataset in Training and Test sets ...\n")
-  
-  source("s6.DsSplit.R")  # add external function
+  cat(paste("--> Split No.",i,"from",iSplitTimes,"\n"))
+
   iSeed=i                 # to reapeat the ds splitting, different values of seed will be used
   dsList  <- DsSplit(ds,trainFrac,fDet,PathDataSet,iSeed) # return a list with 2 datasets = dsList$train, dsList$test
   # get train and test from the resulted list
@@ -524,7 +518,7 @@ best.reg <- paste(best.dt$RegrMeth,collapse="") # best regrression method
 #----------------------------------------------------------
 # Write the best model statistics
 ResBestF <- file.path(PathDataSet,ResBest)
-write.table("Averaged values for all spits: ",file=ResBestF, append=T, sep=" ",col.names=F, quote=F)
+write.table("Averaged values for all spits: ",file=ResBestF,append=T,sep=",",col.names=F,row.names=F,quote=F)
 # write.csv(data.frame(best.dt), file = ResBestF)    # write statistics data frame into a CSV output file
 write.table(data.frame(best.dt), file=ResBestF,append=T,sep=",",col.names=T,quote=F) # write statistics data frame into a CSV output file
 
@@ -560,7 +554,7 @@ if (best.reg=="nnet") {
 #                   (+ Y randomization 100 times, bootstaping)
 #-------------------------------------------------------------------------------
 # ratios Yrand R2 - Best model R2 / Best model R2
-R2Diff.Yrand <- Yrandom(best.reg,my.stats.reg$R2.ts,noYrand,ResBestF) 
+R2Diff.Yrand <- Yrandom(best.reg,my.stats.reg$R2.ts,noYrand,ResBestF) # mean value of ratio (deatails are printed to output file)
 
 #------------------------------------------------------------------------------
 # Assessment of Applicability Domain (plot leverage) was included as details

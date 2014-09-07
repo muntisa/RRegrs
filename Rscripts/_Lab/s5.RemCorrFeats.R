@@ -1,10 +1,6 @@
 # =======================================================================
-# Remove the correlated columns from a file
+# Remove the correlated columns (Step 5)
 # =======================================================================
-# contact: Cristian R Munteanu | BiGCaT - UM    | muntisa@gmail.com
-#          Georgia Tsiliki     | ChemEng - NTUA | g_tsiliki@hotmail.com
-#------------------------------------------------------------------------
-#
 # ds = dataset frame
 # fDet = flag fro details (TRUE/FALSE)
 # cutoff = correlation cut off (ex: 0.9)

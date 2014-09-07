@@ -1,9 +1,6 @@
 #=======================================================================
-# Removal of near zero variance columns
+# Removal of near zero variance columns (Step 3)
 #=======================================================================
-# contact: Cristian R Munteanu | BiGCaT - UM    | muntisa@gmail.com
-#          Georgia Tsiliki     | ChemEng - NTUA | g_tsiliki@hotmail.com
-#-----------------------------------------------------------------------
 # inputs:
 # - ds = dataset frame
 # - fDet = flag for detais (TRUE/FALSE)

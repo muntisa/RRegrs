@@ -1,9 +1,6 @@
 #===================================================================================
-# Scaling dataset
+# Scaling dataset (Step 4)
 #===================================================================================
-# contact: Cristian R Munteanu | BiGCaT - UM    | muntisa@gmail.com
-#          Georgia Tsiliki     | ChemEng - NTUA | g_tsiliki@hotmail.com
-#-----------------------------------------------------------------------------------
 # s = { 1,2,3 } - type of scaling: 1 = normalization, 2 = standardization, 3 = other
 # c = the number of column into the dataset to start scaling
 # - if c = 1: included the dependent variable
