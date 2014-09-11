@@ -507,10 +507,17 @@ write.csv(data.frame(dt.mean.ord), file = ResAvgsF)    # write statistics data f
 #-------------------------------------------------------------------------------
 cat("-> Best model analysis ...\n")
 
-# ADD an algorithm to verifty similar adjR2 values:
+# ADD an algorithm to verifty similar adjR2 values
 # From the best ones (+/- 0.05 of adjR2), chose the one with less variables, after that the one with min RMSE!!!
 
-best.dt  <- dt.mean.ord[1] # the best model should be the first value in the descendent ordered results
+best.dt  <- dt.mean.ord[1] # the best model (adjR2.ts) should be the first value in the descendent ordered results
+# best.reg <- paste(best.dt$RegrMeth,collapse="") # best regrression method
+
+# New conditions
+# +/- 0.05 adjR2ts --> min(RMSE)
+best.adjR2.ts <- as.numeric(data.frame(best.dt)[,8]) # best adjR2.ts
+# best model with adjR2.ts +/- 0.05 and min of RMSE
+best.dt <- dt.mean.ord[adjR2.ts.Avg %between% c(best.adjR2.ts-0.05,best.adjR2.ts+0.05)][RMSE.ts.Avg == min(RMSE.ts.Avg)]
 best.reg <- paste(best.dt$RegrMeth,collapse="") # best regrression method
 
 #----------------------------------------------------------
@@ -569,5 +576,7 @@ cat("===================================\n")
 cat("Statistics for each data set splitting/method/CV type:", ResBySplits,"\n")
 cat("Averages for all data set splittings by method/CV type:",ResAvgsF,"\n")
 cat("Best model statistics:",ResBestF,"\n")
+cat("Best model plots:",paste(ResBestF,".repeatedcv.split",i,".pdf"),"\n")
+cat("Best model Y-randomization plot:",paste(ResBestF,".Yrand.Hist.pdf"),"\n")
 cat("\n* if you choose Details, additional CSV files will be create for each method.\n")
 
