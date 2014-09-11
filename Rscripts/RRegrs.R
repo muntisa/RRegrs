@@ -515,10 +515,17 @@ best.dt  <- dt.mean.ord[1] # the best model (adjR2.ts) should be the first value
 
 # New conditions
 # +/- 0.05 adjR2ts --> min(RMSE)
-best.adjR2.ts <- as.numeric(data.frame(best.dt)[,8]) # best adjR2.ts
-# best model with adjR2.ts +/- 0.05 and min of RMSE
-best.dt <- dt.mean.ord[adjR2.ts.Avg %between% c(best.adjR2.ts-0.05,best.adjR2.ts+0.05)][RMSE.ts.Avg == min(RMSE.ts.Avg)]
+best.adjR2.ts <- as.numeric(data.frame(best.dt)[,8]) # best adjR2.ts avgs
+
+
+# best model with adjR2.ts +/- 0.05 and min of RMSE for Avgs
+best.dt  <- dt.mean.ord[adjR2.ts.Avg %between% c(best.adjR2.ts-0.05,best.adjR2.ts+0.05)][RMSE.ts.Avg == min(RMSE.ts.Avg)]
 best.reg <- paste(best.dt$RegrMeth,collapse="") # best regrression method
+
+# best model non-averaged ? no. of features
+# best.method <- dt.res[CVtype == "repeatedcv"][RegrMeth == best.reg] # best modes corresponding with the avg best values
+# best.method.mean <- mean(as.numeric(data.frame(best.method)[,11])) # best adjR2.ts)
+# dt.res[CVtype == "repeatedcv"][RegrMeth == best.reg][NoModelFeats == min(NoModelFeats)][RMSE.ts == min(RMSE.ts)]
 
 #----------------------------------------------------------
 # 11. Best model detailed statistics 
