@@ -811,14 +811,67 @@ PLSreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
     # Append feature importance to output details
     AppendList2CSv(FeatImp,outFile)
     
+    fitModel <- pls.fit$finalModel
+    
+    # =============================================================================
+    # Assessment of Applicability Domain (plot leverage)
+    # =============================================================================
+    
+    # Residuals
+    resids <- residuals(fitModel) # residuals
+    write.table("Residuals of the fitted model: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+    write.table(data.frame(resids), file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F) # write residuals
+    
+    # ADDED !
+    predVals.pls.ad <- pred.ts
+    Traind.pls= as.matrix(my.datf.train)
+    Testd.pls = as.matrix(my.datf.test)
+    Hat.train = diag(Traind.pls %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Traind.pls))
+    Hat.test  = diag(Testd.pls  %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Testd.pls))  
+    
+    # Leverage / Hat values
+    hat.fit <- Hat.test          # hat values
+    hat.fit.df <- as.data.frame(hat.fit)    # hat data frame
+    hat.mean <- mean(hat.fit)               # mean hat values
+    hat.fit.df$warn <- ifelse(hat.fit.df[, 'hat.fit']>3*hat.mean, 'x3',ifelse(hat.fit.df[, 'hat.fit']>2*hat.mean, 'x2', '-' ))
+    
+    write.table("Leverage output: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+    write.table(paste("Mean of hat values: ", hat.mean), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+    write.table("Leverage / Hat values with warnings (X3 & X2 = values 3 & 2 times than hat mean): ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+    write.table(hat.fit.df, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F) # write hat values and the levels X3, X2 (of hat mean)
+    
+    #THRESHOLD values: 3m/n, where m is the number of parameters, and n number of observations
+    thresh.lever<- (3*(dim(my.datf.train)[2]-1))/dim(my.datf.train)[1] # leverage thresh
+    hat.problems<- data.frame(hat.fit[hat.fit>thresh.lever]) # points with high leverage
+    
+    write.table(paste("Leverage Threshold: ", thresh.lever), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+    write.table("Points with leverage > threshold: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+    write.table(hat.problems, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F)
+    
+    # Cook's distance
+    # Influence
+    
     # PDF plots
+    # --------------------------------------------------------------
     pdf(file=paste(outFile,".",sCV,".","split",iSplit,".pdf",sep=""))
-    par(mfrow = c(2, 2))
     plot(my.datf.train[,1],pred.tr,xlab="Yobs", ylab="Ypred", type="b", main="Train Yobs-Ypred")
     plot(my.datf.test[,1], pred.ts,xlab="Yobs", ylab="Ypred", type="b", main="Test Yobs-Ypred")
     dotchart(as.matrix(FeatImp$importance),main="Feature Importance")
-    #plot(FeatImp, top = components,main="Feature Importance")
+    
+    # Fitted vs Residuals
+    plot(fitted(fitModel),residuals(fitModel),
+         main="Fitted vs. Residuals for Fitted Model",
+         xlab="Fitted", ylab="Residuals")
+    abline(h = 0, lty = 2)
+    
+    # Leverage plots
+    plot(hat.fit, type = "h",
+         main="Leverage for Fitted Model",
+         xlab="Index", ylab="Hat")
+    abline(h = thresh.lever, lty = 2, col="red") # leverage thresh
+    
     dev.off()
+    # --------------------------------------------------------------
   }
   
   return(my.stats)  # return a list with statistics
@@ -948,14 +1001,67 @@ LASSOreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") 
     # Append feature importance to output details
     AppendList2CSv(FeatImp,outFile)
     
+    fitModel <- las.fit$finalModel
+    
+    # =============================================================================
+    # Assessment of Applicability Domain (plot leverage)
+    # =============================================================================
+    
+    # Residuals
+    resids <- residuals(fitModel) # residuals
+    write.table("Residuals of the fitted model: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+    write.table(data.frame(resids), file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F) # write residuals
+    
+    # ADDED !
+    predVals.pls.ad <- pred.ts
+    Traind.pls= as.matrix(my.datf.train)
+    Testd.pls = as.matrix(my.datf.test)
+    Hat.train = diag(Traind.pls %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Traind.pls))
+    Hat.test  = diag(Testd.pls  %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Testd.pls))  
+    
+    # Leverage / Hat values
+    hat.fit <- Hat.test          # hat values
+    hat.fit.df <- as.data.frame(hat.fit)    # hat data frame
+    hat.mean <- mean(hat.fit)               # mean hat values
+    hat.fit.df$warn <- ifelse(hat.fit.df[, 'hat.fit']>3*hat.mean, 'x3',ifelse(hat.fit.df[, 'hat.fit']>2*hat.mean, 'x2', '-' ))
+    
+    write.table("Leverage output: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+    write.table(paste("Mean of hat values: ", hat.mean), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+    write.table("Leverage / Hat values with warnings (X3 & X2 = values 3 & 2 times than hat mean): ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+    write.table(hat.fit.df, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F) # write hat values and the levels X3, X2 (of hat mean)
+    
+    #THRESHOLD values: 3m/n, where m is the number of parameters, and n number of observations
+    thresh.lever<- (3*(dim(my.datf.train)[2]-1))/dim(my.datf.train)[1] # leverage thresh
+    hat.problems<- data.frame(hat.fit[hat.fit>thresh.lever]) # points with high leverage
+    
+    write.table(paste("Leverage Threshold: ", thresh.lever), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+    write.table("Points with leverage > threshold: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+    write.table(hat.problems, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F)
+    
+    # Cook's distance
+    # Influence
+    
     # PDF plots
+    # --------------------------------------------------------------
     pdf(file=paste(outFile,".",sCV,".","split",iSplit,".pdf",sep=""))
-    par(mfrow = c(2, 2))
     plot(my.datf.train[,1],pred.tr,xlab="Yobs", ylab="Ypred", type="b", main="Train Yobs-Ypred")
     plot(my.datf.test[,1], pred.ts,xlab="Yobs", ylab="Ypred", type="b", main="Test Yobs-Ypred")
     dotchart(as.matrix(FeatImp$importance),main="Feature Importance")
-    #plot(FeatImp, top = components,main="Feature Importance")
+    
+    # Fitted vs Residuals
+    plot(fitted(fitModel),residuals(fitModel),
+         main="Fitted vs. Residuals for Fitted Model",
+         xlab="Fitted", ylab="Residuals")
+    abline(h = 0, lty = 2)
+    
+    # Leverage plots
+    plot(hat.fit, type = "h",
+         main="Leverage for Fitted Model",
+         xlab="Index", ylab="Hat")
+    abline(h = thresh.lever, lty = 2, col="red") # leverage thresh
+    
     dev.off()
+    # --------------------------------------------------------------
   }
   
   return(my.stats)  # return a list with statistics
@@ -1083,14 +1189,67 @@ RBF_DDAreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile=""
     # Append feature importance to output details
     AppendList2CSv(FeatImp,outFile)
     
+    fitModel <- rbf.fit$finalModel
+    
+    # =============================================================================
+    # Assessment of Applicability Domain (plot leverage)
+    # =============================================================================
+    
+    # Residuals
+    resids <- residuals(fitModel) # residuals
+    write.table("Residuals of the fitted model: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+    write.table(data.frame(resids), file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F) # write residuals
+    
+    # ADDED !
+    predVals.pls.ad <- pred.ts
+    Traind.pls= as.matrix(my.datf.train)
+    Testd.pls = as.matrix(my.datf.test)
+    Hat.train = diag(Traind.pls %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Traind.pls))
+    Hat.test  = diag(Testd.pls  %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Testd.pls))  
+    
+    # Leverage / Hat values
+    hat.fit <- Hat.test          # hat values
+    hat.fit.df <- as.data.frame(hat.fit)    # hat data frame
+    hat.mean <- mean(hat.fit)               # mean hat values
+    hat.fit.df$warn <- ifelse(hat.fit.df[, 'hat.fit']>3*hat.mean, 'x3',ifelse(hat.fit.df[, 'hat.fit']>2*hat.mean, 'x2', '-' ))
+    
+    write.table("Leverage output: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+    write.table(paste("Mean of hat values: ", hat.mean), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+    write.table("Leverage / Hat values with warnings (X3 & X2 = values 3 & 2 times than hat mean): ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+    write.table(hat.fit.df, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F) # write hat values and the levels X3, X2 (of hat mean)
+    
+    #THRESHOLD values: 3m/n, where m is the number of parameters, and n number of observations
+    thresh.lever<- (3*(dim(my.datf.train)[2]-1))/dim(my.datf.train)[1] # leverage thresh
+    hat.problems<- data.frame(hat.fit[hat.fit>thresh.lever]) # points with high leverage
+    
+    write.table(paste("Leverage Threshold: ", thresh.lever), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+    write.table("Points with leverage > threshold: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+    write.table(hat.problems, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F)
+    
+    # Cook's distance
+    # Influence
+    
     # PDF plots
+    # --------------------------------------------------------------
     pdf(file=paste(outFile,".",sCV,".","split",iSplit,".pdf",sep=""))
-    par(mfrow = c(2, 2))
     plot(my.datf.train[,1],pred.tr,xlab="Yobs", ylab="Ypred", type="b", main="Train Yobs-Ypred")
     plot(my.datf.test[,1], pred.ts,xlab="Yobs", ylab="Ypred", type="b", main="Test Yobs-Ypred")
     dotchart(as.matrix(FeatImp$importance),main="Feature Importance")
-    #plot(FeatImp, top = components,main="Feature Importance")
+    
+    # Fitted vs Residuals
+    plot(fitted(fitModel),residuals(fitModel),
+         main="Fitted vs. Residuals for Fitted Model",
+         xlab="Fitted", ylab="Residuals")
+    abline(h = 0, lty = 2)
+    
+    # Leverage plots
+    plot(hat.fit, type = "h",
+         main="Leverage for Fitted Model",
+         xlab="Index", ylab="Hat")
+    abline(h = thresh.lever, lty = 2, col="red") # leverage thresh
+    
     dev.off()
+    # --------------------------------------------------------------
   }
   
   return(my.stats)  # return a list with statistics
@@ -1220,14 +1379,67 @@ SVLMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
     # Append feature importance to output details
     AppendList2CSv(FeatImp,outFile)
     
+    fitModel <- svmL.fit$finalModel
+    
+    # =============================================================================
+    # Assessment of Applicability Domain (plot leverage)
+    # =============================================================================
+    
+    # Residuals
+    resids <- residuals(fitModel) # residuals
+    write.table("Residuals of the fitted model: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+    write.table(data.frame(resids), file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F) # write residuals
+    
+    # ADDED !
+    predVals.pls.ad <- pred.ts
+    Traind.pls= as.matrix(my.datf.train)
+    Testd.pls = as.matrix(my.datf.test)
+    Hat.train = diag(Traind.pls %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Traind.pls))
+    Hat.test  = diag(Testd.pls  %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Testd.pls))  
+    
+    # Leverage / Hat values
+    hat.fit <- Hat.test          # hat values
+    hat.fit.df <- as.data.frame(hat.fit)    # hat data frame
+    hat.mean <- mean(hat.fit)               # mean hat values
+    hat.fit.df$warn <- ifelse(hat.fit.df[, 'hat.fit']>3*hat.mean, 'x3',ifelse(hat.fit.df[, 'hat.fit']>2*hat.mean, 'x2', '-' ))
+    
+    write.table("Leverage output: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+    write.table(paste("Mean of hat values: ", hat.mean), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+    write.table("Leverage / Hat values with warnings (X3 & X2 = values 3 & 2 times than hat mean): ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+    write.table(hat.fit.df, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F) # write hat values and the levels X3, X2 (of hat mean)
+    
+    #THRESHOLD values: 3m/n, where m is the number of parameters, and n number of observations
+    thresh.lever<- (3*(dim(my.datf.train)[2]-1))/dim(my.datf.train)[1] # leverage thresh
+    hat.problems<- data.frame(hat.fit[hat.fit>thresh.lever]) # points with high leverage
+    
+    write.table(paste("Leverage Threshold: ", thresh.lever), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+    write.table("Points with leverage > threshold: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+    write.table(hat.problems, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F)
+    
+    # Cook's distance
+    # Influence
+    
     # PDF plots
+    # --------------------------------------------------------------
     pdf(file=paste(outFile,".",sCV,".","split",iSplit,".pdf",sep=""))
-    par(mfrow = c(2, 2))
     plot(my.datf.train[,1],pred.tr,xlab="Yobs", ylab="Ypred", type="b", main="Train Yobs-Ypred")
     plot(my.datf.test[,1], pred.ts,xlab="Yobs", ylab="Ypred", type="b", main="Test Yobs-Ypred")
     dotchart(as.matrix(FeatImp$importance),main="Feature Importance")
-    #plot(FeatImp, top = components,main="Feature Importance")
+    
+    # Fitted vs Residuals
+    plot(fitted(fitModel),residuals(fitModel),
+         main="Fitted vs. Residuals for Fitted Model",
+         xlab="Fitted", ylab="Residuals")
+    abline(h = 0, lty = 2)
+    
+    # Leverage plots
+    plot(hat.fit, type = "h",
+         main="Leverage for Fitted Model",
+         xlab="Index", ylab="Hat")
+    abline(h = thresh.lever, lty = 2, col="red") # leverage thresh
+    
     dev.off()
+    # --------------------------------------------------------------
   }
   
   return(my.stats)  # return a list with statistics
@@ -1359,14 +1571,67 @@ NNreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
     # Append feature importance to output details
     AppendList2CSv(FeatImp,outFile)
     
+    fitModel <- nn.fit$finalModel
+    
+    # =============================================================================
+    # Assessment of Applicability Domain (plot leverage)
+    # =============================================================================
+    
+    # Residuals
+    resids <- residuals(fitModel) # residuals
+    write.table("Residuals of the fitted model: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+    write.table(data.frame(resids), file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F) # write residuals
+    
+    # ADDED !
+    predVals.pls.ad <- pred.ts
+    Traind.pls= as.matrix(my.datf.train)
+    Testd.pls = as.matrix(my.datf.test)
+    Hat.train = diag(Traind.pls %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Traind.pls))
+    Hat.test  = diag(Testd.pls  %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Testd.pls))  
+    
+    # Leverage / Hat values
+    hat.fit <- Hat.test          # hat values
+    hat.fit.df <- as.data.frame(hat.fit)    # hat data frame
+    hat.mean <- mean(hat.fit)               # mean hat values
+    hat.fit.df$warn <- ifelse(hat.fit.df[, 'hat.fit']>3*hat.mean, 'x3',ifelse(hat.fit.df[, 'hat.fit']>2*hat.mean, 'x2', '-' ))
+    
+    write.table("Leverage output: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+    write.table(paste("Mean of hat values: ", hat.mean), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+    write.table("Leverage / Hat values with warnings (X3 & X2 = values 3 & 2 times than hat mean): ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+    write.table(hat.fit.df, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F) # write hat values and the levels X3, X2 (of hat mean)
+    
+    #THRESHOLD values: 3m/n, where m is the number of parameters, and n number of observations
+    thresh.lever<- (3*(dim(my.datf.train)[2]-1))/dim(my.datf.train)[1] # leverage thresh
+    hat.problems<- data.frame(hat.fit[hat.fit>thresh.lever]) # points with high leverage
+    
+    write.table(paste("Leverage Threshold: ", thresh.lever), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+    write.table("Points with leverage > threshold: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+    write.table(hat.problems, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F)
+    
+    # Cook's distance
+    # Influence
+    
     # PDF plots
+    # --------------------------------------------------------------
     pdf(file=paste(outFile,".",sCV,".","split",iSplit,".pdf",sep=""))
-    par(mfrow = c(2, 2))
     plot(my.datf.train[,1],pred.tr,xlab="Yobs", ylab="Ypred", type="b", main="Train Yobs-Ypred")
     plot(my.datf.test[,1], pred.ts,xlab="Yobs", ylab="Ypred", type="b", main="Test Yobs-Ypred")
     dotchart(as.matrix(FeatImp$importance),main="Feature Importance")
-    #plot(FeatImp, top = components,main="Feature Importance")
+    
+    # Fitted vs Residuals
+    plot(fitted(fitModel),residuals(fitModel),
+         main="Fitted vs. Residuals for Fitted Model",
+         xlab="Fitted", ylab="Residuals")
+    abline(h = 0, lty = 2)
+    
+    # Leverage plots
+    plot(hat.fit, type = "h",
+         main="Leverage for Fitted Model",
+         xlab="Index", ylab="Hat")
+    abline(h = thresh.lever, lty = 2, col="red") # leverage thresh
+    
     dev.off()
+    # --------------------------------------------------------------
   }
   return(my.stats)  # return a list with statistics
 }

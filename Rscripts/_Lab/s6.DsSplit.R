@@ -8,12 +8,13 @@
 
 # Output = training and test datasets (to be used for regressions in other functions)
 # if datails = TRUE, output files will be created
-
+library(caret)
 # ------------------------------------------
 DsSplit <- function(ds,trainFrac=3/4,fDet=FALSE,PathDataSet="",iSeed) {
   my.datf<- ds
   # create TRAIN and TEST sets to build a model
   set.seed(iSeed)
+  library(caret)
   inTrain <- createDataPartition(1:dim(my.datf)[1],p = trainFrac,list = FALSE,groups=2)
 							     # groups==2 forces to NOT partition
 							     # based on quantiles of numeric values
