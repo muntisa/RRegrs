@@ -3,6 +3,6 @@ install.packages(
     "Rcpp", "plyr", "caret","corrplot",
     "data.table"
   ),
-  repos=NULL,
+  repos="http://cran.us.r-project.org/",
   lib="~/R_libs"
 )
