@@ -19,7 +19,7 @@ Outputs:
 Install
 -------
 
-    > install.packaged(c("caret", "corrplot", "data.table")) # dependencies
+    > install.packages(c("caret", "corrplot", "data.table")) # dependencies
     > install.packages("devtools") # to install from GitHub
     > library(devtools)
     > install_github("RRegrs", "enanomapper", subdir="RRegrs")
