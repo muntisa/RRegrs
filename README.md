@@ -15,3 +15,11 @@ The main authors are from the National Technical University of Athens (NTUA) and
 Outputs:
 - CSV files for statistics
 - PDF files for plots
+
+Install
+-------
+
+    > install.packages("devtools") # if not present already
+    > library(devtools)
+    > install_github("RRegrs", "enanomapper", subdir="RRegrs")
+
