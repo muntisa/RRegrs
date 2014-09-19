@@ -34,7 +34,10 @@
 paramFile="Parameters.csv"
 
 # Libraries and external custom functions
-library(RRegrs)                 # load the RRegrs functions
+# library(RRegrs)                 # load the RRegrs functions
+
+library(caret)
+source("RRegrs_Functions.R")
 
 #==========================================================================================
 # (1) Load dataset and parameters
