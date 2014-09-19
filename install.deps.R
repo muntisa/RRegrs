@@ -1,5 +1,6 @@
 install.packages(
   c(
+    "gtools",
     "gtable", "brglm", "profileModel", "proto",
     "colorspace", "nlme", "nloptr", "digest",
     "MASS", "munsell", "stringr",
