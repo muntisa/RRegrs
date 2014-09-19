@@ -1,6 +1,6 @@
 install.packages(
   c(
-    "gtools", "foreach",
+    "gtools", "foreach", "iterators",
     "gtable", "brglm", "profileModel", "proto",
     "colorspace", "nlme", "nloptr", "digest",
     "MASS", "munsell", "stringr",
