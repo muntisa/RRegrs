@@ -38,7 +38,10 @@ paramFile="Parameters.csv"
 
 library(caret)
 source("RRegrs_Functions.R")
-# or: source("../RRegrs/R/RRegrs_Functions.R")
+# or, using the version in the package:
+# library(data.table)
+# library(corrplot)
+# source("../RRegrs/R/RRegrs_Functions.R")
 
 #==========================================================================================
 # (1) Load dataset and parameters
