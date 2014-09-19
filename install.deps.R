@@ -1,5 +1,6 @@
 install.packages(
   c(
+    "colorspace", "nlme",
     "MASS", "munsell", "stringr",
     "lattice", "codetools", "Rcpp", "Matrix",
     "plyr", "caret","corrplot", "data.table"
