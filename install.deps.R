@@ -1,5 +1,6 @@
 install.packages(
   c(
+    "gtable", "brglm",
     "colorspace", "nlme", "nloptr", "digest",
     "MASS", "munsell", "stringr",
     "lattice", "codetools", "Rcpp", "Matrix",
