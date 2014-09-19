@@ -38,6 +38,7 @@ paramFile="Parameters.csv"
 
 library(caret)
 source("RRegrs_Functions.R")
+# or: source("../RRegrs/R/RRegrs_Functions.R")
 
 #==========================================================================================
 # (1) Load dataset and parameters
