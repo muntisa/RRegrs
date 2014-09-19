@@ -1,5 +1,6 @@
 install.packages(
   c(
+    "nnet",
     "gtools", "foreach", "iterators", "car",
     "gtable", "brglm", "profileModel", "proto",
     "colorspace", "nlme", "nloptr", "digest",
