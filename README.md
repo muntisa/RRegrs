@@ -15,3 +15,12 @@ The main authors are from the National Technical University of Athens (NTUA) and
 Outputs:
 - CSV files for statistics
 - PDF files for plots
+
+Install
+-------
+
+    > install.packages(c("caret", "corrplot", "data.table")) # dependencies
+    > install.packages("devtools") # to install from GitHub
+    > library(devtools)
+    > install_github("RRegrs", "enanomapper", subdir="RRegrs")
+
