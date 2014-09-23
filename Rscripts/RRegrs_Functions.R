@@ -2057,12 +2057,6 @@ RFreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
 }
 
 
-### HELPER FUNCTIONS FOR SVM-RFE
-library(caret)
-library(kernlab)
-source("RFE-svm-reg-function.R")
-
-
 
 #====================================================================================================
 #  SVM-RFE
@@ -2081,7 +2075,8 @@ SVMRFEreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="")
   #library(foreach)
   #cl<-makeCluster(5) #change the 2 to your number of CPU cores
   #registerDoSNOW(cl)
-  
+  library(kernlab)
+  source("RFE-svm-reg-function.R")
   
   net.c = my.datf.train[,1]   # make available the names of variables from training dataset
   RegrMethod <- "svmRFE" # type of regression
