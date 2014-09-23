@@ -34,8 +34,14 @@
 paramFile="Parameters.csv"
 
 # Libraries and external custom functions
-library(caret)                  # add package caret
-source("RRegrs_Functions.R")    # add external functions 
+# library(RRegrs)                 # load the RRegrs functions
+
+library(caret)
+source("RRegrs_Functions.R")
+# or, using the version in the package:
+# library(data.table)
+# library(corrplot)
+# source("../RRegrs/R/RRegrs_Functions.R")
 
 #==========================================================================================
 # (1) Load dataset and parameters
@@ -66,6 +72,9 @@ fLASSO       = as.logical(Param.df[which(Param.df$RRegrs.Parameters=="fLASSO"),2
 fRBFdda      = as.logical(Param.df[which(Param.df$RRegrs.Parameters=="fRBFdda"),2]) # flat to run RBF DDA       (8.5)
 fSVLM        = as.logical(Param.df[which(Param.df$RRegrs.Parameters=="fSVLM"),2])   # flat to run svmRadial     (8.6)
 fNN          = as.logical(Param.df[which(Param.df$RRegrs.Parameters=="fNN"),2])     # flat to run NN            (8.8)
+fRF          = as.logical(Param.df[which(Param.df$RRegrs.Parameters=="fRF"),2])     # flag to run RandomForest        (8.9)
+fSVMRFE          = as.logical(Param.df[which(Param.df$RRegrs.Parameters=="fSVMRFE"),2])     # flag to run SVM RFE      (8.10)
+
 
 # ----------------------------------------------------------------------------------------
 iScaling = as.numeric(as.character(Param.df[which(Param.df$RRegrs.Parameters=="iScaling"),2])) # 1 = normalization; 2 = standardization, 3 = other; any other: no scaling
@@ -97,6 +106,8 @@ lassoFile      = as.character(Param.df[which(Param.df$RRegrs.Parameters=="lassoF
 rbfDDAFile     = as.character(Param.df[which(Param.df$RRegrs.Parameters=="rbfDDAFile"),2]) # RBF DDA output file for details
 svlmFile       = as.character(Param.df[which(Param.df$RRegrs.Parameters=="svlmFile"),2])   # SVM Radial output file for details
 nnFile         = as.character(Param.df[which(Param.df$RRegrs.Parameters=="nnFile"),2])     # NN Radial output file for details
+rfFile         = as.character(Param.df[which(Param.df$RRegrs.Parameters=="rfFile"),2])     # RF  output file for details
+svmrfeFile         = as.character(Param.df[which(Param.df$RRegrs.Parameters=="svmrfeFile"),2])     # svMRFE  output file for details
 
 # Generate path + file name = original dataset
 inFile <- file.path(PathDataSet, DataFileName)
@@ -458,9 +469,57 @@ for (i in 1:iSplitTimes) {                      # Step splitting number = i
     
   } # end NNet
   # --------------------------------------------
-  # 8.9. SOM
+  # 8.9. RF
   # --------------------------------------------
-  
+  if (fRF==T) {   # if NNet was selected, run the method
+    cat("-> [8.9] Random Forest ...\n")
+    outFile.RF <- file.path(PathDataSet,rfFile)   # the same folder as the input is used for the output
+    
+    # Both wrapper and nont-wrapper function are placed in the same external file s8.RegrrMethods.R
+    if (fFeatureSel==F) {    # if there is no need of feature selection ->> use normal functions
+      # For each type of CV do all the statistics
+      # -----------------------------------------------------
+      for (cv in 1:length(CVtypes)) {
+        my.stats.RF  <- RFreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.RF) # run NNet for each CV and regr method
+        #-------------------------------------------------------
+        # Add output from NNet to the list of results
+        #-------------------------------------------------------
+        # List of results for each splitting, CV type & regression method
+        dfRes = mapply(c, my.stats.RF, dfRes, SIMPLIFY=F)
+      } # end CV types
+    } 
+    else    # if there is a need for previous feature selection ->> use wrapper functions
+    {                     
+      # run RFet with wrapper method (TO BE IMPLEMENTED!)
+    }
+    
+  } # end RF
+  # --------------------------------------------
+  # 8.10. SVM RFE
+  # --------------------------------------------
+  if (fSVMRFE==T) {   # if NNet was selected, run the method
+    cat("-> [8.10] SVM RFE ...\n")
+    outFile.SVMRFE <- file.path(PathDataSet,svmrfeFile)   # the same folder as the input is used for the output
+    
+    # Both wrapper and nont-wrapper function are placed in the same external file s8.RegrrMethods.R
+    if (fFeatureSel==F) {    # if there is no need of feature selection ->> use normal functions
+      # For each type of CV do all the statistics
+      # -----------------------------------------------------
+      for (cv in 1:length(CVtypes)) {
+        my.stats.SVMRFE  <- SVMRFEreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.SVMRFE) # run SVM RFEet for each CV and regr method
+        #-------------------------------------------------------
+        # Add output from SVM RFE to the list of results
+        #-------------------------------------------------------
+        # List of results for each splitting, CV type & regression method
+        dfRes = mapply(c, my.stats.SVMRFE, dfRes, SIMPLIFY=F)
+      } # end CV types
+    } 
+    else    # if there is a need for previous feature selection ->> use wrapper functions
+    {                     
+      # run RFet with wrapper method (TO BE IMPLEMENTED!)
+    }
+    
+  } # end SVM RFE
   # END OF REGRESSION Functions !!!
 }
 
@@ -562,6 +621,13 @@ if (best.reg=="svmRadial") {
 if (best.reg=="nnet") {  
   my.stats.reg  <- NNreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF) # run NNet for each CV and regr method
 } 
+if (best.reg=="rf") {  
+  my.stats.reg  <- RFreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF) # run NNet for each CV and regr method
+} 
+if (best.reg=="svmRFE") {  
+  my.stats.reg  <- SVMRFEreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF) # run NNet for each CV and regr method
+} 
+
 
 #------------------------------------------------------------------------------
 # 12. Test best model with test dataset
