@@ -7,9 +7,9 @@
 # AUTHORS: 
 # ----------------------------------------------------------------------
 # Georgia Tsiliki | ChemEng - NTUA, Greece | g_tsiliki [at] hotmail [dot] com
-# Cristian R Munteanu | RNASA-IMEDIR, University of A Coru?a | muntisa [at] gmail [dot] com
+# Cristian R Munteanu | RNASA-IMEDIR, University of A Coruna, Spain | muntisa [at] gmail [dot] com
 # Jose A. Seoane | Stanford Cancer Institute | seoane [at] stanford [dot] edu
-# Carlos Fernandez-Lozano | RNASA-IMEDIR, University of A Coru?a | carlos.fernandez [at] udc [dot] es
+# Carlos Fernandez-Lozano | RNASA-IMEDIR, University of A Coruna, Spain | carlos.fernandez [at] udc [dot] es
 # Haralambos Sarimveis | ChemEng - NTUA, Greece | hsarimv [at] central [dot] ntua [dot] gr
 # Egon Willighagen | BiGCaT - Maastricht University | egon.willighagen [at] gmail [dot] com
 # ----------------------------------------------------------------------
