@@ -10,7 +10,7 @@ The full R script will contain: Loading dataset, Filter dataset, Scaling dataset
 
 The script will be modular in order to create flexible APIs.
 
-The main authors are from the National Technical University of Athens (NTUA) and Maastricht University (UM) joining efforts for the EU eNanoMapper project.
+The main authors are from the National Technical University of Athens (NTUA, Greece), Maastricht University (UM, Netherlands) and University of A Coruna (Spain).
 
 Outputs:
 - CSV files for statistics
