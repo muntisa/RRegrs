@@ -7,9 +7,9 @@
 # AUTHORS: 
 # ----------------------------------------------------------------------
 # Georgia Tsiliki | ChemEng - NTUA, Greece | g_tsiliki [at] hotmail [dot] com
-# Cristian R Munteanu | RNASA-IMEDIR, University of A Coruña | muntisa [at] gmail [dot] com
+# Cristian R Munteanu | RNASA-IMEDIR, University of A Coru?a | muntisa [at] gmail [dot] com
 # Jose A. Seoane | Stanford Cancer Institute | seoane [at] stanford [dot] edu
-# Carlos Fernandez-Lozano | RNASA-IMEDIR, University of A Coruña | carlos.fernandez [at] udc [dot] es
+# Carlos Fernandez-Lozano | RNASA-IMEDIR, University of A Coru?a | carlos.fernandez [at] udc [dot] es
 # Haralambos Sarimveis | ChemEng - NTUA, Greece | hsarimv [at] central [dot] ntua [dot] gr
 # Egon Willighagen | BiGCaT - Maastricht University | egon.willighagen [at] gmail [dot] com
 # ----------------------------------------------------------------------
@@ -1660,6 +1660,8 @@ NNreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
 }
 
 
+
+
 # **************************************
 # WRAPPER METHODS
 # **************************************
@@ -1897,16 +1899,11 @@ Yrandom<- function(dss,trainFrac,best.reg,best.R2.ts,noYrand,ResBestF){
 }
 
 # -----------------------------------------------------------------------
-# svm regression function
+# svm regression function helper
 # -----------------------------------------------------------------------
 # jseoane
 # use:
-# svmFuncsW: regular ranking using w
-# svmFuncsLi15:  ranking from eq15 "SVM Feature Selection and Sample Regression for Chinese Medicine Research"
-# svmFuncsLi17: ranking from eq17 "SVM Feature Selection and Sample Regression for Chinese Medicine Research"
 # svmFuncsGradW: RAKOTOMAMONJY gradient w
-# svmFuncsWCor: remove correlated features W. WARNING: computationally expensive
-
 load("model.svmRadialReg.RData")
 
 svmFuncsW = caretFuncs    ## regular ranking using w
@@ -1945,35 +1942,6 @@ svmFuncsW$pred= function(object, x)
   out1
 }
 
-svmFuncsLi15 = svmFuncsW   # ranking from eq15 "SVM Feature Selection and Sample Regression for Chinese Medicine Research"
-svmFuncsLi15$rank=function(object,x,y){
-  alphas = alpha(object$finalModel)
-  alpha.idxs = alphaindex(object$finalModel)
-  y.sv = as.numeric(y[alpha.idxs])
-  w = (y.sv * alphas) %*% xmatrix(object$finalModel)
-  sig = ifelse(object$finalModel@fitted>y,yes=1,no=-1)
-  avImp = t(w)* (t(x)%*%sig)  
-  out = data.frame(avImp)
-  colnames(out) = "Overall"
-  out = out[order(out$Overall, decreasing = TRUE), , drop = FALSE]
-  out$var <- rownames(out)
-  out
-}
-
-svmFuncsLi17 = svmFuncsLi15 # ranking from eq17 "SVM Feature Selection and Sample Regression for Chinese Medicine Research"
-svmFuncsLi17$rank=function(object,x,y){
-  alphas = alpha(object$finalModel)
-  alpha.idxs = alphaindex(object$finalModel)
-  y.sv = as.numeric(y[alpha.idxs])
-  w = (y.sv * alphas) %*% xmatrix(object$finalModel)
-  sig = ifelse(object$finalModel@fitted>y,yes=1,no=-1)
-  avImp = t(w * (colMeans(x[sig==1,])+colMeans(x[sig==-1,])))
-  out = data.frame(avImp)
-  colnames(out) = "Overall"
-  out = out[order(out$Overall, decreasing = TRUE), , drop = FALSE]
-  out$var <- rownames(out)
-  out
-}
 
 # Based on the gradient of svm coefs
 svmFuncsGradW = svmFuncsW
@@ -2007,40 +1975,7 @@ svmFuncsGradW$rank=function(object,x,y){ # RAKOTOMAMONJY gradient w
   out
 }
 
-# Remove correlated svm coefs
-svmFuncsWCor = svmFuncsW  # correlated rfe from "A Greedy Correlation-incorporated SVM-based Algorithm for Gene Selection"
-svmFuncsWCor$rank=function(object,x,y){
-  alphas = alpha(object$finalModel)
-  alpha.idxs = alphaindex(object$finalModel)
-  y.sv = as.numeric(y[alpha.idxs])
-  w = (y.sv * alphas) %*% xmatrix(object$finalModel)
-  
-  cormat = cor(x)
-  
-  diag(cormat)=0
-  imp = data.frame(t(w*w))
-  imp.s = order(imp,decreasing=T)
-  picked = imp.s
-  thr = 0.75  
-  for(i in 1:length(imp.s)){    
-    corvec = cormat[,picked[i]]
-    oldpicked = picked
-    id.out= which(abs(corvec)>thr)
-    id.in = intersect(which(abs(corvec[])<=thr),which(corvec!=0))   # and distinct 0
-    len.in = length(id.in)
-    if(length(id.in)>0){  
-      picked[(i+1):(i+len.in)]= intersect(oldpicked[(i+1):length(oldpicked)],id.in)
-    }
-    if(length(id.out)>0){    
-      picked[(i+len.in+1):length(imp.s)]= intersect(oldpicked[(i+1):length(oldpicked)],id.out)     }    
-    cormat[picked[i],]=0        
-  }  
-  out = imp
-  colnames(out) = "Overall"
-  out = out[picked, , drop=FALSE]
-  out$var <- rownames(out)
-  out  
-}
+
 
 
 RFreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
@@ -2054,7 +1989,6 @@ RFreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
   #library(doMC)
   #registerDoMC(cores = 2) # CPU cores
   # ------------------------------------------
-  
   net.c = my.datf.train[,1]   # make available the names of variables from training dataset
   RegrMethod <- "rf" # type of regression
   
@@ -2236,7 +2170,7 @@ RFreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
 }
 
 
-SVMRFEreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
+SVMRFEreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="",cs=c(1,5,15,50),eps=c(0.01,0.1,0.3)) {
   #==========
   # SVM-RFE
   #==========
@@ -2264,9 +2198,9 @@ SVMRFEreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="")
   
   rfeCtr = rfeControl(functions=svmFuncsGradW,method="cv",number=5,repeats=1, saveDetails = T, verbose=T,rerank = T,allowParallel=T)
   sigma = sigest (as.matrix(my.datf.train[,-1]))[2]
-  cs = c(0.0001,0.1,1,5,15,50)  # EXTERNAL PARAMETERS!!!
-  cs = c(1,5,15,50)
-  eps=c(0.01,0.1,0.3)   # EXTERNAL PARAMETERS!!!
+  #cs = c(0.0001,0.1,1,5,15,50)  # EXTERNAL PARAMETERS!!!
+  #cs = c(1,5,15,50)
+  #eps=c(0.01,0.1,0.3)   # EXTERNAL PARAMETERS!!!
   sizes = 2^(1:sqrt(ncol(my.datf.train)-1))
   tuneVars = expand.grid(.C=cs, .sigma=sigma, .epsilon=eps)    
   
@@ -2338,8 +2272,8 @@ SVMRFEreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="")
                    "RMSEsd.tr" = as.numeric(RMSEsd.tr),
                    "R2sd.tr"   = as.numeric(R2sd.tr),
                    "adjR2.ts"= as.numeric(adjR2.ts),
-                   "RMSE.ts" = as.numeric((rf.test.res["RMSE"])),
-                   "R2.ts"   = as.numeric((rf.test.res["Rsquared"])),
+                   "RMSE.ts" = as.numeric((rfesvm.test.res["RMSE"])),
+                   "R2.ts"   = as.numeric((rfesvm.test.res["Rsquared"])),
                    "corP.ts" = as.numeric(corP.ts),
                    "adjR2.both" = as.numeric(adjR2.both),
                    "RMSE.both"  = as.numeric(RMSE.both),
@@ -2488,6 +2422,9 @@ RRegrs<- function(paramFile) { # input = file with all parameters
   fNN          = as.logical(Param.df[which(Param.df$RRegrs.Parameters=="fNN"),2])     # flat to run NN            (8.8)
   fRF          = as.logical(Param.df[which(Param.df$RRegrs.Parameters=="fRF"),2])      # flag to run RandomForest        (8.9)
   fSVMRFE      = as.logical(Param.df[which(Param.df$RRegrs.Parameters=="fSVMRFE"),2])  # flag to run SVM RFE      (8.10)
+  rfe_SVM_param_c = strsplit(as.character(Param.df[which(Param.df$RRegrs.Parameters=="RFE_SVM_C"),2]),";")[[1]] # values of C for SVM RFE
+  rfe_SVM_param_eps = strsplit(as.character(Param.df[which(Param.df$RRegrs.Parameters=="RFE_SVM_epsilon"),2]),";")[[1]] # values of epsilon for SVM RFE
+
   
   # ----------------------------------------------------------------------------------------
   iScaling = as.numeric(as.character(Param.df[which(Param.df$RRegrs.Parameters=="iScaling"),2])) # 1 = normalization; 2 = standardization, 3 = other; any other: no scaling
@@ -2532,9 +2469,9 @@ eNanoMapper.net
       
 AUTHORS:
 Georgia Tsiliki | ChemEng - NTUA, Greece | g_tsiliki [at] hotmail [dot] com
-Cristian R Munteanu | RNASA-IMEDIR, University of A Coruña | muntisa [at] gmail [dot] com
+Cristian R Munteanu | RNASA-IMEDIR, University of A Coruna | muntisa [at] gmail [dot] com
 Jose A. Seoane | Stanford Cancer Institute | seoane [at] stanford [dot] edu
-Carlos Fernandez-Lozano | RNASA-IMEDIR, University of A Coruña | carlos.fernandez [at] udc [dot] es
+Carlos Fernandez-Lozano | RNASA-IMEDIR, University of A Coruna | carlos.fernandez [at] udc [dot] es
 Haralambos Sarimveis | ChemEng - NTUA, Greece | hsarimv [at] central [dot] ntua [dot] gr
 Egon Willighagen | BiGCaT - Maastricht University | egon.willighagen [at] gmail [dot] com
 ======================================================================\n")
@@ -2896,7 +2833,7 @@ Egon Willighagen | BiGCaT - Maastricht University | egon.willighagen [at] gmail 
         # For each type of CV do all the statistics
         # -----------------------------------------------------
         for (cv in 1:length(CVtypes)) {
-          my.stats.RF  <- RFreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.RF) # run NNet for each CV and regr method
+          my.stats.RF  <- RFreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.RF) # run RF for each CV and regr method
           #-------------------------------------------------------
           # Add output from NNet to the list of results
           #-------------------------------------------------------
@@ -2922,7 +2859,7 @@ Egon Willighagen | BiGCaT - Maastricht University | egon.willighagen [at] gmail 
         # For each type of CV do all the statistics
         # -----------------------------------------------------
         for (cv in 1:length(CVtypes)) {
-          my.stats.SVMRFE  <- SVMRFEreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.SVMRFE) # run SVM RFEet for each CV and regr method
+          my.stats.SVMRFE  <- SVMRFEreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.SVMRFE,rfe_SVM_param_c,rfe_SVM_param_eps) # run SVM RFEet for each CV and regr method
           #-------------------------------------------------------
           # Add output from SVM RFE to the list of results
           #-------------------------------------------------------
@@ -3041,7 +2978,7 @@ Egon Willighagen | BiGCaT - Maastricht University | egon.willighagen [at] gmail 
     my.stats.reg  <- RFreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF) # run NNet for each CV and regr method
   } 
   if (best.reg=="svmRFE") {  
-    my.stats.reg  <- SVMRFEreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF) # run NNet for each CV and regr method
+    my.stats.reg  <- SVMRFEreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF,rfe_SVM_param_c,rfe_SVM_param_eps) # run NNet for each CV and regr method
   } 
   
   #------------------------------------------------------------------------------
