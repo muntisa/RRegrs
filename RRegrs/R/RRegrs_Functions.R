@@ -2388,7 +2388,7 @@ SVMRFEreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="",
   return(my.stats)  # return a list with statistics
 }
 
-# MAIN FUNCTION #########################################################################################################
+# RRegrs MAIN FUNCTION #########################################################################################################
 
 RRegrs<- function(paramFile) { # input = file with all parameters
   # ========================
@@ -2435,6 +2435,7 @@ RRegrs<- function(paramFile) { # input = file with all parameters
   noYrand     = as.numeric(as.character(Param.df[which(Param.df$RRegrs.Parameters=="noYrand"),2]))     # number of Y randomization (default = 100)
   
   CVtypes = strsplit(as.character(Param.df[which(Param.df$RRegrs.Parameters=="CVtypes"),2]),";")[[1]] # types of cross-validation methods
+  CVtypes2 = c("repeatedcv") # for complex methods we run only 10-fold CV even the user is using other parameters!
   
   # -------------------------------------------------------------------------------------------------------
   # Files
@@ -2832,7 +2833,7 @@ Egon Willighagen | BiGCaT - Maastricht University | egon.willighagen [at] gmail 
       if (fFeatureSel==F) {    # if there is no need of feature selection ->> use normal functions
         # For each type of CV do all the statistics
         # -----------------------------------------------------
-        for (cv in 1:length(CVtypes)) {
+        for (cv in 1:length(CVtypes2)) {
           my.stats.RF  <- RFreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.RF) # run RF for each CV and regr method
           #-------------------------------------------------------
           # Add output from NNet to the list of results
@@ -2858,7 +2859,7 @@ Egon Willighagen | BiGCaT - Maastricht University | egon.willighagen [at] gmail 
       if (fFeatureSel==F) {    # if there is no need of feature selection ->> use normal functions
         # For each type of CV do all the statistics
         # -----------------------------------------------------
-        for (cv in 1:length(CVtypes)) {
+        for (cv in 1:length(CVtypes2)) {
           my.stats.SVMRFE  <- SVMRFEreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.SVMRFE,rfe_SVM_param_c,rfe_SVM_param_eps) # run SVM RFEet for each CV and regr method
           #-------------------------------------------------------
           # Add output from SVM RFE to the list of results

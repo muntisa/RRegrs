@@ -27,7 +27,7 @@ iScalCol,1,Scalling columns: 1 = including dependent variable; 2: only all the f
 trainFrac,0.75,Fraction of training set from the entire dataset; the rest of dataset is the test set
 iSplitTimes,2,Number of splittings the dataset into train and test (default  = 10)
 noYrand,2,number of Y-Randomization (default = 100)
-CVtypes,repeatedcv,Cross-validation types: 10-CV (repeatedcv) and LOOCV
+CVtypes,repeatedcv;LOOCV,Cross-validation types: 10-CV (repeatedcv) and LOOCV
 No0NearVarFile,ds3.No0Var.csv,Dataset without zero near features from Step 3 (if fDet is True)
 ScaledFile,ds4.scaled.csv,Scaled dataset file from Step 4 (if fDet is True)
 NoCorrFile,ds5.scaled.NoCorrs.csv,Dataset after correction removal in Step 5 (if fDet is True)
@@ -40,4 +40,3 @@ svlmFile,8.6.SVMRadial.details.csv,SVM Radial output file with details
 nnFile,8.8.NN.details.csv,NN output file with details
 rfFile,8.9.RF.details.csv,RF output
 svmrfeFile,8.10.SVMRFE.details.csv,SVMRFE output
-
