@@ -2721,7 +2721,7 @@ RRegrs<- function(paramFile) { # input = file with all parameters
         for (cv in 1:length(CVtypes)) {
           glm.model <- GLMreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.GLM) # run GLM for each CV and regr method
           my.stats.GLM <- glm.model$stat.values
-	    my.model.glm <- glm.model$model  
+	    my.model.GLM <- glm.model$model  
 	    #my.stats.split <- c(my.stats.dsInfo,my.stats.GLM) # merge the ds info with statistics results for each Cv & reg method
           
           #-------------------------------------------------------
@@ -2956,7 +2956,26 @@ RRegrs<- function(paramFile) { # input = file with all parameters
       
     } # end SVM RFE
     # END OF REGRESSION Functions !!!
-  }
+
+ #   cat("-> Compare models in terms of RMSE and Rsq statistics ...\n")
+ #
+ #   f.vec <- c(fLM,fGLM,fPLS,fLASSO,fRBFdda,fSVLM,fNN,fRF,fSVMRFE)# vector of flags from all models considered
+ #   n.vec <- c('LM','GLM','PLS','LASSO','rbfDDA','SVLM','NN','RF','SVMRFE')# character vector with all methods' names
+ #   m.vec <- paste('my.model.',n.vec,sep='')#character vector with all model names
+ #   #f.vec,n.vec,m.vec must have equal length
+ #   resamps1 <- list()#
+ #   k<- 1
+ #   for(w in 1:length(f.vec)){
+ #	if(f.vec[w]==TRUE){resamps1[[k]]<- get(m.vec[w]); names(resamps1)[[k]]<- n.vec[k]; k<- k+1}
+ #   } 
+ #   resamps <- resamples(resamps1)
+ #
+ #   pdf(file=paste('ModelsComparison',".",sCV,".","split",iSplit,".pdf",sep=""))
+ #   # par(mfrow = c(3, 4)) # all plots into one page!
+    
+ #   bwplot(resamps, layout = c(2, 1))
+ #   dev.off()
+ }
   
   #------------------------------------------------------------------------------
   # 9. Results for all splittings (not ordered)
