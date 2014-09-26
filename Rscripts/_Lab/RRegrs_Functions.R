@@ -7,9 +7,9 @@
 # AUTHORS: 
 # ----------------------------------------------------------------------
 # Georgia Tsiliki | ChemEng - NTUA, Greece | g_tsiliki [at] hotmail [dot] com
-# Cristian R Munteanu | RNASA-IMEDIR, University of A Coruña | muntisa [at] gmail [dot] com
+# Cristian R Munteanu | RNASA-IMEDIR, University of A Coruna | muntisa [at] gmail [dot] com
 # Jose A. Seoane | Stanford Cancer Institute | seoane [at] stanford [dot] edu
-# Carlos Fernandez-Lozano | RNASA-IMEDIR, University of A Coruña | carlos.fernandez [at] udc [dot] es
+# Carlos Fernandez-Lozano | RNASA-IMEDIR, University of A Coruna | carlos.fernandez [at] udc [dot] es
 # Haralambos Sarimveis | ChemEng - NTUA, Greece | hsarimv [at] central [dot] ntua [dot] gr
 # Egon Willighagen | BiGCaT - Maastricht University | egon.willighagen [at] gmail [dot] com
 # ----------------------------------------------------------------------
@@ -478,7 +478,7 @@ LMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
     # --------------------------------------------------------------
 
   }
-  return(my.stats)  # return a list with statistics
+  return(list(stat.values=my.stats, model=lm.fit))  # return a list with statistics and the full model 
 }
 
 
@@ -698,7 +698,7 @@ GLMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
   
   # my.stats.full <- c(my.stats.dsInfo,my.stats.10CV,my.stats.LOOCV)   # merge the CV results into one list that contains the names of each field!
   
-  return(my.stats)  # return a list with statistics
+  return(list(stat.values= my.stats, model=glm.fit))  # return a list with statistics and the full model
 }
 
 
@@ -889,7 +889,7 @@ PLSreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
     # --------------------------------------------------------------
   }
   
-  return(my.stats)  # return a list with statistics
+  return(list(stat.values=my.stats, model=pls.fit))  # return a list with statistics and the full model
 }
 
 
@@ -1081,7 +1081,7 @@ LASSOreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") 
     # --------------------------------------------------------------
   }
   
-  return(my.stats)  # return a list with statistics
+  return(list(stat.values=my.stats, model=las.fit))  # return a list with statistics and the full model
 }
 
 
@@ -1271,7 +1271,7 @@ RBF_DDAreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile=""
     # --------------------------------------------------------------
   }
   
-  return(my.stats)  # return a list with statistics
+  return(list(stat.values=my.stats, model=rbf.fit))  # return a list with statistics and the full model
 }
 
 
@@ -1463,7 +1463,7 @@ SVLMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
     # --------------------------------------------------------------
   }
   
-  return(my.stats)  # return a list with statistics
+  return(list(stat.values=my.stats, model=svmL.fit))  # return a list with statistics and the full model
 }
 
 
@@ -1656,7 +1656,7 @@ NNreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
     dev.off()
     # --------------------------------------------------------------
   }
-  return(my.stats)  # return a list with statistics
+  return(list(stat.values=my.stats, model=nn.fit))  # return a list with statistics and the full model
 }
 
 
@@ -1815,7 +1815,7 @@ PLSregWSel <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile=""
     dev.off()
   }
   
-  return(my.stats)  # return a list with statistics
+  return(list(stat.values=my.stats, model=pls.fit))  # return a list with statistics and the full model
 }
 
 
@@ -2232,7 +2232,7 @@ RFreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
     # --------------------------------------------------------------
     
   }
-  return(my.stats)  # return a list with statistics
+  return(list(stat.values=my.stats, model=rf.fit))  # return a list with statistics and the full model
 }
 
 
@@ -2451,7 +2451,7 @@ SVMRFEreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="")
     # --------------------------------------------------------------
     
   }
-  return(my.stats)  # return a list with statistics
+  return(list(stat.values=my.stats, model=rfesvm.fit))  # return a list with statistics and the full model
 }
 
 # MAIN FUNCTION #########################################################################################################
@@ -2532,9 +2532,9 @@ RRegrs<- function(paramFile) { # input = file with all parameters
       
       AUTHORS:
       Georgia Tsiliki | ChemEng - NTUA, Greece | g_tsiliki [at] hotmail [dot] com
-      Cristian R Munteanu | RNASA-IMEDIR, University of A Coruña | muntisa [at] gmail [dot] com
+      Cristian R Munteanu | RNASA-IMEDIR, University of A Coruna | muntisa [at] gmail [dot] com
       Jose A. Seoane | Stanford Cancer Institute | seoane [at] stanford [dot] edu
-      Carlos Fernandez-Lozano | RNASA-IMEDIR, University of A Coruña | carlos.fernandez [at] udc [dot] es
+      Carlos Fernandez-Lozano | RNASA-IMEDIR, University of A Coruna | carlos.fernandez [at] udc [dot] es
       Haralambos Sarimveis | ChemEng - NTUA, Greece | hsarimv [at] central [dot] ntua [dot] gr
       Egon Willighagen | BiGCaT - Maastricht University | egon.willighagen [at] gmail [dot] com
       ======================================================================\n")
@@ -2681,8 +2681,9 @@ RRegrs<- function(paramFile) { # input = file with all parameters
         # For each type of CV do all the statistics
         # -----------------------------------------------------
         for (cv in 1:length(CVtypes)) { # there is no CV but it will be implemented in the future!!!
-          my.stats.LM   <- LMreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.LM) # run GLM for each CV and regr method
-          
+          lm.model <- LMreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.LM) # run GLM for each CV and regr method
+          my.stats.LM <- lm.model$stat.values # stat values
+	    my.model.LM <- lm.model$model # model
           #-------------------------------------------------------
           # Add output from GLM to the list of results
           #-------------------------------------------------------
@@ -2718,8 +2719,10 @@ RRegrs<- function(paramFile) { # input = file with all parameters
         # For each type of CV do all the statistics
         # -----------------------------------------------------
         for (cv in 1:length(CVtypes)) {
-          my.stats.GLM   <- GLMreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.GLM) # run GLM for each CV and regr method
-          #my.stats.split <- c(my.stats.dsInfo,my.stats.GLM) # merge the ds info with statistics results for each Cv & reg method
+          glm.model <- GLMreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.GLM) # run GLM for each CV and regr method
+          my.stats.GLM <- glm.model$stat.values
+	    my.model.glm <- glm.model$model  
+	    #my.stats.split <- c(my.stats.dsInfo,my.stats.GLM) # merge the ds info with statistics results for each Cv & reg method
           
           #-------------------------------------------------------
           # Add output from GLM to the list of results
@@ -2749,8 +2752,10 @@ RRegrs<- function(paramFile) { # input = file with all parameters
         # For each type of CV do all the statistics
         # -----------------------------------------------------
         for (cv in 1:length(CVtypes)) {
-          my.stats.PLS  <- PLSreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.PLS) # run SVLM Radial for each CV and regr method
-          #-------------------------------------------------------
+          pls.model <- PLSreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.PLS) # run SVLM Radial for each CV and regr method
+          my.stats.PLS <- pls.model$stat.values
+	    my.model.PLS <- pls.model$model
+	    #-------------------------------------------------------
           # Add output from GLM to the list of results
           #-------------------------------------------------------
           # List of results for each splitting, CV type & regression method
@@ -2763,8 +2768,10 @@ RRegrs<- function(paramFile) { # input = file with all parameters
         # For each type of CV do all the statistics
         # -----------------------------------------------------
         for (cv in 1:length(CVtypes)) {
-          my.stats.PLS  <- PLSregWSel(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.PLS) # run SVLM Radial for each CV and regr method
-          #-------------------------------------------------------
+          pls.model <- PLSregWSel(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.PLS) # run SVLM Radial for each CV and regr method
+          my.stats.PLS <- pls.model$stat.values
+	    my.model.PLS <- pls.model$model
+	    #-------------------------------------------------------
           # Add output from GLM to the list of results
           #-------------------------------------------------------
           # List of results for each splitting, CV type & regression method
@@ -2786,8 +2793,10 @@ RRegrs<- function(paramFile) { # input = file with all parameters
         # For each type of CV do all the statistics
         # -----------------------------------------------------
         for (cv in 1:length(CVtypes)) {
-          my.stats.LASSO  <- LASSOreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.LASSO) # run SVLM Radial for each CV and regr method
-          #-------------------------------------------------------
+          lasso.model <- LASSOreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.LASSO) # run SVLM Radial for each CV and regr method
+          my.stats.LASSO <- lasso.model$stat.values
+	    my.model.LASSO <- lasso.model$model
+	    #-------------------------------------------------------
           # Add output from GLM to the list of results
           #-------------------------------------------------------
           # List of results for each splitting, CV type & regression method
@@ -2813,8 +2822,10 @@ RRegrs<- function(paramFile) { # input = file with all parameters
         # For each type of CV do all the statistics
         # -----------------------------------------------------
         for (cv in 1:length(CVtypes)) {
-          my.stats.rbfDDA  <- RBF_DDAreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.rbfDDA) # run SVLM Radial for each CV and regr method
-          #-------------------------------------------------------
+          rbfDDA.model <- RBF_DDAreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.rbfDDA) # run SVLM Radial for each CV and regr method
+          my.stats.rbfDDA <- rbfDDA.model$stat.values
+	    my.model.rbfDDA <- rbfDDA.model$model 
+	    #-------------------------------------------------------
           # Add output from SVM Radial to the list of results
           #-------------------------------------------------------
           # List of results for each splitting, CV type & regression method
@@ -2840,8 +2851,10 @@ RRegrs<- function(paramFile) { # input = file with all parameters
         # For each type of CV do all the statistics
         # -----------------------------------------------------
         for (cv in 1:length(CVtypes)) {
-          my.stats.SVLM  <- SVLMreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.SVLM) # run SVLM Radial for each CV and regr method
-          #-------------------------------------------------------
+          SVLM.model <- SVLMreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.SVLM) # run SVLM Radial for each CV and regr method
+          my.stats.SVLM <- SVLM.model$stat.values
+	    my.model.SVLM <- SVLM.model$model 
+	    #-------------------------------------------------------
           # Add output from SVM Radial to the list of results
           #-------------------------------------------------------
           # List of results for each splitting, CV type & regression method
@@ -2871,8 +2884,10 @@ RRegrs<- function(paramFile) { # input = file with all parameters
         # For each type of CV do all the statistics
         # -----------------------------------------------------
         for (cv in 1:length(CVtypes)) {
-          my.stats.NN  <- NNreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.NN) # run NNet for each CV and regr method
-          #-------------------------------------------------------
+          nn.model <- NNreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.NN) # run NNet for each CV and regr method
+          my.stats.NN <- nn.model$stat.values
+	    my.model.NN <- nn.model$model
+	    #-------------------------------------------------------
           # Add output from NNet to the list of results
           #-------------------------------------------------------
           # List of results for each splitting, CV type & regression method
@@ -2896,8 +2911,10 @@ RRegrs<- function(paramFile) { # input = file with all parameters
         # For each type of CV do all the statistics
         # -----------------------------------------------------
         for (cv in 1:length(CVtypes)) {
-          my.stats.RF  <- RFreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.RF) # run NNet for each CV and regr method
-          #-------------------------------------------------------
+          rf.model <- RFreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.RF) # run NNet for each CV and regr method
+          my.stats.RF <- rf.model$stat.values
+	    my.model.RF <- rf.model$model
+	    #-------------------------------------------------------
           # Add output from NNet to the list of results
           #-------------------------------------------------------
           # List of results for each splitting, CV type & regression method
@@ -2922,8 +2939,10 @@ RRegrs<- function(paramFile) { # input = file with all parameters
         # For each type of CV do all the statistics
         # -----------------------------------------------------
         for (cv in 1:length(CVtypes)) {
-          my.stats.SVMRFE  <- SVMRFEreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.SVMRFE) # run SVM RFEet for each CV and regr method
-          #-------------------------------------------------------
+          svmrfe.model <- SVMRFEreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.SVMRFE) # run SVM RFEet for each CV and regr method
+          my.stats.SVMRFE <- svmrfe.model$stat.values
+	    my.model.SVMRFE <- svmrfe.model$model 
+	    #-------------------------------------------------------
           # Add output from SVM RFE to the list of results
           #-------------------------------------------------------
           # List of results for each splitting, CV type & regression method
