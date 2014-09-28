@@ -11,7 +11,10 @@ AppendList2CSv(l,csvFile)
 }
 \arguments{
  \item{l}{the list object to be writen into a CSV file.}
- \item{csvFile}{a string to define the CSV file name to be append the items of a list.}
+ \item{csvFile}{a string to define the CSV file name whre the items of a list will be appended.}
+}
+\details{
+ AppendList2CSv appends data using comma as separation (CSV format), without quotes, column names or row names. 
 }
 \value{
  New info into CSV files.
