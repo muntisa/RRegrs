@@ -23,5 +23,5 @@ RemNear0VarCols(iris,'filtered_iris.csv')
 }
 }
 \author{
-Cristian R. Munteanu
+Georgia Tsiliki, Cristian R. Munteanu
 }
