@@ -2388,6 +2388,419 @@ SVMRFEreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="",
   return(my.stats)  # return a list with statistics
 }
 
+
+ENETreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
+  #================================
+  # 8.4 ElasticNet Regression (caret/glmnet)
+  #================================
+  
+  # ------------------------------------------
+  # only Linux or Mac: parallel calculations
+  # ------------------------------------------
+  #library(doMC)
+  #registerDoMC(cores = 2) # CPU cores
+  # ------------------------------------------
+  
+  library(caret)
+  library(glmnet)
+  load("glmnetModel.RData")
+  #attach(my.datf.train)   # make available the names of variables from training dataset
+  net.c = my.datf.train[,1] # dependent variable is the first column in Training set
+  RegrMethod <- "glmnet" # type of regression
+  
+  # Define the CV conditions
+  ctrl<- trainControl(method = sCV, number = 10,repeats = 2,verboseIter=F,
+                      summaryFunction = defaultSummary)
+  tuneGrid=expand.grid(.alpha = seq(0.1,1,length=10),.lambda=99 )
+  
+  
+  
+  # Train the model using only training set
+  set.seed(iSplit)
+  
+  
+  enet.fit<- train(net.c~.,data=my.datf.train,
+                   method=glmnetModel, tuneLength = 20, trControl = ctrl,family="gaussian",
+                   metric='RMSE',tuneGrid=tuneGrid)
+  
+  pos = which.min(abs(enet.fit$finalModel$lambda-enet.fit$finalModel$lambdaOpt))
+  
+  #------------------------------
+  # Training RESULTS
+  #------------------------------
+  RMSE.tr  <- enet.fit$results[,3]
+  R2.tr    <- enet.fit$results[,4]
+  if (sCV == "repeatedcv"){ # if 10-fold CV
+    RMSEsd.tr <- enet.fit$results[,5]
+    R2sd.tr   <- enet.fit$results[,6]
+  }
+  if (sCV == "LOOCV"){ # if LOOCV
+    RMSEsd.tr <- 0 # formulas will be added later!
+    R2sd.tr   <- 0 # formulas will be added later!
+  }
+  
+  #------------------------------------------------
+  # RMSE & R^2, for train/test respectively
+  #------------------------------------------------
+  lm.train.res <- getTrainPerf(enet.fit)
+  lm.test.res  <- postResample(predict(enet.fit,my.datf.test),my.datf.test[,1])
+  
+  #------------------------------------------------
+  # Adj R2, Pearson correlation
+  #------------------------------------------------
+  pred.tr     <- predict(enet.fit,my.datf.train) # predicted Y
+  pred.ts     <- predict(enet.fit,my.datf.test)  # predicted Y
+  noFeats.fit <- length(predictors(enet.fit))    # no. of features from the fitted model
+  Feats.fit   <- paste(predictors(enet.fit),collapse="+") # string with the features included in the fitted model
+  
+  ds.full     <- rbind(my.datf.train,my.datf.test)
+  pred.both   <- predict(enet.fit,ds.full)       # predicted Y
+  adjR2.tr    <- r2.adj.funct(my.datf.train[,1],pred.tr,noFeats.fit)
+  adjR2.ts    <- r2.adj.funct(my.datf.test[,1],pred.ts,noFeats.fit)
+  corP.ts     <- cor(my.datf.test[,1],pred.ts)
+  
+  adjR2.both  <- r2.adj.funct(ds.full[,1],pred.both,noFeats.fit)
+  RMSE.both   <- rmse.funct(ds.full[,1],pred.both)
+  r2.both     <- r2.funct(ds.full[,1],pred.both)
+  
+  # Generate the output list with statistics for each cross-validation type
+  # --------------------------------------------------------------------
+  # There are 3 lists for Data set info, 10-fold CV and LOOCV
+  # These 3 lists will be merged into one in order obtain the function output including the header (statistics names)
+  
+  my.stats <- list("RegrMeth"     = RegrMethod,
+                   "Split No"     = as.numeric(iSplit),     # from function param
+                   "CVtype"       = sCV,                    # from function param
+                   "NoModelFeats" = as.numeric(noFeats.fit),
+                   "ModelFeats"   = Feats.fit,
+                   "adjR2.tr"  = as.numeric(adjR2.tr),
+                   
+                   "RMSE.tr"   = as.numeric(min(RMSE.tr)),  # these 4 lines correspond to the min of RMSE.tr !!!
+                   "R2.tr"     = as.numeric(R2.tr[which.min(RMSE.tr)]),  
+                   "RMSEsd.tr" = as.numeric(RMSEsd.tr[which.min(RMSE.tr)]),
+                   "R2sd.tr"   = as.numeric(R2sd.tr[which.min(RMSE.tr)]),
+                   
+                   "adjR2.ts"= as.numeric(adjR2.ts),
+                   "RMSE.ts" = as.numeric((lm.test.res["RMSE"][[1]])),
+                   "R2.ts"   = as.numeric((lm.test.res["Rsquared"][[1]])),
+                   "corP.ts" = as.numeric(corP.ts),
+                   "adjR2.both" = as.numeric(adjR2.both),
+                   "RMSE.both"  = as.numeric(RMSE.both),
+                   "R2.both"    = as.numeric(r2.both))
+  
+  #---------------------------------------------------------------------
+  # Write to file DETAILS for GLM for each cross-validation method
+  #---------------------------------------------------------------------
+  if (fDet==T) {   # if flag for details if true, print details about any resut
+    write("RRegr package | eNanoMapper", file=outFile,append=T)
+    write.table(paste("Regression method: ", RegrMethod), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+    write.table(paste("Split no.: ", iSplit), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+    write.table(paste("CV type: ", sCV),      file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+    write.table("Training Set Summary: ", file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+    write.table(summary(my.datf.train),   file=outFile,append=T,sep=",",col.names=T,quote=F)
+    write.table("Test Set Summary: ",  file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+    write.table(summary(my.datf.test), file=outFile,append=T,sep=",",col.names=T,quote=F)   
+    
+    
+    write.table("Predictors: ",      file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+    write.table(predictors(enet.fit), file=outFile,append=T,sep=",",col.names=T,quote=F)
+    
+    write.table("Trainig Results: ",      file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+    AppendList2CSv(lm.train.res,outFile)
+    #write.table(predictors(lm.train.res), file=outFile,append=T,sep=",",col.names=T,quote=F)
+    write.table("Test Results: ",        file=outFile,append=T,sep=",",col.names=F,quote=F)
+    AppendList2CSv(lm.test.res,outFile)
+    #write.table(predictors(lm.test.res), file=outFile,append=T,sep=",",col.names=T,quote=F)
+    
+    write.table("Full Statistics: ", file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+    write.table(my.stats, file=outFile,append=T,sep=",",col.names=T,quote=F)
+    
+    # Variable Importance (max top 20)
+    FeatImp <- varImp(enet.fit, scale = F)
+    components = length(FeatImp)  # default plot all feature importance
+    if (length(FeatImp)>20){     # if the number of features is greater than 20, use only 20
+      components = 20
+    }
+    # Append feature importance to output details
+    AppendList2CSv(FeatImp,outFile)
+    
+    fitModel <- enet.fit$finalModel
+    
+    # =============================================================================
+    # Assessment of Applicability Domain (plot leverage)
+    # =============================================================================
+    
+    # Residuals
+    resids <- residuals(enet.fit) # residuals
+    write.table("Residuals of the fitted model: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+    write.table(data.frame(resids), file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F) # write residuals
+    
+    # ADDED !
+    predVals.pls.ad <- pred.ts
+    Traind.pls= as.matrix(my.datf.train)
+    Testd.pls = as.matrix(my.datf.test)
+    Hat.train = diag(Traind.pls %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Traind.pls))
+    Hat.test  = diag(Testd.pls  %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Testd.pls))  
+    
+    # Leverage / Hat values
+    hat.fit <- Hat.test          # hat values
+    hat.fit.df <- as.data.frame(hat.fit)    # hat data frame
+    hat.mean <- mean(hat.fit)               # mean hat values
+    hat.fit.df$warn <- ifelse(hat.fit.df[, 'hat.fit']>3*hat.mean, 'x3',ifelse(hat.fit.df[, 'hat.fit']>2*hat.mean, 'x2', '-' ))
+    
+    write.table("Leverage output: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+    write.table(paste("Mean of hat values: ", hat.mean), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+    write.table("Leverage / Hat values with warnings (X3 & X2 = values 3 & 2 times than hat mean): ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+    write.table(hat.fit.df, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F) # write hat values and the levels X3, X2 (of hat mean)
+    
+    #THRESHOLD values: 3m/n, where m is the number of parameters, and n number of observations
+    thresh.lever<- (3*(dim(my.datf.train)[2]-1))/dim(my.datf.train)[1] # leverage thresh
+    hat.problems<- data.frame(hat.fit[hat.fit>thresh.lever]) # points with high leverage
+    
+    write.table(paste("Leverage Threshold: ", thresh.lever), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+    write.table("Points with leverage > threshold: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+    write.table(hat.problems, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F)
+    
+    # Cook's distance
+    # Influence
+    
+    # PDF plots
+    # --------------------------------------------------------------
+    pdf(file=paste(outFile,".",sCV,".","split",iSplit,".pdf",sep=""))
+    plot(my.datf.train[,1],pred.tr,xlab="Yobs", ylab="Ypred", type="b", main="Train Yobs-Ypred")
+    plot(my.datf.test[,1], pred.ts,xlab="Yobs", ylab="Ypred", type="b", main="Test Yobs-Ypred")
+    dotchart(as.matrix(FeatImp$importance),main="Feature Importance")
+    
+    # Fitted vs Residuals
+    plot(fitted(enet.fit),residuals(enet.fit),
+         main="Fitted vs. Residuals for Fitted Model",
+         xlab="Fitted", ylab="Residuals")
+    abline(h = 0, lty = 2)
+    
+    # Leverage plots
+    plot(hat.fit, type = "h",
+         main="Leverage for Fitted Model",
+         xlab="Index", ylab="Hat")
+    abline(h = thresh.lever, lty = 2, col="red") # leverage thresh
+    
+    dev.off()
+    # --------------------------------------------------------------
+  }
+  
+  return(my.stats)  # return a list with statistics
+}
+
+RFRFEreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
+  #==========
+  # Random Forest-RFE
+  #==========
+  
+  # ------------------------------------------
+  # only Linux or Mac: parallel calculations
+  # ------------------------------------------
+  #library(doMC)
+  #registerDoMC(cores = 2) # CPU cores
+  # ------------------------------------------
+  # parallel for windows:
+  #library(doSNOW)
+  #library(foreach)
+  #cl<-makeCluster(5) #change the 2 to your number of CPU cores
+  #registerDoSNOW(cl)
+  #save(my.datf.train,my.datf.test,sCV,iSplit,fDet,outFile,file="kk.RData")
+  
+  net.c = my.datf.train[,1]   # make available the names of variables from training dataset
+  RegrMethod <- "rfRFE" # type of regression
+  
+  # Define the CV conditions
+  ctrl<- trainControl(method=sCV, number=5,repeats=1,
+                      summaryFunction=defaultSummary,verboseIter = F)
+  
+  rfeCtr = rfeControl(functions = rfFuncs,method="cv",number=5,repeats=2, saveDetails = T, verbose=T,rerank = F,allowParallel=T)
+  
+  sizes = 2^(1:sqrt(ncol(my.datf.train)-1))
+  
+  # Train the model using only training set
+  set.seed(iSplit)
+  
+  input = as.matrix(my.datf.train[,2:13])
+  rferf.fit = rfe(input,net.c,sizes = sizes,rfeControl=rfeCtr,prob.model =F,trControl=ctrl ,allowParallel=T, tuneGrid=expand.grid(.mtry=c(floor(sqrt(ncol(input))),ncol(input))), metric='RMSE')
+  
+  
+  
+  
+  #------------------------------
+  # Training RESULTS
+  #------------------------------
+  RMSE.tr  <- rferf.fit$results[rferf.fit$results$Variables ==rferf.fit$bestSubset,2]
+  R2.tr    <- rferf.fit$results[rferf.fit$results$Variables ==rferf.fit$bestSubset,3]
+  if (sCV == "repeatedcv"){ # if 10-fold CV
+    RMSEsd.tr <- rferf.fit$results[rferf.fit$results$Variables ==rferf.fit$bestSubset,4]
+    R2sd.tr   <- rferf.fit$results[rferf.fit$results$Variables ==rferf.fit$bestSubset,5]
+  }
+  if (sCV == "LOOCV"){ # if LOOCV
+    RMSEsd.tr <- 0 # formulas will be added later!  TODOOOOOOOOOOOOOO
+    R2sd.tr   <- 0 # formulas will be added later!
+  }
+  
+  #------------------------------------------------
+  # RMSE & R^2, for train/test respectively
+  #------------------------------------------------
+  rfesvm.train.res <- rferf.fit$results[ rferf.fit$results$Variables== rferf.fit$bestSubset, c(2,3)]
+  rfesvm.test.res  <- postResample(predict(rferf.fit,my.datf.test),my.datf.test[,1])
+  
+  #------------------------------------------------
+  # Adj R2, Pearson correlation
+  #------------------------------------------------
+  pred.tr     <- predict(rferf.fit,my.datf.train) # predicted Y for training
+  pred.ts     <- predict(rferf.fit,my.datf.test)  # predicted Y for test
+  noFeats.fit <- length(predictors(rferf.fit))    # no. of features from the fitted model
+  Feats.fit   <- paste(predictors(rferf.fit),collapse="+") # string with the features included in the fitted model
+  
+  ds.full     <- rbind(my.datf.train,my.datf.test)
+  pred.both   <- predict(rferf.fit,ds.full)       # predicted Y
+  adjR2.tr    <- r2.adj.funct(my.datf.train[,1],pred.tr,noFeats.fit)
+  adjR2.ts    <- r2.adj.funct(my.datf.test[,1],pred.ts,noFeats.fit)
+  corP.ts     <- cor(my.datf.test[,1],pred.ts)
+  
+  adjR2.both  <- r2.adj.funct(ds.full[,1],pred.both,noFeats.fit)
+  RMSE.both   <- rmse.funct(ds.full[,1],pred.both)
+  r2.both     <- r2.funct(ds.full[,1],pred.both)
+  
+  # Generate the output list with statistics for each cross-validation type
+  # --------------------------------------------------------------------
+  # There are 3 lists for Data set info, 10-fold CV and LOOCV
+  # These 3 lists will be merged into one in order obtain the function output including the header (statistics names)
+  
+  my.stats <- list("RegrMeth"     = RegrMethod,
+                   "Split No"     = as.numeric(iSplit),     # from function param
+                   "CVtype"       = sCV,                    # from function param
+                   "NoModelFeats" = as.numeric(noFeats.fit),
+                   "ModelFeats"   = Feats.fit,
+                   "adjR2.tr"  = as.numeric(adjR2.tr),
+                   "RMSE.tr"   = as.numeric(RMSE.tr),
+                   "R2.tr"     = as.numeric(R2.tr),
+                   "RMSEsd.tr" = as.numeric(RMSEsd.tr),
+                   "R2sd.tr"   = as.numeric(R2sd.tr),
+                   "adjR2.ts"= as.numeric(adjR2.ts),
+                   "RMSE.ts" = as.numeric((rfesvm.test.res["RMSE"])),
+                   "R2.ts"   = as.numeric((rfesvm.test.res["Rsquared"])),
+                   "corP.ts" = as.numeric(corP.ts),
+                   "adjR2.both" = as.numeric(adjR2.both),
+                   "RMSE.both"  = as.numeric(RMSE.both),
+                   "R2.both"    = as.numeric(r2.both))
+  
+  #---------------------------------------------------------------------
+  # Write to file DETAILS for GLM for each cross-validation method
+  #---------------------------------------------------------------------
+  if (fDet==T) {   # if flag for details if T, print details about any resut
+    write("RRegr package | eNanoMapper", file=outFile, append=T)
+    write.table(paste("Regression method: ", RegrMethod), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+    write.table(paste("Split no.: ", iSplit), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+    write.table(paste("CV type: ", sCV),      file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+    write.table("Training Set Summary: ",     file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+    write.table(summary(my.datf.train),       file=outFile,append=T,sep=",",col.names=T,quote=F)
+    write.table("Test Set Summary: ",         file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+    write.table(summary(my.datf.test),        file=outFile,append=T,sep=",",col.names=T,quote=F)   
+    
+    
+    write.table("Predictors: ",     file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+    write.table(predictors(rferf.fit), file=outFile,append=T,sep=",",col.names=T,quote=F)
+    
+    write.table("Trainig Results: ",     file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+    write.table(rfesvm.train.res,file=outFile,append=T,sep=",",col.names=T,quote=F)
+    write.table("Test Results: ",        file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+    write.table(rfesvm.test.res, file=outFile,append=T,sep=",",col.names=T,quote=F)
+    
+    write.table("Full Statistics: ", file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+    write.table(my.stats,            file=outFile,append=T,sep=",",col.names=T,quote=F)
+    
+    # Variable Importance (max top 20)
+    
+   
+    FeatImp <- importance(rferf.fit$fit, scale = T)
+    FeatImp = FeatImp[order(FeatImp,decreasing=T),]
+    
+    components = length(FeatImp)  # default plot all feature importance
+    if (length(FeatImp)>20){     # if the number of features is greater than 20, use only 20
+      components = 20
+    }
+    # Append feature importance to output details
+    AppendList2CSv(FeatImp,outFile)
+    
+    
+    fitModel <- rferf.fit$fit
+    
+    # =============================================================================
+    # Assessment of Applicability Domain (plot leverage)
+    # =============================================================================
+    
+    # Residuals
+    resids <- abs(pred.both-ds.full[,1])    # residuals
+    write.table("Residuals of the fitted model: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+    write.table(data.frame(resids), file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F) # write residuals
+    
+    predVals.pls.ad <- pred.ts
+    Traind.pls= as.matrix(my.datf.train)
+    Testd.pls = as.matrix(my.datf.test)
+    Hat.train = diag(Traind.pls %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Traind.pls))
+    Hat.test  = diag(Testd.pls  %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Testd.pls))  
+    
+    
+    
+    # Leverage / Hat values
+    hat.fit <- Hat.test          # hat values
+    hat.fit.df <- as.data.frame(hat.fit)    # hat data frame
+    hat.mean <- mean(hat.fit)               # mean hat values
+    hat.fit.df$warn <- ifelse(hat.fit.df[, 'hat.fit']>3*hat.mean, 'x3',ifelse(hat.fit.df[, 'hat.fit']>2*hat.mean, 'x2', '-' ))
+    
+    write.table("Leverage output: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+    write.table(paste("Mean of hat values: ", hat.mean), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+    write.table("Leverage / Hat values with warnings (X3 & X2 = values 3 & 2 times than hat mean): ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+    write.table(hat.fit.df, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F) # write hat values and the levels X3, X2 (of hat mean)
+    
+    #THRESHOLD values: 3m/n, where m is the number of parameters, and n number of observations
+    thresh.lever<- (3*(dim(my.datf.train)[2]-1))/dim(my.datf.train)[1] # leverage thresh
+    hat.problems<- data.frame(hat.fit[hat.fit>thresh.lever]) # points with high leverage
+    
+    write.table(paste("Leverage Threshold: ", thresh.lever), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+    write.table("Points with leverage > threshold: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+    write.table(hat.problems, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F)
+    
+    
+    # PDF with 12 plots
+    # --------------------------------------------------------------
+    pdf(file=paste(outFile,".",sCV,".","split",iSplit,".pdf",sep=""))
+    # par(mfrow = c(3, 4)) # all plots into one page!
+    
+    plot(my.datf.train[,1],pred.tr,xlab="Yobs", ylab="Ypred", type="b", main="Train Yobs-Ypred") # plot 1
+    plot(my.datf.test[,1], pred.ts,xlab="Yobs", ylab="Ypred", type="b", main="Test Yobs-Ypred")  # plot 2
+    
+    dotchart(FeatImp,main="Feature Importance")                            # plot 3
+    
+    # Fitted vs Residuals - plot 4
+    plot(pred.both,resids,
+         main="Fitted vs. Residuals for Fitted Model",
+         xlab="Fitted", ylab="Residuals")
+    abline(h = 0, lty = 2)
+    
+    # Leverage plots - plot 5
+    plot(hat.fit, type = "h",
+         main="Leverage for Fitted Model",
+         xlab="Index", ylab="Hat")
+    abline(h = thresh.lever, lty = 2, col="red") # leverage thresh
+    
+    
+    
+    # plot(FeatImp, top = components,main="Feature Importance") # ERROR !
+    dev.off()
+    # --------------------------------------------------------------
+    
+  }
+  return(my.stats)  # return a list with statistics
+}
+
+
+
 # RRegrs MAIN FUNCTION #########################################################################################################
 
 RRegrs<- function(paramFile) { # input = file with all parameters
@@ -2424,7 +2837,8 @@ RRegrs<- function(paramFile) { # input = file with all parameters
   fSVMRFE      = as.logical(Param.df[which(Param.df$RRegrs.Parameters=="fSVMRFE"),2])  # flag to run SVM RFE      (8.10)
   rfe_SVM_param_c = strsplit(as.character(Param.df[which(Param.df$RRegrs.Parameters=="RFE_SVM_C"),2]),";")[[1]] # values of C for SVM RFE
   rfe_SVM_param_eps = strsplit(as.character(Param.df[which(Param.df$RRegrs.Parameters=="RFE_SVM_epsilon"),2]),";")[[1]] # values of epsilon for SVM RFE
-
+  fenet      = as.logical(Param.df[which(Param.df$RRegrs.Parameters=="fENET"),2])  # flag to run ElasticNet      (8.11)
+  
   
   # ----------------------------------------------------------------------------------------
   iScaling = as.numeric(as.character(Param.df[which(Param.df$RRegrs.Parameters=="iScaling"),2])) # 1 = normalization; 2 = standardization, 3 = other; any other: no scaling
@@ -2459,6 +2873,7 @@ RRegrs<- function(paramFile) { # input = file with all parameters
   nnFile         = as.character(Param.df[which(Param.df$RRegrs.Parameters=="nnFile"),2])     # NN Radial output file for details
   rfFile         = as.character(Param.df[which(Param.df$RRegrs.Parameters=="rfFile"),2])      # RF  output file for details
   svmrfeFile     = as.character(Param.df[which(Param.df$RRegrs.Parameters=="svmrfeFile"),2])  # svMRFE  output file for details
+  enetFile     = as.character(Param.df[which(Param.df$RRegrs.Parameters=="enetFile"),2])  # elastic net  output file for details
   
   # Generate path + file name = original dataset
   inFile <- file.path(PathDataSet, DataFileName)
@@ -2844,7 +3259,16 @@ Egon Willighagen | BiGCaT - Maastricht University | egon.willighagen [at] gmail 
       } 
       else    # if there is a need for previous feature selection ->> use wrapper functions
       {                     
-        # run RFet with wrapper method (TO BE IMPLEMENTED!)
+        # For each type of CV do all the statistics
+        # -----------------------------------------------------
+        for (cv in 1:length(CVtypes2)) {
+          my.stats.RF  <- RFRFEreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.RF) # run RF for each CV and regr method
+          #-------------------------------------------------------
+          # Add output from NNet to the list of results
+          #-------------------------------------------------------
+          # List of results for each splitting, CV type & regression method
+          dfRes = mapply(c, my.stats.RF, dfRes, SIMPLIFY=F)
+        } # end CV types
       }
       
     } # end RF
@@ -2874,6 +3298,35 @@ Egon Willighagen | BiGCaT - Maastricht University | egon.willighagen [at] gmail 
       }
       
     } # end SVM RFE
+    
+    # --------------------------------------------
+    # 8.11. elastic net regression
+    # --------------------------------------------
+    if (fenet==T) {   # if ENET was selected, run the method
+     
+      cat("-> [8.11] ElasticNET ...\n")
+      outFile.ENET <- file.path(PathDataSet,enetFile)   # the same folder as the input is used for the output
+      
+      # Both wrapper and nont-wrapper function are placed in the same external file s8.RegrrMethods.R
+      if (fFeatureSel==F) {    # if there is no need of feature selection ->> use normal functions
+        # For each type of CV do all the statistics
+        # -----------------------------------------------------
+        for (cv in 1:length(CVtypes)) {
+          my.stats.ENET  <- ENETreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.ENET) # run elasti net for each CV and regr method
+          #-------------------------------------------------------
+          # Add output from GLM to the list of results
+          #-------------------------------------------------------
+          # List of results for each splitting, CV type & regression method
+          dfRes = mapply(c, my.stats.ENET, dfRes, SIMPLIFY=F)
+        } # end CV types
+      } 
+      else    # if there is a need for previous feature selection ->> use wrapper functions
+      {                     
+        # run enet with wrapper method (TO BE IMPLEMENTED!)
+      }
+      
+    } # end enet
+    
     # END OF REGRESSION Functions !!!
   }
   
@@ -2981,6 +3434,15 @@ Egon Willighagen | BiGCaT - Maastricht University | egon.willighagen [at] gmail 
   if (best.reg=="svmRFE") {  
     my.stats.reg  <- SVMRFEreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF,rfe_SVM_param_c,rfe_SVM_param_eps) # run NNet for each CV and regr method
   } 
+  if (best.reg=="glmnet") {  
+    my.stats.reg  <- ENETreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF) # run ENET for each CV and regr method
+  }
+  
+  if (best.reg=="rfRFE") {  
+    my.stats.reg  <- RFRFEreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF) # run RF RFE for each CV and regr method
+  }
+  
+  #save(ds,trainFrac,best.reg,my.stats.reg,noYrand,ResBestF,file="kk.rData")
   
   #------------------------------------------------------------------------------
   # 12. Test best model with test dataset
