@@ -2982,7 +2982,12 @@ Egon Willighagen | BiGCaT - Maastricht University | egon.willighagen [at] gmail 
                 "adjR2.both" = NULL,
                 "RMSE.both"  = NULL,
                 "R2.both"    = NULL)
-  
+ 
+  # Initialize the list with the statistical models for all types of CV; the same HEADER as the function output
+  dfMod <- sapply(CVtypes,function(x) NULL)
+  for(i in 1:length(CVtypes)){class(dfMod[[i]])<- 'list'}
+ 
+
   #-------------------------------------------------------------------------------------------------
   for (i in 1:iSplitTimes) {                      # Step splitting number = i
     # -----------------------------------------------------------------------
@@ -3042,7 +3047,8 @@ Egon Willighagen | BiGCaT - Maastricht University | egon.willighagen [at] gmail 
           #-------------------------------------------------------
           # List of results for each splitting, CV type & regression method
           dfRes = mapply(c, my.stats.LM, dfRes, SIMPLIFY=F)
-          
+          dfMod[[cv]] = c(dfMod[[cv]],my.model.LM)
+	    names(dfMod)[[cv]]<- paste(CVtypes[cv],strsplit(deparse(substitute(my.model.LM)),'my.model.')[[1]][2],sep='.')
         } # end CV types
       } 
       else    # if there is a need for previous feature selection ->> use wrapper functions
@@ -3082,7 +3088,9 @@ Egon Willighagen | BiGCaT - Maastricht University | egon.willighagen [at] gmail 
           #-------------------------------------------------------
           # List of results for each splitting, CV type & regression method
           dfRes = mapply(c, my.stats.GLM, dfRes, SIMPLIFY=F)
-          
+          dfMod[[cv]] = c(dfMod[[cv]],my.model.GLM)
+	    names(dfMod)[[cv]]<- paste(CVtypes[cv],strsplit(deparse(substitute(my.model.GLM)),'my.model.')[[1]][2],sep='.')
+
         } # end CV types
       } 
       else    # if there is a need for previous feature selection ->> use wrapper functions
@@ -3113,6 +3121,9 @@ Egon Willighagen | BiGCaT - Maastricht University | egon.willighagen [at] gmail 
           #-------------------------------------------------------
           # List of results for each splitting, CV type & regression method
           dfRes = mapply(c, my.stats.PLS, dfRes, SIMPLIFY=F)
+          dfMod[[cv]] = c(dfMod[[cv]],my.model.PLS)
+	    names(dfMod)[[cv]]<- paste(CVtypes[cv],strsplit(deparse(substitute(my.model.PLS)),'my.model.')[[1]][2],sep='.')
+
         } # end CV types
       } 
       else    # if there is a need for previous feature selection ->> use wrapper functions
@@ -3154,6 +3165,9 @@ Egon Willighagen | BiGCaT - Maastricht University | egon.willighagen [at] gmail 
           #-------------------------------------------------------
           # List of results for each splitting, CV type & regression method
           dfRes = mapply(c, my.stats.LASSO, dfRes, SIMPLIFY=F)
+	    dfMod[[cv]] = c(dfMod[[cv]],my.model.LASSO)
+	    names(dfMod)[[cv]]<- paste(CVtypes[cv],strsplit(deparse(substitute(my.model.LASSO)),'my.model.')[[1]][2],sep='.')
+
         } # end CV types
       } 
       else    # if there is a need for previous feature selection ->> use wrapper functions
@@ -3183,6 +3197,9 @@ Egon Willighagen | BiGCaT - Maastricht University | egon.willighagen [at] gmail 
           #-------------------------------------------------------
           # List of results for each splitting, CV type & regression method
           dfRes = mapply(c, my.stats.rbfDDA, dfRes, SIMPLIFY=F)
+	    dfMod[[cv]] = c(dfMod[[cv]],my.model.rbfDDA)
+	    names(dfMod)[[cv]]<- paste(CVtypes[cv],strsplit(deparse(substitute(my.model.rbfDDA)),'my.model.')[[1]][2],sep='.')
+
         } # end CV types
       } 
       else    # if there is a need for previous feature selection ->> use wrapper functions
@@ -3212,6 +3229,9 @@ Egon Willighagen | BiGCaT - Maastricht University | egon.willighagen [at] gmail 
           #-------------------------------------------------------
           # List of results for each splitting, CV type & regression method
           dfRes = mapply(c, my.stats.SVLM, dfRes, SIMPLIFY=F)
+	    dfMod[[cv]] = c(dfMod[[cv]],my.model.SVLM)
+	    names(dfMod)[[cv]]<- paste(CVtypes[cv],strsplit(deparse(substitute(my.model.SVLM)),'my.model.')[[1]][2],sep='.')
+
         } # end CV types
       } 
       else    # if there is a need for previous feature selection ->> use wrapper functions
@@ -3245,6 +3265,9 @@ Egon Willighagen | BiGCaT - Maastricht University | egon.willighagen [at] gmail 
           #-------------------------------------------------------
           # List of results for each splitting, CV type & regression method
           dfRes = mapply(c, my.stats.NN, dfRes, SIMPLIFY=F)
+	    dfMod[[cv]] = c(dfMod[[cv]],my.model.NN)
+	    names(dfMod)[[cv]]<- paste(CVtypes[cv],strsplit(deparse(substitute(my.model.NN)),'my.model.')[[1]][2],sep='.')
+
         } # end CV types
       } 
       else    # if there is a need for previous feature selection ->> use wrapper functions
@@ -3272,6 +3295,9 @@ Egon Willighagen | BiGCaT - Maastricht University | egon.willighagen [at] gmail 
           #-------------------------------------------------------
           # List of results for each splitting, CV type & regression method
           dfRes = mapply(c, my.stats.RF, dfRes, SIMPLIFY=F)
+	    dfMod[[cv]] = c(dfMod[[cv]],my.model.RF)
+	    names(dfMod)[[cv]]<- paste(CVtypes[cv],strsplit(deparse(substitute(my.model.RF)),'my.model.')[[1]][2],sep='.')
+
         } # end CV types
       } 
       else    # if there is a need for previous feature selection ->> use wrapper functions
@@ -3311,6 +3337,9 @@ Egon Willighagen | BiGCaT - Maastricht University | egon.willighagen [at] gmail 
           #-------------------------------------------------------
           # List of results for each splitting, CV type & regression method
           dfRes = mapply(c, my.stats.SVMRFE, dfRes, SIMPLIFY=F)
+	    dfMod[[cv]] = c(dfMod[[cv]],my.model.SVMRFE)
+	    names(dfMod)[[cv]]<- paste(CVtypes[cv],strsplit(deparse(substitute(my.model.SVMRFE)),'my.model.')[[1]][2],sep='.')
+
         } # end CV types
       } 
       else    # if there is a need for previous feature selection ->> use wrapper functions
@@ -3334,13 +3363,16 @@ Egon Willighagen | BiGCaT - Maastricht University | egon.willighagen [at] gmail 
         # -----------------------------------------------------
         for (cv in 1:length(CVtypes)) {
           enet.model <- ENETreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.ENET) # run elasti net for each CV and regr method
-          my.stats.ENET <- <- enet.model$stat.values
+          my.stats.ENET <- enet.model$stat.values
 	    my.model.ENET <- enet.model$model 
 	    #-------------------------------------------------------
           # Add output from GLM to the list of results
           #-------------------------------------------------------
           # List of results for each splitting, CV type & regression method
           dfRes = mapply(c, my.stats.ENET, dfRes, SIMPLIFY=F)
+	    dfMod[[cv]] = c(dfMod[[cv]],my.model.ENET)
+	    names(dfMod)[[cv]]<- paste(CVtypes[cv],strsplit(deparse(substitute(my.model.ENET)),'my.model.')[[1]][2],sep='.')
+
         } # end CV types
       } 
       else    # if there is a need for previous feature selection ->> use wrapper functions
