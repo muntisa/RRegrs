@@ -2982,11 +2982,7 @@ Egon Willighagen | BiGCaT - Maastricht University | egon.willighagen [at] gmail 
                 "adjR2.both" = NULL,
                 "RMSE.both"  = NULL,
                 "R2.both"    = NULL)
- 
-  # Initialize the list with the statistical models for all types of CV; the same HEADER as the function output
-  dfMod <- sapply(CVtypes,function(x) NULL)
-  for(i in 1:length(CVtypes)){class(dfMod[[i]])<- 'list'}
- 
+  
 
   #-------------------------------------------------------------------------------------------------
   for (i in 1:iSplitTimes) {                      # Step splitting number = i
@@ -2995,6 +2991,11 @@ Egon Willighagen | BiGCaT - Maastricht University | egon.willighagen [at] gmail 
     # -----------------------------------------------------------------------
     cat("-> [6] Splitting dataset in Training and Test sets ...\n")
     cat(paste("--> Split No.",i,"from",iSplitTimes,"\n"))
+
+    # Initialize the list with the statistical models for all types of CV; per iSplitTimes
+    dfMod <- sapply(CVtypes,function(x) NULL)
+    for(i in 1:length(CVtypes)){class(dfMod[[i]])<- 'list'; names(dfMod)[[i]]<- CVtypes[i]}
+    mod.ind<- rep(1,length(CVtypes)) # dummy variable to indicate the index of each new dfMod entry (per CVtype) 
     
     iSeed=i                 # to reapeat the ds splitting, different values of seed will be used
     dsList  <- DsSplit(ds,trainFrac,fDet,PathDataSet,iSeed) # return a list with 2 datasets = dsList$train, dsList$test
@@ -3047,8 +3048,12 @@ Egon Willighagen | BiGCaT - Maastricht University | egon.willighagen [at] gmail 
           #-------------------------------------------------------
           # List of results for each splitting, CV type & regression method
           dfRes = mapply(c, my.stats.LM, dfRes, SIMPLIFY=F)
-          dfMod[[cv]] = c(dfMod[[cv]],my.model.LM)
-	    names(dfMod)[[cv]]<- paste(CVtypes[cv],strsplit(deparse(substitute(my.model.LM)),'my.model.')[[1]][2],sep='.')
+          # List of models for each splitting, CV type & regression method
+	    names1 <- strsplit(deparse(substitute(my.model.LM)),'my.model.')[[1]][2]
+	    dfMod[[cv]]$names1 <- my.model.LM  
+	    names(dfMod[[cv]])[mod.ind[cv]] <- names1[1]
+          mod.ind[cv] <- mod.ind[cv] +1 # update mod.ind indicator variable
+
         } # end CV types
       } 
       else    # if there is a need for previous feature selection ->> use wrapper functions
@@ -3088,8 +3093,11 @@ Egon Willighagen | BiGCaT - Maastricht University | egon.willighagen [at] gmail 
           #-------------------------------------------------------
           # List of results for each splitting, CV type & regression method
           dfRes = mapply(c, my.stats.GLM, dfRes, SIMPLIFY=F)
-          dfMod[[cv]] = c(dfMod[[cv]],my.model.GLM)
-	    names(dfMod)[[cv]]<- paste(CVtypes[cv],strsplit(deparse(substitute(my.model.GLM)),'my.model.')[[1]][2],sep='.')
+          # List of models for each splitting, CV type & regression method
+	    names1 <- strsplit(deparse(substitute(my.model.GLM)),'my.model.')[[1]][2]
+	    dfMod[[cv]]$names1 <- my.model.GLM  
+	    names(dfMod[[cv]])[mod.ind[cv]] <- names1[1]
+          mod.ind[cv] <- mod.ind[cv] +1 # update mod.ind indicator variable
 
         } # end CV types
       } 
@@ -3121,8 +3129,11 @@ Egon Willighagen | BiGCaT - Maastricht University | egon.willighagen [at] gmail 
           #-------------------------------------------------------
           # List of results for each splitting, CV type & regression method
           dfRes = mapply(c, my.stats.PLS, dfRes, SIMPLIFY=F)
-          dfMod[[cv]] = c(dfMod[[cv]],my.model.PLS)
-	    names(dfMod)[[cv]]<- paste(CVtypes[cv],strsplit(deparse(substitute(my.model.PLS)),'my.model.')[[1]][2],sep='.')
+          # List of models for each splitting, CV type & regression method
+	    names1 <- strsplit(deparse(substitute(my.model.PLS)),'my.model.')[[1]][2]
+	    dfMod[[cv]]$names1 <- my.model.PLS  
+	    names(dfMod[[cv]])[mod.ind[cv]] <- names1[1]
+          mod.ind[cv] <- mod.ind[cv] +1 # update mod.ind indicator variable
 
         } # end CV types
       } 
@@ -3165,8 +3176,11 @@ Egon Willighagen | BiGCaT - Maastricht University | egon.willighagen [at] gmail 
           #-------------------------------------------------------
           # List of results for each splitting, CV type & regression method
           dfRes = mapply(c, my.stats.LASSO, dfRes, SIMPLIFY=F)
-	    dfMod[[cv]] = c(dfMod[[cv]],my.model.LASSO)
-	    names(dfMod)[[cv]]<- paste(CVtypes[cv],strsplit(deparse(substitute(my.model.LASSO)),'my.model.')[[1]][2],sep='.')
+          # List of models for each splitting, CV type & regression method
+	    names1 <- strsplit(deparse(substitute(my.model.LASSO)),'my.model.')[[1]][2]
+	    dfMod[[cv]]$names1 <- my.model.LASSO  
+	    names(dfMod[[cv]])[mod.ind[cv]] <- names1[1]
+          mod.ind[cv] <- mod.ind[cv] +1 # update mod.ind indicator variable
 
         } # end CV types
       } 
@@ -3197,8 +3211,11 @@ Egon Willighagen | BiGCaT - Maastricht University | egon.willighagen [at] gmail 
           #-------------------------------------------------------
           # List of results for each splitting, CV type & regression method
           dfRes = mapply(c, my.stats.rbfDDA, dfRes, SIMPLIFY=F)
-	    dfMod[[cv]] = c(dfMod[[cv]],my.model.rbfDDA)
-	    names(dfMod)[[cv]]<- paste(CVtypes[cv],strsplit(deparse(substitute(my.model.rbfDDA)),'my.model.')[[1]][2],sep='.')
+          # List of models for each splitting, CV type & regression method
+	    names1 <- strsplit(deparse(substitute(my.model.rbfDDA)),'my.model.')[[1]][2]
+	    dfMod[[cv]]$names1 <- my.model.rbfDDA  
+	    names(dfMod[[cv]])[mod.ind[cv]] <- names1[1]
+          mod.ind[cv] <- mod.ind[cv] +1 # update mod.ind indicator variable
 
         } # end CV types
       } 
@@ -3229,8 +3246,11 @@ Egon Willighagen | BiGCaT - Maastricht University | egon.willighagen [at] gmail 
           #-------------------------------------------------------
           # List of results for each splitting, CV type & regression method
           dfRes = mapply(c, my.stats.SVLM, dfRes, SIMPLIFY=F)
-	    dfMod[[cv]] = c(dfMod[[cv]],my.model.SVLM)
-	    names(dfMod)[[cv]]<- paste(CVtypes[cv],strsplit(deparse(substitute(my.model.SVLM)),'my.model.')[[1]][2],sep='.')
+          # List of models for each splitting, CV type & regression method
+	    names1 <- strsplit(deparse(substitute(my.model.SVLM)),'my.model.')[[1]][2]
+	    dfMod[[cv]]$names1 <- my.model.SVLM  
+	    names(dfMod[[cv]])[mod.ind[cv]] <- names1[1]
+          mod.ind[cv] <- mod.ind[cv] +1 # update mod.ind indicator variable
 
         } # end CV types
       } 
@@ -3265,8 +3285,11 @@ Egon Willighagen | BiGCaT - Maastricht University | egon.willighagen [at] gmail 
           #-------------------------------------------------------
           # List of results for each splitting, CV type & regression method
           dfRes = mapply(c, my.stats.NN, dfRes, SIMPLIFY=F)
-	    dfMod[[cv]] = c(dfMod[[cv]],my.model.NN)
-	    names(dfMod)[[cv]]<- paste(CVtypes[cv],strsplit(deparse(substitute(my.model.NN)),'my.model.')[[1]][2],sep='.')
+          # List of models for each splitting, CV type & regression method
+	    names1 <- strsplit(deparse(substitute(my.model.NN)),'my.model.')[[1]][2]
+	    dfMod[[cv]]$names1 <- my.model.NN  
+	    names(dfMod[[cv]])[mod.ind[cv]] <- names1[1]
+          mod.ind[cv] <- mod.ind[cv] +1 # update mod.ind indicator variable
 
         } # end CV types
       } 
@@ -3295,8 +3318,11 @@ Egon Willighagen | BiGCaT - Maastricht University | egon.willighagen [at] gmail 
           #-------------------------------------------------------
           # List of results for each splitting, CV type & regression method
           dfRes = mapply(c, my.stats.RF, dfRes, SIMPLIFY=F)
-	    dfMod[[cv]] = c(dfMod[[cv]],my.model.RF)
-	    names(dfMod)[[cv]]<- paste(CVtypes[cv],strsplit(deparse(substitute(my.model.RF)),'my.model.')[[1]][2],sep='.')
+          # List of models for each splitting, CV type & regression method
+	    names1 <- strsplit(deparse(substitute(my.model.RF)),'my.model.')[[1]][2]
+	    dfMod[[cv]]$names1 <- my.model.RF  
+	    names(dfMod[[cv]])[mod.ind[cv]] <- names1[1]
+          mod.ind[cv] <- mod.ind[cv] +1 # update mod.ind indicator variable
 
         } # end CV types
       } 
@@ -3337,8 +3363,11 @@ Egon Willighagen | BiGCaT - Maastricht University | egon.willighagen [at] gmail 
           #-------------------------------------------------------
           # List of results for each splitting, CV type & regression method
           dfRes = mapply(c, my.stats.SVMRFE, dfRes, SIMPLIFY=F)
-	    dfMod[[cv]] = c(dfMod[[cv]],my.model.SVMRFE)
-	    names(dfMod)[[cv]]<- paste(CVtypes[cv],strsplit(deparse(substitute(my.model.SVMRFE)),'my.model.')[[1]][2],sep='.')
+          # List of models for each splitting, CV type & regression method
+	    names1 <- strsplit(deparse(substitute(my.model.SVMRFE)),'my.model.')[[1]][2]
+	    dfMod[[cv]]$names1 <- my.model.SVMRFE  
+	    names(dfMod[[cv]])[mod.ind[cv]] <- names1[1]
+          mod.ind[cv] <- mod.ind[cv] +1 # update mod.ind indicator variable
 
         } # end CV types
       } 
@@ -3370,8 +3399,11 @@ Egon Willighagen | BiGCaT - Maastricht University | egon.willighagen [at] gmail 
           #-------------------------------------------------------
           # List of results for each splitting, CV type & regression method
           dfRes = mapply(c, my.stats.ENET, dfRes, SIMPLIFY=F)
-	    dfMod[[cv]] = c(dfMod[[cv]],my.model.ENET)
-	    names(dfMod)[[cv]]<- paste(CVtypes[cv],strsplit(deparse(substitute(my.model.ENET)),'my.model.')[[1]][2],sep='.')
+          # List of models for each splitting, CV type & regression method
+	    names1 <- strsplit(deparse(substitute(my.model.ENET)),'my.model.')[[1]][2]
+	    dfMod[[cv]]$names1 <- my.model.ENET  
+	    names(dfMod[[cv]])[mod.ind[cv]] <- names1[1]
+          mod.ind[cv] <- mod.ind[cv] +1 # update mod.ind indicator variable
 
         } # end CV types
       } 
@@ -3383,6 +3415,36 @@ Egon Willighagen | BiGCaT - Maastricht University | egon.willighagen [at] gmail 
     } # end enet
     
     # END OF REGRESSION Functions !!!
+
+    # -----------------------------------------------------------------------
+    # (8.final) Produce comparison plots amongst models 
+    # -----------------------------------------------------------------------
+
+    cat("-> [8.final] Produce comparisons plots...\n")
+
+    for(cv in 1:length(CVtypes)){
+    	resamps <- resamples(dfMod[[cv]])  
+
+      #plot different models in terms of R2 adn RMSE values in the training set 
+      pdf(file=paste("ModelsComp.",names(dfMod)[cv],".iSplits.",i,".pdf",sep=""))
+	bwplot(resamps, layout = c(2, 1))
+	dev.off()
+
+	# calculate their differences in terms of R2 and RMSE values
+	difValues <- diff(resamps)
+	#summary(difValues)
+
+	#plot differences of models in terms of R2 adn RMSE values in the training set 
+      pdf(file=paste("DifModels.R2.",names(dfMod)[cv],".iSplits.",i,".pdf",sep=""))
+	dotplot(difValues,metric='Rsquared')
+	dev.off()
+      pdf(file=paste("DifModels.RMSE.",names(dfMod)[cv],".iSplits.",i,".pdf",sep=""))
+	dotplot(difValues,metric='RMSE')
+	dev.off()
+
+
+    }
+
   }
   
   #------------------------------------------------------------------------------
