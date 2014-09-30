@@ -8,3 +8,19 @@ General:
 Particular:
 - step 1 = reading ds: the names of features are changed!
 
+
+Errors:
+- with ds.House2.csv, the training and test files contain only one column! It seamns that there are errors into the splitting
+
+- Lasso error
+
+Loading required package: pROC
+Error in plot.window(...) : need finite 'xlim' values
+In addition: There were 50 or more warnings (use warnings() to see the first 50)
+
+- error if you restart a calculation
+
+-> [5] Removing correlated features ...
+Error in plot.xy(xy, type, ...) : invalid plot type 'f'
+
+- 
