@@ -2959,8 +2959,13 @@ Egon Willighagen | BiGCaT - Maastricht University | egon.willighagen [at] gmail 
     
     # run function to remove the correlations between the features
     ds <- cbind("net.c" = ds[,1],RemCorrs(ds[,2:dim(ds)[2]],fDet,cutoff,outFile))
+  
   }
   
+ # Check data has at least 5 columns for meaningful analysis
+ if(dim(ds)[2] < 5){stop("Data dimensions are not sufficient for further analysis. Try repeating analysis without filtering options.")}
+  
+
   #=================================================================================================
   # Steps 6 - 11 will be repeated 10 times for reporting each result and average
   #                  (iSplitTimes = 10, default)
