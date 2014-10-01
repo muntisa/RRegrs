@@ -1025,7 +1025,7 @@ LASSOreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") 
     # =============================================================================
     
     # Residuals
-    resids <- residuals(fitModel) # residuals
+    resids <- abs(pred.both - ds.full[,1]) # residuals
     write.table("Residuals of the fitted model: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
     write.table(data.frame(resids), file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F) # write residuals
     
@@ -1066,7 +1066,7 @@ LASSOreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") 
     dotchart(as.matrix(FeatImp$importance),main="Feature Importance")
     
     # Fitted vs Residuals
-    plot(fitted(fitModel),residuals(fitModel),
+    plot(pred.both,resids,
          main="Fitted vs. Residuals for Fitted Model",
          xlab="Fitted", ylab="Residuals")
     abline(h = 0, lty = 2)
