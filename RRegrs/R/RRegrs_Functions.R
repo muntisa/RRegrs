@@ -1844,33 +1844,39 @@ Yrandom<- function(dss,trainFrac,best.reg,best.R2.ts,noYrand,ResBestF){
     # Run the caret function with the method from the best method
     #    for one training-test split only; no details, we need only R2 values
     if (best.reg=="lm") {
-      my.stats.reg  <- LMreg(ds.train,ds.test,"repeatedcv",i,F,ResBestF) # run GLM for each CV and regr method
+      my.stats.reg  <- LMreg(ds.train,ds.test,"repeatedcv",i,F,ResBestF)$stat.values # run GLM for each CV and regr method
     }
     if (best.reg=="glmStepAIC") {
-      my.stats.reg  <- GLMreg(ds.train,ds.test,"repeatedcv",i,F,ResBestF) # run GLM for each CV and regr method
+      my.stats.reg  <- GLMreg(ds.train,ds.test,"repeatedcv",i,F,ResBestF)$stat.values # run GLM for each CV and regr method
     }
     if (best.reg=="pls") {
-      my.stats.reg  <- PLSreg(ds.train,ds.test,"repeatedcv",i,F,ResBestF) # run SVLM Radial for each CV and regr method
+      my.stats.reg  <- PLSreg(ds.train,ds.test,"repeatedcv",i,F,ResBestF)$stat.values # run SVLM Radial for each CV and regr method
     }
     if (best.reg=="lasso") {
-      my.stats.reg  <- LASSOreg(ds.train,ds.test,"repeatedcv",i,F,ResBestF) # run SVLM Radial for each CV and regr method
+      my.stats.reg  <- LASSOreg(ds.train,ds.test,"repeatedcv",i,F,ResBestF)$stat.values # run SVLM Radial for each CV and regr method
     }
     if (best.reg=="rbfDDA") {  
-      my.stats.reg  <- RBF_DDAreg(ds.train,ds.test,"repeatedcv",i,F,ResBestF) # run SVLM Radial for each CV and regr method
+      my.stats.reg  <- RBF_DDAreg(ds.train,ds.test,"repeatedcv",i,F,ResBestF)$stat.values # run SVLM Radial for each CV and regr method
     }
     if (best.reg=="svmRadial") {  
-      my.stats.reg  <- SVLMreg(ds.train,ds.test,"repeatedcv",i,F,ResBestF) # run SVLM Radial for each CV and regr method
+      my.stats.reg  <- SVLMreg(ds.train,ds.test,"repeatedcv",i,F,ResBestF)$stat.values # run SVLM Radial for each CV and regr method
     }
     if (best.reg=="nnet") {  
-      my.stats.reg  <- NNreg(ds.train,ds.test,"repeatedcv",i,F,ResBestF) # run NNet for each CV and regr method
+      my.stats.reg  <- NNreg(ds.train,ds.test,"repeatedcv",i,F,ResBestF)$stat.values # run NNet for each CV and regr method
     } 
     if (best.reg=="rf") {  
-      my.stats.reg  <- RFreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF) # run NNet for each CV and regr method
+      my.stats.reg  <- RFreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF)$stat.values # run NNet for each CV and regr method
     } 
     if (best.reg=="svmRFE") {  
-      my.stats.reg  <- SVMRFEreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF) # run NNet for each CV and regr method
+      my.stats.reg  <- SVMRFEreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF)$stat.values # run NNet for each CV and regr method
     } 
-    
+    if (best.reg=="glmnet") {  
+      my.stats.reg  <- ENETreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF)$stat.values # run NNet for each CV and regr method
+    }  
+    if (best.reg=="rfRFE") {  
+      my.stats.reg  <- RFRFEreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF)$stat.values # run NNet for each CV and regr method
+    }    
+   
     Yrand.R2.ts <- c(Yrand.R2.ts,my.stats.reg$R2.ts) # adding test R2 value Y randomization 
   }
   
@@ -3400,6 +3406,7 @@ Egon Willighagen | BiGCaT - Maastricht University | egon.willighagen [at] gmail 
   cat("-> [8.final] Produce comparisons plots...\n")
 
   for(cv in 1:length(CVtypes)){
+    if(length(dfMod[[cv]])>=2){
     resamps <- resamples(dfMod[[cv]])  
 
     #plot different models in terms of R2 adn RMSE values in the training set 
@@ -3418,7 +3425,7 @@ Egon Willighagen | BiGCaT - Maastricht University | egon.willighagen [at] gmail 
     pdf(file=paste("DifModels.RMSE.",names(dfMod)[cv],".iSplits.",i,".pdf",sep=""))
     dotplot(difValues,metric='RMSE')
     dev.off()
-    }
+    }}
   } # ??????????????????
   
   #------------------------------------------------------------------------------
@@ -3499,37 +3506,37 @@ Egon Willighagen | BiGCaT - Maastricht University | egon.willighagen [at] gmail 
   # and append the details in the best model output file
   
   if (best.reg=="lm") {
-    my.stats.reg  <- LMreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF) # run GLM for each CV and regr method
+    my.stats.reg  <- LMreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF)$stat.values # run GLM for each CV and regr method
   }
   if (best.reg=="glmStepAIC") {
-    my.stats.reg  <- GLMreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF) # run GLM for each CV and regr method
+    my.stats.reg  <- GLMreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF)$stat.values # run GLM for each CV and regr method
   }
   if (best.reg=="pls") {
-    my.stats.reg  <- PLSreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF) # run SVLM Radial for each CV and regr method
+    my.stats.reg  <- PLSreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF)$stat.values # run SVLM Radial for each CV and regr method
   }
   if (best.reg=="lasso") {
-    my.stats.reg  <- LASSOreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF) # run SVLM Radial for each CV and regr method
+    my.stats.reg  <- LASSOreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF)$stat.values # run SVLM Radial for each CV and regr method
   }
   if (best.reg=="rbfDDA") {  
-    my.stats.reg  <- RBF_DDAreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF) # run SVLM Radial for each CV and regr method
+    my.stats.reg  <- RBF_DDAreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF)$stat.values # run SVLM Radial for each CV and regr method
   }
   if (best.reg=="svmRadial") {  
-    my.stats.reg  <- SVLMreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF) # run SVLM Radial for each CV and regr method
+    my.stats.reg  <- SVLMreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF)$stat.values # run SVLM Radial for each CV and regr method
   }
   if (best.reg=="nnet") {  
-    my.stats.reg  <- NNreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF) # run NNet for each CV and regr method
+    my.stats.reg  <- NNreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF)$stat.values # run NNet for each CV and regr method
   } 
   if (best.reg=="rf") {  
-    my.stats.reg  <- RFreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF) # run NNet for each CV and regr method
+    my.stats.reg  <- RFreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF)$stat.values # run NNet for each CV and regr method
   } 
   if (best.reg=="svmRFE") {  
-    my.stats.reg  <- SVMRFEreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF,rfe_SVM_param_c,rfe_SVM_param_eps) # run NNet for each CV and regr method
+    my.stats.reg  <- SVMRFEreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF,rfe_SVM_param_c,rfe_SVM_param_eps)$stat.values # run NNet for each CV and regr method
   } 
   if (best.reg=="glmnet") {  
-    my.stats.reg  <- ENETreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF) # run ENET for each CV and regr method
+    my.stats.reg  <- ENETreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF)$stat.values # run ENET for each CV and regr method
   }
   if (best.reg=="rfRFE") {  
-    my.stats.reg  <- RFRFEreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF) # run RF RFE for each CV and regr method
+    my.stats.reg  <- RFRFEreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF)$stat.values # run RF RFE for each CV and regr method
   }
   
   #save(ds,trainFrac,best.reg,my.stats.reg,noYrand,ResBestF,file="kk.rData")
