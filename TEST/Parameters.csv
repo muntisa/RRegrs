@@ -15,7 +15,7 @@ fGLM,F,If run GLM (Step 8.2)
 fPLS,F,If run PLS (Step 8.3)
 fLASSO,F,If run LASSO (Step 8.4)
 fRBFdda,F,If run RBF DDA (Step 8.5)
-fSVLM,F,If run svmRadial.RMSE (Step 8.6)
+fSVRM,F,If run svmRadial.RMSE (Step 8.6)
 fNN,F,If run Neural Networks (Step 8.8)
 fRF,T,If run Random Forest  (Step 8.9)
 fSVMRFE,F,If run Random Forest  (Step 8.10)
@@ -37,7 +37,7 @@ glmFile,8.2.GLM.details.csv,GLM output file with details
 plsFile,8.3.PLS.details.csv,PLS output file with details
 lassoFile,8.4.LASSO.details.csv,Lasoo output file with details
 rbfDDAFile,8.5.RBF_DDA.details.csv,RBF DDA output file with details
-svlmFile,8.6.SVMRadial.details.csv,SVM Radial output file with details
+svrmFile,8.6.SVMRadial.details.csv,SVM Radial output file with details
 nnFile,8.8.NN.details.csv,NN output file with details
 rfFile,8.9.RF.details.csv,RF output
 svmrfeFile,8.10.SVMRFE.details.csv,SVMRFE output

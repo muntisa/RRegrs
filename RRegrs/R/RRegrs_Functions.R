@@ -1275,7 +1275,7 @@ RBF_DDAreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile=""
 }
 #----------------------------------------------------------------------------------------------------------------------
 
-SVLMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
+SVRMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
   #====================================
   # 8.6 SVM Radial Regression (caret)
   #====================================
@@ -1850,16 +1850,16 @@ Yrandom<- function(dss,trainFrac,best.reg,best.R2.ts,noYrand,ResBestF){
       my.stats.reg  <- GLMreg(ds.train,ds.test,"repeatedcv",i,F,ResBestF)$stat.values # run GLM for each CV and regr method
     }
     if (best.reg=="pls") {
-      my.stats.reg  <- PLSreg(ds.train,ds.test,"repeatedcv",i,F,ResBestF)$stat.values # run SVLM Radial for each CV and regr method
+      my.stats.reg  <- PLSreg(ds.train,ds.test,"repeatedcv",i,F,ResBestF)$stat.values # run SVRM Radial for each CV and regr method
     }
     if (best.reg=="lasso") {
-      my.stats.reg  <- LASSOreg(ds.train,ds.test,"repeatedcv",i,F,ResBestF)$stat.values # run SVLM Radial for each CV and regr method
+      my.stats.reg  <- LASSOreg(ds.train,ds.test,"repeatedcv",i,F,ResBestF)$stat.values # run SVRM Radial for each CV and regr method
     }
     if (best.reg=="rbfDDA") {  
-      my.stats.reg  <- RBF_DDAreg(ds.train,ds.test,"repeatedcv",i,F,ResBestF)$stat.values # run SVLM Radial for each CV and regr method
+      my.stats.reg  <- RBF_DDAreg(ds.train,ds.test,"repeatedcv",i,F,ResBestF)$stat.values # run SVRM Radial for each CV and regr method
     }
     if (best.reg=="svmRadial") {  
-      my.stats.reg  <- SVLMreg(ds.train,ds.test,"repeatedcv",i,F,ResBestF)$stat.values # run SVLM Radial for each CV and regr method
+      my.stats.reg  <- SVRMreg(ds.train,ds.test,"repeatedcv",i,F,ResBestF)$stat.values # run SVRM Radial for each CV and regr method
     }
     if (best.reg=="nnet") {  
       my.stats.reg  <- NNreg(ds.train,ds.test,"repeatedcv",i,F,ResBestF)$stat.values # run NNet for each CV and regr method
@@ -2833,7 +2833,7 @@ RRegrs<- function(paramFile) { # input = file with all parameters
   fPLS         = as.logical(Param.df[which(Param.df$RRegrs.Parameters=="fPLS"),2])    # flag to run PLS           (8.3)
   fLASSO       = as.logical(Param.df[which(Param.df$RRegrs.Parameters=="fLASSO"),2])  # flag to run LASSO         (8.4)
   fRBFdda      = as.logical(Param.df[which(Param.df$RRegrs.Parameters=="fRBFdda"),2]) # flat to run RBF DDA       (8.5)
-  fSVLM        = as.logical(Param.df[which(Param.df$RRegrs.Parameters=="fSVLM"),2])   # flat to run svmRadial     (8.6)
+  fSVRM        = as.logical(Param.df[which(Param.df$RRegrs.Parameters=="fSVRM"),2])   # flat to run svmRadial     (8.6)
   fNN          = as.logical(Param.df[which(Param.df$RRegrs.Parameters=="fNN"),2])     # flat to run NN            (8.8)
   fRF          = as.logical(Param.df[which(Param.df$RRegrs.Parameters=="fRF"),2])      # flag to run RandomForest        (8.9)
   fSVMRFE      = as.logical(Param.df[which(Param.df$RRegrs.Parameters=="fSVMRFE"),2])  # flag to run SVM RFE      (8.10)
@@ -2871,7 +2871,7 @@ RRegrs<- function(paramFile) { # input = file with all parameters
   plsFile        = as.character(Param.df[which(Param.df$RRegrs.Parameters=="plsFile"),2])    # PLS output file for details
   lassoFile      = as.character(Param.df[which(Param.df$RRegrs.Parameters=="lassoFile"),2])  # Lasoo Radial output file for details
   rbfDDAFile     = as.character(Param.df[which(Param.df$RRegrs.Parameters=="rbfDDAFile"),2]) # RBF DDA output file for details
-  svlmFile       = as.character(Param.df[which(Param.df$RRegrs.Parameters=="svlmFile"),2])   # SVM Radial output file for details
+  svrmFile       = as.character(Param.df[which(Param.df$RRegrs.Parameters=="svrmFile"),2])   # SVM Radial output file for details
   nnFile         = as.character(Param.df[which(Param.df$RRegrs.Parameters=="nnFile"),2])     # NN Radial output file for details
   rfFile         = as.character(Param.df[which(Param.df$RRegrs.Parameters=="rfFile"),2])      # RF  output file for details
   svmrfeFile     = as.character(Param.df[which(Param.df$RRegrs.Parameters=="svmrfeFile"),2])  # svMRFE  output file for details
@@ -3125,7 +3125,7 @@ Egon Willighagen | BiGCaT - Maastricht University | egon.willighagen [at] gmail 
         # For each type of CV do all the statistics
         # -----------------------------------------------------
         for (cv in 1:length(CVtypes)) {
-          pls.model <- PLSreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.PLS) # run SVLM Radial for each CV and regr method
+          pls.model <- PLSreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.PLS) # run PLS for each CV and regr method
           my.stats.PLS <- pls.model$stat.values
           my.model.PLS <- pls.model$model
           #-------------------------------------------------------
@@ -3146,7 +3146,7 @@ Egon Willighagen | BiGCaT - Maastricht University | egon.willighagen [at] gmail 
         # For each type of CV do all the statistics
         # -----------------------------------------------------
         for (cv in 1:length(CVtypes)) {
-          pls.model <- PLSregWSel(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.PLS) # run SVLM Radial for each CV and regr method
+          pls.model <- PLSregWSel(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.PLS) # run PLSw for each CV and regr method
           my.stats.PLS <- pls.model$stat.values
 	    my.model.PLS <- pls.model$model
 	    #-------------------------------------------------------
@@ -3170,7 +3170,7 @@ Egon Willighagen | BiGCaT - Maastricht University | egon.willighagen [at] gmail 
         # For each type of CV do all the statistics
         # -----------------------------------------------------
         for (cv in 1:length(CVtypes2)) {
-          lasso.model <- LASSOreg(ds.train,ds.test,CVtypes2[cv],i,fDet,outFile.LASSO) # run SVLM Radial for each CV and regr method
+          lasso.model <- LASSOreg(ds.train,ds.test,CVtypes2[cv],i,fDet,outFile.LASSO) # run LASSO for each CV and regr method
           my.stats.LASSO <- lasso.model$stat.values
           my.model.LASSO <- lasso.model$model
           #-------------------------------------------------------
@@ -3203,7 +3203,7 @@ Egon Willighagen | BiGCaT - Maastricht University | egon.willighagen [at] gmail 
         # For each type of CV do all the statistics
         # -----------------------------------------------------
         for (cv in 1:length(CVtypes)) {
-          rbfDDA.model <- RBF_DDAreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.rbfDDA) # run SVLM Radial for each CV and regr method
+          rbfDDA.model <- RBF_DDAreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.rbfDDA) # run rbfDDA for each CV and regr method
           my.stats.rbfDDA <- rbfDDA.model$stat.values
           my.model.rbfDDA <- rbfDDA.model$model 
           #-------------------------------------------------------
@@ -3227,35 +3227,35 @@ Egon Willighagen | BiGCaT - Maastricht University | egon.willighagen [at] gmail 
     # --------------------------------------------
     # 8.6. SVM radial regression
     # --------------------------------------------
-    if (fSVLM==T) {   # if SVM Radial was selected, run the method
+    if (fSVRM==T) {   # if SVM Radial was selected, run the method
       cat("-> [8.6] SVM radial ...\n")
-      outFile.SVLM <- file.path(PathDataSet,svlmFile)   # the same folder as the input is used for the output
+      outFile.SVRM <- file.path(PathDataSet,svrmFile)   # the same folder as the input is used for the output
       
       # Both wrapper and nont-wrapper function are placed in the same external file s8.RegrrMethods.R
       if (fFeatureSel==F) {    # if there is no need of feature selection ->> use normal functions
         # For each type of CV do all the statistics
         # -----------------------------------------------------
         for (cv in 1:length(CVtypes)) {
-          SVLM.model <- SVLMreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.SVLM) # run SVLM Radial for each CV and regr method
-          my.stats.SVLM <- SVLM.model$stat.values
-          my.model.SVLM <- SVLM.model$model 
+          SVRM.model <- SVRMreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.SVRM) # run SVRM Radial for each CV and regr method
+          my.stats.SVRM <- SVRM.model$stat.values
+          my.model.SVRM <- SVRM.model$model 
           #-------------------------------------------------------
           # Add output from SVM Radial to the list of results
           #-------------------------------------------------------
           # List of results for each splitting, CV type & regression method
-          dfRes = mapply(c, my.stats.SVLM, dfRes, SIMPLIFY=F)
+          dfRes = mapply(c, my.stats.SVRM, dfRes, SIMPLIFY=F)
           # List of models for each splitting, CV type & regression method
-          names1 <- strsplit(deparse(substitute(my.model.SVLM)),'my.model.')[[1]][2]
-          dfMod[[cv]]$names1 <- my.model.SVLM  
+          names1 <- strsplit(deparse(substitute(my.model.SVRM)),'my.model.')[[1]][2]
+          dfMod[[cv]]$names1 <- my.model.SVRM  
           names(dfMod[[cv]])[mod.ind[cv]] <- names1[1]
           mod.ind[cv] <- mod.ind[cv] +1 # update mod.ind indicator variable
         } # end CV types
       } 
       else    # if there is a need for previous feature selection ->> use wrapper functions
       {                     
-        # run SVLM with wrapper method (TO BE IMPLEMENTED!)
+        # run SVRM with wrapper method (TO BE IMPLEMENTED!)
       }
-    } # end SVLM
+    } # end SVRM
     
     # --------------------------------------------
     # 8.7. SVM linear
@@ -3517,16 +3517,16 @@ Egon Willighagen | BiGCaT - Maastricht University | egon.willighagen [at] gmail 
     my.stats.reg  <- GLMreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF)$stat.values # run GLM for each CV and regr method
   }
   if (best.reg=="pls") {
-    my.stats.reg  <- PLSreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF)$stat.values # run SVLM Radial for each CV and regr method
+    my.stats.reg  <- PLSreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF)$stat.values # run PLS for each CV and regr method
   }
   if (best.reg=="lasso") {
-    my.stats.reg  <- LASSOreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF)$stat.values # run SVLM Radial for each CV and regr method
+    my.stats.reg  <- LASSOreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF)$stat.values # run LASSO for each CV and regr method
   }
   if (best.reg=="rbfDDA") {  
-    my.stats.reg  <- RBF_DDAreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF)$stat.values # run SVLM Radial for each CV and regr method
+    my.stats.reg  <- RBF_DDAreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF)$stat.values # run rbfDDA for each CV and regr method
   }
   if (best.reg=="svmRadial") {  
-    my.stats.reg  <- SVLMreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF)$stat.values # run SVLM Radial for each CV and regr method
+    my.stats.reg  <- SVRMreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF)$stat.values # run SVRM Radial for each CV and regr method
   }
   if (best.reg=="nnet") {  
     my.stats.reg  <- NNreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF)$stat.values # run NNet for each CV and regr method
