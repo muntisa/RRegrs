@@ -1687,8 +1687,8 @@ PLSregWSel <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile=""
   RegrMethod <- "pls.WSel" # type of regression
   
   # Define the CV conditions
-  ctrlw <- rfeControl(method = 'boot', number = 25,saveDetails=T)
-  ctrl  <- trainControl(method = sCV, number = 10,repeats = 1,
+  ctrlw <- rfeControl(method = 'boot', number = 25,saveDetails=T)#number=10,repeats=10
+  ctrl  <- trainControl(method = sCV, number = 10,repeats = 1,#numebr=10,repeats=10,
                         summaryFunction = defaultSummary,savePred=T)
   
   subsetsx<- seq(2,dim(my.datf.train)[2]-1, by = 10)
@@ -1997,7 +1997,7 @@ RFreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
   RegrMethod <- "rf" # type of regression
   
   # Define the CV conditions
-  ctrl<- trainControl(method=sCV, number=5,repeats=2,
+  ctrl<- trainControl(method=sCV, number=5,repeats=2,#number=10,repeats=10,
                       summaryFunction=defaultSummary)
   
   # Train the model using only training set
@@ -2197,10 +2197,10 @@ SVMRFEreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="",
   RegrMethod <- "svmRFE" # type of regression
   
   # Define the CV conditions
-  ctrl<- trainControl(method=sCV, number=3,repeats=1,
+  ctrl<- trainControl(method=sCV, number=3,repeats=1,#number=10,repeats=10,
                       summaryFunction=defaultSummary,verboseIter = F)
   
-  rfeCtr = rfeControl(functions=svmFuncsGradW,method="cv",number=5,repeats=1, saveDetails = T, verbose=T,rerank = T,allowParallel=T)
+  rfeCtr = rfeControl(functions=svmFuncsGradW,method="cv",number=5,repeats=1, saveDetails = T, verbose=T,rerank = T,allowParallel=T)#number=10,repeats=10,
   sigma = sigest (as.matrix(my.datf.train[,-1]))[2]
   #cs = c(0.0001,0.1,1,5,15,50)  # EXTERNAL PARAMETERS!!!
   #cs = c(1,5,15,50)
@@ -2413,7 +2413,7 @@ ENETreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
   RegrMethod <- "glmnet" # type of regression
   
   # Define the CV conditions
-  ctrl<- trainControl(method = sCV, number = 10,repeats = 2,verboseIter=F,
+  ctrl<- trainControl(method = sCV, number = 10,repeats = 2,verboseIter=F,#number=10,repeats=10,
                       summaryFunction = defaultSummary)
   tuneGrid=expand.grid(.alpha = seq(0.1,1,length=10),.lambda=99 )
   
@@ -2617,10 +2617,10 @@ RFRFEreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") 
   RegrMethod <- "rfRFE" # type of regression
   
   # Define the CV conditions
-  ctrl<- trainControl(method=sCV, number=5,repeats=1,
+  ctrl<- trainControl(method=sCV, number=5,repeats=1,#number=10,repeats=10,
                       summaryFunction=defaultSummary,verboseIter = F)
   
-  rfeCtr = rfeControl(functions = rfFuncs,method="cv",number=5,repeats=2, saveDetails = T, verbose=T,rerank = F,allowParallel=T)
+  rfeCtr = rfeControl(functions = rfFuncs,method="cv",number=5,repeats=2, saveDetails = T, verbose=T,rerank = F,allowParallel=T)#number=10,repeats=10,
   
   sizes = 2^(1:sqrt(ncol(my.datf.train)-1))
   
@@ -2799,6 +2799,17 @@ RFRFEreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") 
     
   }
   return(list(stat.values=my.stats, model=rferf.fit))  # return a list with statistics and the full model
+}
+
+findResamps.funct<- function(caret.obj){
+  #==========
+  # A function to find the number of re-samples for caret, rfe or sbf objects 
+  # from caret package 
+  #==========
+  #caret.obj== caret object of class train, rfe or sbf 
+
+	in.caret.obj<- caret.obj$control$index
+	return(length(in.caret.obj))
 }
 
 ###############################################################################################
@@ -3411,25 +3422,35 @@ Egon Willighagen | BiGCaT - Maastricht University, Netherlands | egon.willighage
   cat("-> [8.final] Produce comparisons plots...\n")
 
   for(cv in 1:length(CVtypes)){
-    if(CVtypes[cv]!='LOOCV' && length(dfMod[[cv]])>=2){
-    resamps <- resamples(dfMod[[cv]])  
+    if(CVtypes[cv]!='LOOCV' && length(dfMod[[cv]])>=2){    
 
+#inside.names <- names(dfMod[[cv]])
+#inside.list<- list()
+#k <- 1
+#while(k <= length(inside.names)){
+#	inside.list$names1<- dfMod[[cv]][[k]]
+#	names(inside.list)[k]<- inside.names[k]
+#	k <- k+1
+#}
+#resamps <- resamples(dfMod[[cv]],modelNames=names(dfMod[[cv]]))  
+#resamps <- resamples(list(LM=dfMod[[cv]][[1]],GLM=dfMod[[cv]][[2]]))
+#resamps <- resamples(inside.list)
     #plot different models in terms of R2 adn RMSE values in the training set 
-    pdf(file=PathDataSet,"/ModelsComp.",names(dfMod)[cv],".iSplits.",i,".pdf",sep=""))
-    bwplot(resamps, layout = c(2, 1))
-    dev.off()
+#    pdf(file=paste(PathDataSet,"/ModelsComp.",names(dfMod)[cv],".iSplits.",i,".pdf",sep=""))
+#    bwplot(resamps, layout = c(2, 1))
+#    dev.off()
 
     # calculate their differences in terms of R2 and RMSE values
-    difValues <- diff(resamps)
+#    difValues <- diff(resamps)
     #summary(difValues)
 
     #plot differences of models in terms of R2 adn RMSE values in the training set 
-    pdf(file=PathDataSet,"/DifModels.R2.",names(dfMod)[cv],".iSplits.",i,".pdf",sep=""))
-    dotplot(difValues,metric='Rsquared')
-    dev.off()
-    pdf(file=PathDataSet,"/DifModels.RMSE.",names(dfMod)[cv],".iSplits.",i,".pdf",sep=""))
-    dotplot(difValues,metric='RMSE')
-    dev.off()
+#    pdf(file=paste(PathDataSet,"/DifModels.R2.",names(dfMod)[cv],".iSplits.",i,".pdf",sep=""))
+#    dotplot(difValues,metric='Rsquared')
+#    dev.off()
+#    pdf(file=paste(PathDataSet,"/DifModels.RMSE.",names(dfMod)[cv],".iSplits.",i,".pdf",sep=""))
+#    dotplot(difValues,metric='RMSE')
+#    dev.off()
     }}
   } # ??????????????????
   
