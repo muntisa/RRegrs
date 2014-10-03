@@ -3,16 +3,16 @@
 # ======================================================================
 # Get the best regression models for one dataset using R caret methods
 # eNanoMapper.net
-# ----------------------------------------------------------------------
+# -------------------------------------------------------------------------------------------------------------
 # AUTHORS: 
-# ----------------------------------------------------------------------
+# -------------------------------------------------------------------------------------------------------------
 # Georgia Tsiliki | ChemEng - NTUA, Greece | g_tsiliki [at] hotmail [dot] com
 # Cristian R Munteanu | RNASA-IMEDIR, University of A Coruna, Spain | muntisa [at] gmail [dot] com
 # Jose A. Seoane | Stanford Cancer Institute, USA | seoane [at] stanford [dot] edu
 # Carlos Fernandez-Lozano | RNASA-IMEDIR, University of A Coruna, Spain | carlos.fernandez [at] udc [dot] es
 # Haralambos Sarimveis | ChemEng - NTUA, Greece | hsarimv [at] central [dot] ntua [dot] gr
 # Egon Willighagen | BiGCaT - Maastricht University, Netherlands | egon.willighagen [at] gmail [dot] com
-# ----------------------------------------------------------------------
+# -------------------------------------------------------------------------------------------------------------
 
 library(caret)
 #======================================================================================================================
@@ -117,16 +117,12 @@ ScalingDS <- function(ds,s=1,c=1,fDet=FALSE,outFileName="ds4.scaled.csv") {
   # c = the number of column into the dataset to start scaling
   # - if c = 1: included the dependent variable
   # - if c = 2: only the features will be scaled
-  
   # fDet = if details need to be printed    (TRUE/FALSE)
-  # inFileName  = file name      (it could include the path)
   # outFileName = new file name  (it could include the path)
-  #-----------------------------------------------------------------------------------
   # Default scaling = NORMALIZATION !
-  # if we use preProcess() from caret, errors are generating if threre are zero variance columns!
   
   # DEFAULT scaled dataset = original
-  # if other s diffent of 1,2,3 is used, no scaling!
+  # if other s diffent of 1,2,3 is used => no scaling!
   DataSet.scaled <- ds
   
   # if NORMALIZATION
@@ -216,7 +212,7 @@ RemCorrs <- function(ds,fDet,cutoff,outFile) {
     # plot again the rest of correlations after removing the correlated columns
     #corrplot(corrMat, order = "hclust")
     
-    # plot the correlatio plot AFTER correlation removal
+    # plot the correlation plot AFTER correlation removal
     #CorrPlotFile2 =  paste(outFile,".afterRemCorr.png",sep='')
     #png(height=1200, width=1200, pointsize=25, file=CorrPlotFile2)
     #col1 <-rainbow(100, s = 1, v = 1, start = 0, end = 0.9, alpha = 1)
@@ -246,15 +242,17 @@ DsSplit <- function(ds,trainFrac=3/4,fDet=FALSE,PathDataSet="",iSeed) {
   # - ds = frame dataset object
   # - fDet = flag for detais (TRUE/FALSE)
   # - PathDataSet = pathway for results
-  
   # Output = training and test datasets (to be used for regressions in other functions)
+  
   # if datails = TRUE, output files will be created
   my.datf<- ds
+  
   # create TRAIN and TEST sets to build a model
   set.seed(iSeed)
   inTrain <- createDataPartition(1:dim(my.datf)[1],p = trainFrac,list = FALSE,groups=2)
   # groups==2 forces to NOT partition
   # based on quantiles of numeric values
+  
   my.datf.train<- my.datf[inTrain,]            # TRAIN dataset frame         
   my.datf.test <- my.datf[-inTrain,]           # TEST dataset frame
   
@@ -278,8 +276,7 @@ LMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
   #==================
   # 8.1. Basic LM
   #==================
-  
-  # ------------------------------------------
+
   # only Linux or Mac: parallel calculations
   # ------------------------------------------
   #library(doMC)
@@ -338,10 +335,7 @@ LMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
   r2.both     <- r2.funct(ds.full[,1],pred.both)
   
   # Generate the output list with statistics for each cross-validation type
-  # --------------------------------------------------------------------
-  # There are 3 lists for Data set info, 10-fold CV and LOOCV
-  # These 3 lists will be merged into one in order obtain the function output including the header (statistics names)
-  
+  # -------------------------------------------------------------------------
   my.stats <- list("RegrMeth"     = RegrMethod,
                    "Split No"     = as.numeric(iSplit),     # from function param
                    "CVtype"       = sCV,                    # from function param
@@ -396,13 +390,12 @@ LMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
     # Append feature importance to output details
     AppendList2CSv(FeatImp,outFile)
     
-    
     fitModel <- lm.fit$finalModel
     
     # =============================================================================
     # Assessment of Applicability Domain (plot leverage)
     # =============================================================================
-    
+  
     # Residuals
     resids <- residuals(fitModel) # residuals
     write.table("Residuals of the fitted model: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
@@ -493,16 +486,16 @@ GLMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
   # - fDet = flag for detais (True/F)
   # - outFile = output file for GLM details
   # Output:
-  # - list of statistics equal with the header introduced in the main script!
+  # - list of statistics equal with the header introduced in the main script and the full model
   #   (tr = train, ts = test, both = tr+ts = full dataset)
-  # ---------------------------------------------------------------------------------
+  # -----------------------------------------------------------------------------------------------
   
-  # ------------------------------------------
   # only Linux or Mac: parallel calculations
   # ------------------------------------------
   #library(doMC)
   #registerDoMC(cores = 2) # CPU cores
   # ------------------------------------------
+  
   library(caret)
   #attach(my.datf.train)    # make available the names of variables from training dataset
   net.c = my.datf.train[,1] # dependent variable is the first column in Training set
