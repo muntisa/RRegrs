@@ -550,10 +550,7 @@ GLMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
   r2.both     <- r2.funct(ds.full[,1],pred.both)
   
   # Generate the output list with statistics for each cross-validation type
-  # --------------------------------------------------------------------
-  # There are 3 lists for Data set info, 10-fold CV and LOOCV
-  # These 3 lists will be merged into one in order obtain the function output including the header (statistics names)
-  
+  # -------------------------------------------------------------------------
   my.stats <- list("RegrMeth"     = RegrMethod,
                    "Split No"     = as.numeric(iSplit),     # from function param
                    "CVtype"       = sCV,                    # from function param
@@ -688,9 +685,6 @@ GLMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
     dev.off()
     # --------------------------------------------------------------
   }
-  
-  # my.stats.full <- c(my.stats.dsInfo,my.stats.10CV,my.stats.LOOCV)   # merge the CV results into one list that contains the names of each field!
-  
   return(list(stat.values= my.stats, model=glm.fit))  # return a list with statistics and the full model
 }
 #----------------------------------------------------------------------------------------------------------------------
@@ -700,14 +694,14 @@ PLSreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
   # 8.3. PLS regression (caret)
   #================================
   
-  # ------------------------------------------
   # only Linux or Mac: parallel calculations
   # ------------------------------------------
   #library(doMC)
   #registerDoMC(cores = 2) # CPU cores
   # ------------------------------------------
+  
   library(caret)
-  #attach(my.datf.train)   # make available the names of variables from training dataset
+  
   net.c = my.datf.train[,1] # dependent variable is the first column in Training set
   RegrMethod <- "pls" # type of regression
   
@@ -762,9 +756,6 @@ PLSreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
   
   # Generate the output list with statistics for each cross-validation type
   # --------------------------------------------------------------------
-  # There are 3 lists for Data set info, 10-fold CV and LOOCV
-  # These 3 lists will be merged into one in order obtain the function output including the header (statistics names)
-  
   my.stats <- list("RegrMeth"     = RegrMethod,
                    "Split No"     = as.numeric(iSplit),     # from function param
                    "CVtype"       = sCV,                    # from function param
@@ -856,8 +847,9 @@ PLSreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
     write.table("Points with leverage > threshold: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
     write.table(hat.problems, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F)
     
-    # Cook's distance
-    # Influence
+    # Cook's distance ?
+    
+    # Influence ?
     
     # PDF plots
     # --------------------------------------------------------------
@@ -891,14 +883,14 @@ LASSOreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") 
   # 8.4 Lasso Regression (caret)
   #================================
   
-  # ------------------------------------------
   # only Linux or Mac: parallel calculations
   # ------------------------------------------
   #library(doMC)
   #registerDoMC(cores = 2) # CPU cores
   # ------------------------------------------
+  
   library(caret)
-  #attach(my.datf.train)   # make available the names of variables from training dataset
+  
   net.c = my.datf.train[,1] # dependent variable is the first column in Training set
   RegrMethod <- "lasso.RMSE" # type of regression
   
@@ -952,9 +944,6 @@ LASSOreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") 
   
   # Generate the output list with statistics for each cross-validation type
   # --------------------------------------------------------------------
-  # There are 3 lists for Data set info, 10-fold CV and LOOCV
-  # These 3 lists will be merged into one in order obtain the function output including the header (statistics names)
-  
   my.stats <- list("RegrMeth"     = RegrMethod,
                    "Split No"     = as.numeric(iSplit),     # from function param
                    "CVtype"       = sCV,                    # from function param
@@ -1022,7 +1011,6 @@ LASSOreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") 
     write.table("Residuals of the fitted model: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
     write.table(data.frame(resids), file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F) # write residuals
     
-    # ADDED !
     predVals.pls.ad <- pred.ts
     Traind.pls= as.matrix(my.datf.train)
     Testd.pls = as.matrix(my.datf.test)
@@ -1048,8 +1036,9 @@ LASSOreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") 
     write.table("Points with leverage > threshold: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
     write.table(hat.problems, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F)
     
-    # Cook's distance
-    # Influence
+    # Cook's distance ?
+
+    # Influence ?
     
     # PDF plots
     # --------------------------------------------------------------
@@ -1073,7 +1062,6 @@ LASSOreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") 
     dev.off()
     # --------------------------------------------------------------
   }
-  
   return(list(stat.values=my.stats, model=las.fit))  # return a list with statistics and the full model
 }
 #----------------------------------------------------------------------------------------------------------------------
@@ -1083,14 +1071,14 @@ RBF_DDAreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile=""
   # 8.5. RBF network with the DDA algorithm regression (caret)
   #============================================================
   
-  # ------------------------------------------
   # only Linux or Mac: parallel calculations
   # ------------------------------------------
   #library(doMC)
   #registerDoMC(cores = 2) # CPU cores
   # ------------------------------------------
+  
   library(caret)
-  #attach(my.datf.train)   # make available the names of variables from training dataset
+  
   net.c = my.datf.train[,1] # dependent variable is the first column in Training set
   RegrMethod <- "rbfDDA" # type of regression
   
@@ -1145,9 +1133,6 @@ RBF_DDAreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile=""
   
   # Generate the output list with statistics for each cross-validation type
   # --------------------------------------------------------------------
-  # There are 3 lists for Data set info, 10-fold CV and LOOCV
-  # These 3 lists will be merged into one in order obtain the function output including the header (statistics names)
-  
   my.stats <- list("RegrMeth"     = RegrMethod,
                    "Split No"     = as.numeric(iSplit),     # from function param
                    "CVtype"       = sCV,                    # from function param
@@ -1212,7 +1197,6 @@ RBF_DDAreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile=""
     write.table("Residuals of the fitted model: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
     write.table(data.frame(resids), file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F) # write residuals
     
-    # ADDED !
     predVals.pls.ad <- pred.ts
     Traind.pls= as.matrix(my.datf.train)
     Testd.pls = as.matrix(my.datf.test)
@@ -1238,8 +1222,9 @@ RBF_DDAreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile=""
     write.table("Points with leverage > threshold: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
     write.table(hat.problems, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F)
     
-    # Cook's distance
-    # Influence
+    # Cook's distance ?
+
+    # Influence ?
     
     # PDF plots
     # --------------------------------------------------------------
@@ -1262,8 +1247,7 @@ RBF_DDAreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile=""
     
     dev.off()
     # --------------------------------------------------------------
-  }
-  
+  } 
   return(list(stat.values=my.stats, model=rbf.fit))  # return a list with statistics and the full model
 }
 #----------------------------------------------------------------------------------------------------------------------
@@ -1273,14 +1257,14 @@ SVRMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
   # 8.6 SVM Radial Regression (caret)
   #====================================
   
-  # ------------------------------------------
   # only Linux or Mac: parallel calculations
   # ------------------------------------------
   #library(doMC)
   #registerDoMC(cores = 2) # CPU cores
   # ------------------------------------------
+  
   library(caret)
-  #attach(my.datf.train)   # make available the names of variables from training dataset
+  
   net.c = my.datf.train[,1] # dependent variable is the first column in Training set
   RegrMethod <- "svmRadial.RMSE" # type of regression
   
@@ -1335,10 +1319,7 @@ SVRMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
   r2.both     <- r2.funct(ds.full[,1],pred.both)
   
   # Generate the output list with statistics for each cross-validation type
-  # --------------------------------------------------------------------
-  # There are 3 lists for Data set info, 10-fold CV and LOOCV
-  # These 3 lists will be merged into one in order obtain the function output including the header (statistics names)
-  
+  # ------------------------------------------------------------------------
   my.stats <- list("RegrMeth"     = RegrMethod,
                    "Split No"     = as.numeric(iSplit),     # from function param
                    "CVtype"       = sCV,                    # from function param
@@ -1404,7 +1385,6 @@ SVRMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
     write.table("Residuals of the fitted model: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
     write.table(data.frame(resids), file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F) # write residuals
     
-    # ADDED !
     predVals.pls.ad <- pred.ts
     Traind.pls= as.matrix(my.datf.train)
     Testd.pls = as.matrix(my.datf.test)
@@ -1430,8 +1410,9 @@ SVRMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
     write.table("Points with leverage > threshold: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
     write.table(hat.problems, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F)
     
-    # Cook's distance
-    # Influence
+    # Cook's distance ?
+
+    # Influence ?
     
     # PDF plots
     # --------------------------------------------------------------
@@ -1455,7 +1436,6 @@ SVRMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
     dev.off()
     # --------------------------------------------------------------
   }
-  
   return(list(stat.values=my.stats, model=svmL.fit))  # return a list with statistics and the full model
 }
 #----------------------------------------------------------------------------------------------------------------------
@@ -1465,14 +1445,14 @@ NNreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
   # 8.8 Neural Network Regression (caret)
   #========================================
   
-  # ------------------------------------------
   # only Linux or Mac: parallel calculations
   # ------------------------------------------
   #library(doMC)
   #registerDoMC(cores = 2) # CPU cores
   # ------------------------------------------
+
   library(caret)
-  #attach(my.datf.train)   # make available the names of variables from training dataset
+
   net.c = my.datf.train[,1] # dependent variable is the first column in Training set
   RegrMethod <- "nnet" # type of regression
   
@@ -1530,10 +1510,7 @@ NNreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
   r2.both     <- r2.funct(ds.full[,1],pred.both)
   
   # Generate the output list with statistics for each cross-validation type
-  # --------------------------------------------------------------------
-  # There are 3 lists for Data set info, 10-fold CV and LOOCV
-  # These 3 lists will be merged into one in order obtain the function output including the header (statistics names)
-  
+  # ----------------------------------------------------------------------------
   my.stats <- list("RegrMeth"     = RegrMethod,
                    "Split No"     = as.numeric(iSplit),     # from function param
                    "CVtype"       = sCV,                    # from function param
@@ -1598,7 +1575,6 @@ NNreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
     write.table("Residuals of the fitted model: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
     write.table(data.frame(resids), file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F) # write residuals
     
-    # ADDED !
     predVals.pls.ad <- pred.ts
     Traind.pls= as.matrix(my.datf.train)
     Testd.pls = as.matrix(my.datf.test)
@@ -1624,8 +1600,9 @@ NNreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
     write.table("Points with leverage > threshold: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
     write.table(hat.problems, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F)
     
-    # Cook's distance
-    # Influence
+    # Cook's distance ?
+
+    # Influence ?
     
     # PDF plots
     # --------------------------------------------------------------
@@ -1657,18 +1634,11 @@ NNreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
 # WRAPPER METHODS
 # **************************************
 
-GLMregW <- function(my.datf,my.datf.train,my.datf.test,fDet=F,outFile="") { # with wrapper
-  # to be implemented
-  return("")  # return statistics
-}
-#----------------------------------------------------------------------------------------------------------------------
-
 PLSregWSel <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
   #====================================================================================================
   # 8.3W. PLS regression with filter feature selection (caret)
   #====================================================================================================
   
-  # ------------------------------------------
   # only Linux or Mac: parallel calculations
   # ------------------------------------------
   #library(doMC)
