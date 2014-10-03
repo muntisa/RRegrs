@@ -1644,6 +1644,7 @@ PLSregWSel <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile=""
   #library(doMC)
   #registerDoMC(cores = 2) # CPU cores
   # ------------------------------------------
+
   library(caret)
   
   net.c = my.datf.train[,1] # dependent variable is the first column in Training set
@@ -1707,10 +1708,7 @@ PLSregWSel <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile=""
   r2.both     <- r2.funct(ds.full[,1],pred.both)
   
   # Generate the output list with statistics for each cross-validation type
-  # --------------------------------------------------------------------
-  # There are 3 lists for Data set info, 10-fold CV and LOOCV
-  # These 3 lists will be merged into one in order obtain the function output including the header (statistics names)
-  
+  # -------------------------------------------------------------------------
   my.stats <- list("RegrMeth"     = RegrMethod,
                    "Split No"     = as.numeric(iSplit),     # from function param
                    "CVtype"       = sCV,                    # from function param
@@ -1777,7 +1775,6 @@ PLSregWSel <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile=""
     #plot(FeatImp, top = components,main="Feature Importance")
     dev.off()
   }
-  
   return(list(stat.values=my.stats, model=pls.fit))  # return a list with statistics and the full model
 }
 #----------------------------------------------------------------------------------------------------------------------
@@ -1950,12 +1947,12 @@ RFreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
   # Basic RandomForest
   #======================================
   
-  # ------------------------------------------
   # only Linux or Mac: parallel calculations
   # ------------------------------------------
   #library(doMC)
   #registerDoMC(cores = 2) # CPU cores
   # ------------------------------------------
+  
   net.c = my.datf.train[,1]   # make available the names of variables from training dataset
   RegrMethod <- "rf" # type of regression
   
@@ -1979,7 +1976,7 @@ RFreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
     R2sd.tr   <- rf.fit$results[rownames(rf.fit$bestTune),5]
   }
   if (sCV == "LOOCV"){ # if LOOCV
-    RMSEsd.tr <- 0 # formulas will be added later!  TODOOOOOOOOOOOOOO
+    RMSEsd.tr <- 0 # formulas will be added later! 
     R2sd.tr   <- 0 # formulas will be added later!
   }
   
@@ -2008,10 +2005,7 @@ RFreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
   r2.both     <- r2.funct(ds.full[,1],pred.both)
   
   # Generate the output list with statistics for each cross-validation type
-  # --------------------------------------------------------------------
-  # There are 3 lists for Data set info, 10-fold CV and LOOCV
-  # These 3 lists will be merged into one in order obtain the function output including the header (statistics names)
-  
+  # ------------------------------------------------------------------------------
   my.stats <- list("RegrMeth"     = RegrMethod,
                    "Split No"     = as.numeric(iSplit),     # from function param
                    "CVtype"       = sCV,                    # from function param
@@ -2065,7 +2059,6 @@ RFreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
     # Append feature importance to output details
     AppendList2CSv(FeatImp,outFile)
     
-    
     fitModel <- rf.fit$finalModel
     
     # =============================================================================
@@ -2082,8 +2075,6 @@ RFreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
     Testd.pls = as.matrix(my.datf.test)
     Hat.train = diag(Traind.pls %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Traind.pls))
     Hat.test  = diag(Testd.pls  %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Testd.pls))  
-    
-    
     
     # Leverage / Hat values
     hat.fit <- Hat.test          # hat values
@@ -2103,7 +2094,6 @@ RFreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
     write.table(paste("Leverage Threshold: ", thresh.lever), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
     write.table("Points with leverage > threshold: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
     write.table(hat.problems, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F)
-    
     
     # PDF with 12 plots
     # --------------------------------------------------------------
@@ -2126,36 +2116,34 @@ RFreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
          xlab="Index", ylab="Hat")
     abline(h = thresh.lever, lty = 2, col="red") # leverage thresh
     
-    
-    
     # plot(FeatImp, top = components,main="Feature Importance") # ERROR !
     dev.off()
     # --------------------------------------------------------------
-    
   }
   return(list(stat.values=my.stats, model=rf.fit))  # return a list with statistics and the full model
 }
 #----------------------------------------------------------------------------------------------------------------------
 
 SVMRFEreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="",cs=c(1,5,15,50),eps=c(0.01,0.1,0.3)) {
-  #==========
+  #===========================================
   # SVM-RFE
-  #==========
+  #===========================================
   
-  # ------------------------------------------
   # only Linux or Mac: parallel calculations
   # ------------------------------------------
   #library(doMC)
   #registerDoMC(cores = 2) # CPU cores
   # ------------------------------------------
+  
   # parallel for windows:
+  # ------------------------------------------
   #library(doSNOW)
   #library(foreach)
   #cl<-makeCluster(5) #change the 2 to your number of CPU cores
   #registerDoSNOW(cl)
-  library(kernlab)
-  # source("RFE-svm-reg-function.R")
   
+  library(kernlab)
+
   net.c = my.datf.train[,1]   # make available the names of variables from training dataset
   RegrMethod <- "svmRFE" # type of regression
   
@@ -2181,9 +2169,6 @@ SVMRFEreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="",
     warning("Best fitted value of C=",rfesvm.fit$fit$bestTune$C," is a extreme value in your possible c values. You may want to reset your C paramenter options", call. = FALSE)
   if(rfesvm.fit$fit$bestTune$epsilon %in% eps[c(1,length(cs))])
     warning("Best fitted value of eps=",rfesvm.fit$fit$bestTune$epsilon," is a extreme value in your possible epsilon values. You may want to reset your eps paramenter options", call. = FALSE)
-  
-  
-  
   
   #------------------------------
   # Training RESULTS
@@ -2224,10 +2209,7 @@ SVMRFEreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="",
   r2.both     <- r2.funct(ds.full[,1],pred.both)
   
   # Generate the output list with statistics for each cross-validation type
-  # --------------------------------------------------------------------
-  # There are 3 lists for Data set info, 10-fold CV and LOOCV
-  # These 3 lists will be merged into one in order obtain the function output including the header (statistics names)
-  
+  # -----------------------------------------------------------------------------
   my.stats <- list("RegrMeth"     = RegrMethod,
                    "Split No"     = as.numeric(iSplit),     # from function param
                    "CVtype"       = sCV,                    # from function param
@@ -2282,7 +2264,6 @@ SVMRFEreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="",
     # Append feature importance to output details
     AppendList2CSv(FeatImp,outFile)
     
-    
     fitModel <- rfesvm.fit$fit
     
     # =============================================================================
@@ -2299,8 +2280,6 @@ SVMRFEreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="",
     Testd.pls = as.matrix(my.datf.test)
     Hat.train = diag(Traind.pls %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Traind.pls))
     Hat.test  = diag(Testd.pls  %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Testd.pls))  
-    
-    
     
     # Leverage / Hat values
     hat.fit <- Hat.test          # hat values
@@ -2321,7 +2300,6 @@ SVMRFEreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="",
     write.table("Points with leverage > threshold: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
     write.table(hat.problems, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F)
     
-    
     # PDF with 12 plots
     # --------------------------------------------------------------
     pdf(file=paste(outFile,".",sCV,".","split",iSplit,".pdf",sep=""))
@@ -2331,7 +2309,7 @@ SVMRFEreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="",
     plot(my.datf.test[,1], pred.ts,xlab="Yobs", ylab="Ypred", type="b", main="Test Yobs-Ypred")  # plot 2
     fi = as.matrix(FeatImp[,1])
     rownames(fi)=FeatImp[,2]
-    dotchart(fi,main="Feature Importance")                            # plot 3
+    dotchart(fi,main="Feature Importance") # plot 3
     
     # Fitted vs Residuals - plot 4
     plot(pred.both,resids,
@@ -2345,12 +2323,9 @@ SVMRFEreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="",
          xlab="Index", ylab="Hat")
     abline(h = thresh.lever, lty = 2, col="red") # leverage thresh
     
-    
-    
     # plot(FeatImp, top = components,main="Feature Importance") # ERROR !
     dev.off()
     # --------------------------------------------------------------
-    
   }
   return(list(stat.values=my.stats, model=rfesvm.fit))  # return a list with statistics and the full model
 }
@@ -2361,7 +2336,6 @@ ENETreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
   # 8.4 ElasticNet Regression (caret/glmnet)
   #================================
   
-  # ------------------------------------------
   # only Linux or Mac: parallel calculations
   # ------------------------------------------
   #library(doMC)
@@ -2371,7 +2345,7 @@ ENETreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
   library(caret)
   library(glmnet)
   load("glmnetModel.RData")
-  #attach(my.datf.train)   # make available the names of variables from training dataset
+  
   net.c = my.datf.train[,1] # dependent variable is the first column in Training set
   RegrMethod <- "glmnet" # type of regression
   
@@ -2380,12 +2354,8 @@ ENETreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
                       summaryFunction = defaultSummary)
   tuneGrid=expand.grid(.alpha = seq(0.1,1,length=10),.lambda=99 )
   
-  
-  
   # Train the model using only training set
   set.seed(iSplit)
-  
-  
   enet.fit<- train(net.c~.,data=my.datf.train,
                    method=glmnetModel, tuneLength = 20, trControl = ctrl,family="gaussian",
                    metric='RMSE',tuneGrid=tuneGrid)
@@ -2431,10 +2401,7 @@ ENETreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
   r2.both     <- r2.funct(ds.full[,1],pred.both)
   
   # Generate the output list with statistics for each cross-validation type
-  # --------------------------------------------------------------------
-  # There are 3 lists for Data set info, 10-fold CV and LOOCV
-  # These 3 lists will be merged into one in order obtain the function output including the header (statistics names)
-  
+  # ------------------------------------------------------------------------------
   my.stats <- list("RegrMeth"     = RegrMethod,
                    "Split No"     = as.numeric(iSplit),     # from function param
                    "CVtype"       = sCV,                    # from function param
@@ -2467,7 +2434,6 @@ ENETreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
     write.table(summary(my.datf.train),   file=outFile,append=T,sep=",",col.names=T,quote=F)
     write.table("Test Set Summary: ",  file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
     write.table(summary(my.datf.test), file=outFile,append=T,sep=",",col.names=T,quote=F)   
-    
     
     write.table("Predictors: ",      file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
     write.table(predictors(enet.fit), file=outFile,append=T,sep=",",col.names=T,quote=F)
@@ -2502,7 +2468,6 @@ ENETreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
     write.table("Residuals of the fitted model: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
     write.table(data.frame(resids), file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F) # write residuals
     
-    # ADDED !
     predVals.pls.ad <- pred.ts
     Traind.pls= as.matrix(my.datf.train)
     Testd.pls = as.matrix(my.datf.test)
@@ -2528,8 +2493,9 @@ ENETreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
     write.table("Points with leverage > threshold: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
     write.table(hat.problems, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F)
     
-    # Cook's distance
-    # Influence
+    # Cook's distance ?
+
+    # Influence ?
     
     # PDF plots
     # --------------------------------------------------------------
@@ -2549,32 +2515,30 @@ ENETreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
          main="Leverage for Fitted Model",
          xlab="Index", ylab="Hat")
     abline(h = thresh.lever, lty = 2, col="red") # leverage thresh
-    
     dev.off()
     # --------------------------------------------------------------
   }
-  
   return(list(stat.values=my.stats, model=enet.fit))  # return a list with statistics and the full model
 }
 #----------------------------------------------------------------------------------------------------------------------
 
 RFRFEreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
-  #==========
+  #=============================
   # Random Forest-RFE
-  #==========
+  #=============================
   
-  # ------------------------------------------
   # only Linux or Mac: parallel calculations
   # ------------------------------------------
   #library(doMC)
   #registerDoMC(cores = 2) # CPU cores
   # ------------------------------------------
+  
   # parallel for windows:
+  # ------------------------------------------
   #library(doSNOW)
   #library(foreach)
   #cl<-makeCluster(5) #change the 2 to your number of CPU cores
   #registerDoSNOW(cl)
-  #save(my.datf.train,my.datf.test,sCV,iSplit,fDet,outFile,file="kk.RData")
   
   net.c = my.datf.train[,1]   # make available the names of variables from training dataset
   RegrMethod <- "rfRFE" # type of regression
@@ -2632,10 +2596,7 @@ RFRFEreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") 
   r2.both     <- r2.funct(ds.full[,1],pred.both)
   
   # Generate the output list with statistics for each cross-validation type
-  # --------------------------------------------------------------------
-  # There are 3 lists for Data set info, 10-fold CV and LOOCV
-  # These 3 lists will be merged into one in order obtain the function output including the header (statistics names)
-  
+  # ----------------------------------------------------------------------------
   my.stats <- list("RegrMeth"     = RegrMethod,
                    "Split No"     = as.numeric(iSplit),     # from function param
                    "CVtype"       = sCV,                    # from function param
@@ -2680,8 +2641,6 @@ RFRFEreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") 
     write.table(my.stats,            file=outFile,append=T,sep=",",col.names=T,quote=F)
     
     # Variable Importance (max top 20)
-    
-   
     FeatImp <- importance(rferf.fit$fit, scale = T)
     FeatImp = FeatImp[order(FeatImp,decreasing=T),]
     
@@ -2691,7 +2650,6 @@ RFRFEreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") 
     }
     # Append feature importance to output details
     AppendList2CSv(FeatImp,outFile)
-    
     
     fitModel <- rferf.fit$fit
     
@@ -2709,8 +2667,6 @@ RFRFEreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") 
     Testd.pls = as.matrix(my.datf.test)
     Hat.train = diag(Traind.pls %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Traind.pls))
     Hat.test  = diag(Testd.pls  %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Testd.pls))  
-    
-    
     
     # Leverage / Hat values
     hat.fit <- Hat.test          # hat values
@@ -2731,7 +2687,6 @@ RFRFEreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") 
     write.table("Points with leverage > threshold: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
     write.table(hat.problems, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F)
     
-    
     # PDF with 12 plots
     # --------------------------------------------------------------
     pdf(file=paste(outFile,".",sCV,".","split",iSplit,".pdf",sep=""))
@@ -2740,7 +2695,7 @@ RFRFEreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") 
     plot(my.datf.train[,1],pred.tr,xlab="Yobs", ylab="Ypred", type="b", main="Train Yobs-Ypred") # plot 1
     plot(my.datf.test[,1], pred.ts,xlab="Yobs", ylab="Ypred", type="b", main="Test Yobs-Ypred")  # plot 2
     
-    dotchart(FeatImp,main="Feature Importance")                            # plot 3
+    dotchart(FeatImp,main="Feature Importance") # plot 3
     
     # Fitted vs Residuals - plot 4
     plot(pred.both,resids,
@@ -2753,22 +2708,18 @@ RFRFEreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") 
          main="Leverage for Fitted Model",
          xlab="Index", ylab="Hat")
     abline(h = thresh.lever, lty = 2, col="red") # leverage thresh
-    
-    
-    
     # plot(FeatImp, top = components,main="Feature Importance") # ERROR !
     dev.off()
     # --------------------------------------------------------------
-    
   }
   return(list(stat.values=my.stats, model=rferf.fit))  # return a list with statistics and the full model
 }
 
 findResamps.funct<- function(caret.obj){
-  #==========
+  #=============================================================================
   # A function to find the number of re-samples for caret, rfe or sbf objects 
   # from caret package 
-  #==========
+  #=============================================================================
   #caret.obj== caret object of class train, rfe or sbf 
 
 	in.caret.obj<- caret.obj$control$index
@@ -2780,14 +2731,11 @@ findResamps.funct<- function(caret.obj){
 ###############################################################################################
 
 RRegrs<- function(paramFile) { # input = file with all parameters
-  # ========================
-  # MAIN function RRegrs
-  # ========================
-  
   #==========================================================================================
   # (1) Load dataset and parameters
   #     (these parameters will be read from an input file! TO BE IMPLEMENTED at the end)
   #==========================================================================================
+  
   # (1.1) PARAMETERS
   #-------------------------
   # Read parameters from a file as data frame
@@ -2814,7 +2762,6 @@ RRegrs<- function(paramFile) { # input = file with all parameters
   rfe_SVM_param_c = strsplit(as.character(Param.df[which(Param.df$RRegrs.Parameters=="RFE_SVM_C"),2]),";")[[1]] # values of C for SVM RFE
   rfe_SVM_param_eps = strsplit(as.character(Param.df[which(Param.df$RRegrs.Parameters=="RFE_SVM_epsilon"),2]),";")[[1]] # values of epsilon for SVM RFE
   fenet      = as.logical(Param.df[which(Param.df$RRegrs.Parameters=="fENET"),2])  # flag to run ElasticNet      (8.11)
-  
   
   # ----------------------------------------------------------------------------------------
   iScaling = as.numeric(as.character(Param.df[which(Param.df$RRegrs.Parameters=="iScaling"),2])) # 1 = normalization; 2 = standardization, 3 = other; any other: no scaling
@@ -2854,26 +2801,22 @@ RRegrs<- function(paramFile) { # input = file with all parameters
   # Generate path + file name = original dataset
   inFile <- file.path(PathDataSet, DataFileName)
   
-  cat("======================================================================
-RRegrs - R Regression Models
-Get the best regression models for one dataset using R caret methods
-eNanoMapper.net
-      
-AUTHORS:
-Georgia Tsiliki | ChemEng - NTUA, Greece | g_tsiliki [at] hotmail [dot] com
-Cristian R Munteanu | RNASA-IMEDIR, University of A Coruna, Spain | muntisa [at] gmail [dot] com
-Jose A. Seoane | Stanford Cancer Institute, USA | seoane [at] stanford [dot] edu
-Carlos Fernandez-Lozano | RNASA-IMEDIR, University of A Coruna, Spain | carlos.fernandez [at] udc [dot] es
-Haralambos Sarimveis | ChemEng - NTUA, Greece | hsarimv [at] central [dot] ntua [dot] gr
-Egon Willighagen | BiGCaT - Maastricht University, Netherlands | egon.willighagen [at] gmail [dot] com
-======================================================================\n")
-  
+  sDescription=paste("======================================================================","RRegrs - R Regression Models",
+    "Get the best regression models for one dataset using R caret methods", "eNanoMapper.net","AUTHORS:",
+    "Georgia Tsiliki | ChemEng - NTUA, Greece | g_tsiliki [at] hotmail [dot] com",
+    "Cristian R Munteanu | RNASA-IMEDIR, University of A Coruna, Spain | muntisa [at] gmail [dot] com",
+    "Jose A. Seoane | Stanford Cancer Institute, USA | seoane [at] stanford [dot] edu",
+    "Carlos Fernandez-Lozano | RNASA-IMEDIR, University of A Coruna, Spain | carlos.fernandez [at] udc [dot] es",
+    "Haralambos Sarimveis | ChemEng - NTUA, Greece | hsarimv [at] central [dot] ntua [dot] gr",
+    "Egon Willighagen | BiGCaT - Maastricht University, Netherlands | egon.willighagen [at] gmail [dot] com",
+    "======================================================================",sep="\n")
+  cat(sDescription) # print package header information
+
   # -----------------------------------
   # (1.2) Load the ORIGINAL DATASET
   # -----------------------------------
-  cat("-> [1] Loading original dataset ...\n")
-  # (it can contain errors, correlations, near zero variance columns)
-  ds.dat0 <- read.csv(inFile,header=T)                              # original dataset frame
+  cat("\n-> [1] Loading original dataset ...\n")  # it can contain errors, correlations, near zero variance columns
+  ds.dat0 <- read.csv(inFile,header=T)          # original dataset frame
   
   # resolving the text to number errors for future calculations
   ds.indx<- colnames(ds.dat0)[2:dim(ds.dat0)[2]]                    # FEATURE names (no dependent variable)
@@ -2933,17 +2876,16 @@ Egon Willighagen | BiGCaT - Maastricht University, Netherlands | egon.willighage
     
     # run function to remove the correlations between the features
     ds <- cbind("net.c" = ds[,1],RemCorrs(ds[,2:dim(ds)[2]],fDet,cutoff,outFile))
-  
   }
   
- # Check data has at least 5 columns for meaningful analysis
- if(dim(ds)[2] < 5){stop("Data dimensions are not sufficient for further analysis. Try repeating analysis without filtering options.")}
+  # Check data has at least 5 columns for meaningful analysis
+  if(dim(ds)[2] < 5){
+  stop("Your corected dataset has less then 5 columns. Try repeating analysis without filtering options.")
+  }
   
-
-  #=================================================================================================
-  # Steps 6 - 11 will be repeated 10 times for reporting each result and average
-  #                  (iSplitTimes = 10, default)
-  #=================================================================================================
+  #=========================================================================================================
+  # Steps 6 - 8 will be repeated 10 times for reporting each result and average (iSplitTimes = 10, default)
+  #=========================================================================================================
   
   # Initialize the list with the statistics results; the same HEADER as the function output
   dfRes <- list("RegrMeth"     = NULL,
@@ -2963,10 +2905,9 @@ Egon Willighagen | BiGCaT - Maastricht University, Netherlands | egon.willighage
                 "adjR2.both" = NULL,
                 "RMSE.both"  = NULL,
                 "R2.both"    = NULL)
-  
 
   #-------------------------------------------------------------------------------------------------
-  for (i in 1:iSplitTimes) {                      # Step splitting number = i
+  for (i in 1:iSplitTimes) {   # Step splitting number = i
     # -----------------------------------------------------------------------
     # (6) Dataset split: Training and Test sets
     # -----------------------------------------------------------------------
@@ -2999,7 +2940,7 @@ Egon Willighagen | BiGCaT - Maastricht University, Netherlands | egon.willighage
     # Two types of regression funtions:
     # -> without wrapper methods (no feature selection excepts the built-in feature selection: Lasso, PLS)
     # -> with wrapper methods (all the functions without built-in feature selection)
-    # ===>>>> if fFeatureSel = T, the wrapper versions will be used in step 8
+    # ===>>>> if fFeatureSel = T, the wrapper versions will be used
     
     # Note: additional feature selection could be implemented in the future
     
@@ -3016,7 +2957,6 @@ Egon Willighagen | BiGCaT - Maastricht University, Netherlands | egon.willighage
       cat("-> [8.1] LM ...\n")
       outFile.LM <- file.path(PathDataSet,lmFile)   # the same folder as the input is used for the output
       
-      # Both wrapper and nont-wrapper function are placed in the same external file s8.RegrrMethods.R
       if (fFeatureSel==F) {    # if there is no need of feature selection ->> use normal functions
         
         # For each type of CV do all the statistics
@@ -3025,11 +2965,13 @@ Egon Willighagen | BiGCaT - Maastricht University, Netherlands | egon.willighage
           lm.model <- LMreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.LM) # run GLM for each CV and regr method
           my.stats.LM <- lm.model$stat.values # stat values
           my.model.LM <- lm.model$model # model 
+          
           #-------------------------------------------------------
           # Add output from GLM to the list of results
           #-------------------------------------------------------
           # List of results for each splitting, CV type & regression method
           dfRes = mapply(c, my.stats.LM, dfRes, SIMPLIFY=F)
+          
           # List of models for each splitting, CV type & regression method
           names1 <- strsplit(deparse(substitute(my.model.LM)),'my.model.')[[1]][2]
           dfMod[[cv]]$names1 <- my.model.LM  
@@ -3050,29 +2992,21 @@ Egon Willighagen | BiGCaT - Maastricht University, Netherlands | egon.willighage
       cat("-> [8.2] GLM stepwise - based on AIC ...\n")
       outFile.GLM <- file.path(PathDataSet,glmFile)   # the same folder as the input is used for the output
       
-      # Both wrapper and nont-wrapper function are placed in the same external file s8.RegrrMethods.R
       if (fFeatureSel==F) {    # if there is no need of feature selection ->> use normal functions
-        
-        # List with data set and method information
-        #my.stats.dsInfo <- list("RegrMethod"= RegrMethod,           # regression method name
-        #"NoCases"= as.numeric(nCases),      # no. of cases
-        #"InNoVars"= as.numeric(nFeatures),  # no. of input features
-        #"InFeatures"= FeatureList,          # list with feature names
-        #"PredVar" = OutVar)                 # name of predicted variable (dependent variable)
-        
         # For each type of CV do all the statistics
         # -----------------------------------------------------
         for (cv in 1:length(CVtypes)) {
           glm.model  <- GLMreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.GLM) # run GLM for each CV and regr method
           my.stats.GLM <- glm.model$stat.values # stat values
           my.model.GLM <- glm.model$model # model
-	         #my.stats.split <- c(my.stats.dsInfo,my.stats.GLM) # merge the ds info with statistics results for each Cv & reg method
+	        #my.stats.split <- c(my.stats.dsInfo,my.stats.GLM) # merge the ds info with statistics results for each Cv & reg method
           
           #-------------------------------------------------------
           # Add output from GLM to the list of results
           #-------------------------------------------------------
           # List of results for each splitting, CV type & regression method
           dfRes = mapply(c, my.stats.GLM, dfRes, SIMPLIFY=F)
+          
           # List of models for each splitting, CV type & regression method
           names1 <- strsplit(deparse(substitute(my.model.GLM)),'my.model.')[[1]][2]
           dfMod[[cv]]$names1 <- my.model.GLM  
@@ -3089,10 +3023,8 @@ Egon Willighagen | BiGCaT - Maastricht University, Netherlands | egon.willighage
     # --------------------------------------------
     # 8.3. PLS
     # --------------------------------------------
-    if (fPLS==T) {   # if LASSO was selected, run the method
+    if (fPLS==T) {   # if PLS was selected, run the method
       outFile.PLS <- file.path(PathDataSet,plsFile)   # the same folder as the input is used for the output
-      
-      # Both wrapper and nont-wrapper function are placed in the same external file s8.RegrrMethods.R
       
       if (fFeatureSel==F) {    # if there is no need of feature selection ->> use normal functions
         cat("-> [8.3] PLS ...\n")
@@ -3103,10 +3035,11 @@ Egon Willighagen | BiGCaT - Maastricht University, Netherlands | egon.willighage
           my.stats.PLS <- pls.model$stat.values
           my.model.PLS <- pls.model$model
           #-------------------------------------------------------
-          # Add output from GLM to the list of results
+          # Add output from PLS to the list of results
           #-------------------------------------------------------
           # List of results for each splitting, CV type & regression method
           dfRes = mapply(c, my.stats.PLS, dfRes, SIMPLIFY=F)
+          
           # List of models for each splitting, CV type & regression method
           names1 <- strsplit(deparse(substitute(my.model.PLS)),'my.model.')[[1]][2]
           dfMod[[cv]]$names1 <- my.model.PLS  
@@ -3122,9 +3055,10 @@ Egon Willighagen | BiGCaT - Maastricht University, Netherlands | egon.willighage
         for (cv in 1:length(CVtypes)) {
           pls.model <- PLSregWSel(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.PLS) # run PLSw for each CV and regr method
           my.stats.PLS <- pls.model$stat.values
-	    my.model.PLS <- pls.model$model
-	    #-------------------------------------------------------
-          # Add output from GLM to the list of results
+          my.model.PLS <- pls.model$model
+
+          #-------------------------------------------------------
+          # Add output from PLSw to the list of results
           #-------------------------------------------------------
           # List of results for each splitting, CV type & regression method
           dfRes = mapply(c, my.stats.PLS, dfRes, SIMPLIFY=F)
@@ -3139,7 +3073,6 @@ Egon Willighagen | BiGCaT - Maastricht University, Netherlands | egon.willighage
       cat("-> [8.4] LASSO ...\n")
       outFile.LASSO <- file.path(PathDataSet,lassoFile)   # the same folder as the input is used for the output
       
-      # Both wrapper and nont-wrapper function are placed in the same external file s8.RegrrMethods.R
       if (fFeatureSel==F) {    # if there is no need of feature selection ->> use normal functions
         # For each type of CV do all the statistics
         # -----------------------------------------------------
@@ -3148,7 +3081,7 @@ Egon Willighagen | BiGCaT - Maastricht University, Netherlands | egon.willighage
           my.stats.LASSO <- lasso.model$stat.values
           my.model.LASSO <- lasso.model$model
           #-------------------------------------------------------
-          # Add output from GLM to the list of results
+          # Add output from Lasso to the list of results
           #-------------------------------------------------------
           # List of results for each splitting, CV type & regression method
           dfRes = mapply(c, my.stats.LASSO, dfRes, SIMPLIFY=F)
@@ -3165,14 +3098,13 @@ Egon Willighagen | BiGCaT - Maastricht University, Netherlands | egon.willighage
       }
     } # end Lasso
     
-    # --------------------------------------------
+    # ----------------------------------------------------------------
     # 8.5. RBF network with the DDA algorithm regression (caret)
-    # --------------------------------------------
-    if (fRBFdda==T) {   # if SVM Radial was selected, run the method
+    # ----------------------------------------------------------------
+    if (fRBFdda==T) {   # if RBF-DDA was selected, run the method
       cat("-> [8.5] RBF network with the DDA ...\n")
       outFile.rbfDDA <- file.path(PathDataSet,rbfDDAFile)   # the same folder as the input is used for the output
       
-      # Both wrapper and nont-wrapper function are placed in the same external file s8.RegrrMethods.R
       if (fFeatureSel==F) {    # if there is no need of feature selection ->> use normal functions
         # For each type of CV do all the statistics
         # -----------------------------------------------------
@@ -3181,10 +3113,11 @@ Egon Willighagen | BiGCaT - Maastricht University, Netherlands | egon.willighage
           my.stats.rbfDDA <- rbfDDA.model$stat.values
           my.model.rbfDDA <- rbfDDA.model$model 
           #-------------------------------------------------------
-          # Add output from SVM Radial to the list of results
+          # Add output from RBF-DDA to the list of results
           #-------------------------------------------------------
           # List of results for each splitting, CV type & regression method
           dfRes = mapply(c, my.stats.rbfDDA, dfRes, SIMPLIFY=F)
+          
           # List of models for each splitting, CV type & regression method
           names1 <- strsplit(deparse(substitute(my.model.rbfDDA)),'my.model.')[[1]][2]
           dfMod[[cv]]$names1 <- my.model.rbfDDA  
@@ -3205,7 +3138,6 @@ Egon Willighagen | BiGCaT - Maastricht University, Netherlands | egon.willighage
       cat("-> [8.6] SVM radial ...\n")
       outFile.SVRM <- file.path(PathDataSet,svrmFile)   # the same folder as the input is used for the output
       
-      # Both wrapper and nont-wrapper function are placed in the same external file s8.RegrrMethods.R
       if (fFeatureSel==F) {    # if there is no need of feature selection ->> use normal functions
         # For each type of CV do all the statistics
         # -----------------------------------------------------
@@ -3213,6 +3145,7 @@ Egon Willighagen | BiGCaT - Maastricht University, Netherlands | egon.willighage
           SVRM.model <- SVRMreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.SVRM) # run SVRM Radial for each CV and regr method
           my.stats.SVRM <- SVRM.model$stat.values
           my.model.SVRM <- SVRM.model$model 
+          
           #-------------------------------------------------------
           # Add output from SVM Radial to the list of results
           #-------------------------------------------------------
@@ -3232,7 +3165,7 @@ Egon Willighagen | BiGCaT - Maastricht University, Netherlands | egon.willighage
     } # end SVRM
     
     # --------------------------------------------
-    # 8.7. SVM linear
+    # 8.7. SVM linear - to be implemented
     # --------------------------------------------
     
     # --------------------------------------------
@@ -3242,7 +3175,6 @@ Egon Willighagen | BiGCaT - Maastricht University, Netherlands | egon.willighage
       cat("-> [8.8] Neural Networks ...\n")
       outFile.NN <- file.path(PathDataSet,nnFile)   # the same folder as the input is used for the output
       
-      # Both wrapper and nont-wrapper function are placed in the same external file s8.RegrrMethods.R
       if (fFeatureSel==F) {    # if there is no need of feature selection ->> use normal functions
         # For each type of CV do all the statistics
         # -----------------------------------------------------
@@ -3250,6 +3182,7 @@ Egon Willighagen | BiGCaT - Maastricht University, Netherlands | egon.willighage
           nn.model <- NNreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.NN) # run NNet for each CV and regr method
           my.stats.NN <- nn.model$stat.values
           my.model.NN <- nn.model$model
+          
           #-------------------------------------------------------
           # Add output from NNet to the list of results
           #-------------------------------------------------------
@@ -3267,10 +3200,11 @@ Egon Willighagen | BiGCaT - Maastricht University, Netherlands | egon.willighage
         # run NNet with wrapper method (TO BE IMPLEMENTED!)
       } 
     } # end NNet
+    
     # --------------------------------------------
-    # 8.9. RF
+    # 8.9. Random Forest Regression (RF)
     # --------------------------------------------
-    if (fRF==T) {   # if NNet was selected, run the method
+    if (fRF==T) {   # if RF was selected, run the method
       cat("-> [8.9] Random Forest ...\n")
       outFile.RF <- file.path(PathDataSet,rfFile)   # the same folder as the input is used for the output
       
@@ -3281,8 +3215,9 @@ Egon Willighagen | BiGCaT - Maastricht University, Netherlands | egon.willighage
           rf.model <- RFreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.RF) # run RF for each CV and regr method
           my.stats.RF <- rf.model$stat.values
           my.model.RF <- rf.model$model
+          
           #-------------------------------------------------------
-          # Add output from NNet to the list of results
+          # Add output from RF to the list of results
           #-------------------------------------------------------
           # List of results for each splitting, CV type & regression method
           dfRes = mapply(c, my.stats.RF, dfRes, SIMPLIFY=F)
@@ -3309,14 +3244,14 @@ Egon Willighagen | BiGCaT - Maastricht University, Netherlands | egon.willighage
         } # end CV types
       }
     } # end RF
+
     # --------------------------------------------
     # 8.10. SVM RFE
     # --------------------------------------------
-    if (fSVMRFE==T) {   # if NNet was selected, run the method
+    if (fSVMRFE==T) {   # if SVM-RFE was selected, run the method
       cat("-> [8.10] SVM RFE ...\n")
       outFile.SVMRFE <- file.path(PathDataSet,svmrfeFile)   # the same folder as the input is used for the output
       
-      # Both wrapper and nont-wrapper function are placed in the same external file s8.RegrrMethods.R
       if (fFeatureSel==F) {    # if there is no need of feature selection ->> use normal functions
         # For each type of CV do all the statistics
         # -----------------------------------------------------
@@ -3324,6 +3259,7 @@ Egon Willighagen | BiGCaT - Maastricht University, Netherlands | egon.willighage
           svmrfe.model <- SVMRFEreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.SVMRFE,rfe_SVM_param_c,rfe_SVM_param_eps) # run SVM RFEet for each CV and regr method
           my.stats.SVMRFE <- svmrfe.model$stat.values
           my.model.SVMRFE <- svmrfe.model$model 
+          
           #-------------------------------------------------------
           # Add output from SVM RFE to the list of results
           #-------------------------------------------------------
@@ -3338,28 +3274,28 @@ Egon Willighagen | BiGCaT - Maastricht University, Netherlands | egon.willighage
       } 
       else    # if there is a need for previous feature selection ->> use wrapper functions
       {                     
-        # run RFet with wrapper method (TO BE IMPLEMENTED!)
+        # run SVM-RFE with wrapper method (TO BE IMPLEMENTED!)
       }
     } # end SVM RFE
     
     # --------------------------------------------
-    # 8.11. elastic net regression
+    # 8.11. Elastic Net regression
     # --------------------------------------------
     if (fenet==T) {   # if ENET was selected, run the method
      
       cat("-> [8.11] ElasticNET ...\n")
       outFile.ENET <- file.path(PathDataSet,enetFile)   # the same folder as the input is used for the output
       
-      # Both wrapper and nont-wrapper function are placed in the same external file s8.RegrrMethods.R
       if (fFeatureSel==F) {    # if there is no need of feature selection ->> use normal functions
         # For each type of CV do all the statistics
         # -----------------------------------------------------
         for (cv in 1:length(CVtypes)) {
-          enet.model <- ENETreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.ENET) # run elasti net for each CV and regr method
+          enet.model <- ENETreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.ENET) # run elastic net for each CV and regr method
           my.stats.ENET <- enet.model$stat.values
           my.model.ENET <- enet.model$model 
+          
           #-------------------------------------------------------
-          # Add output from GLM to the list of results
+          # Add output from ENET to the list of results
           #-------------------------------------------------------
           # List of results for each splitting, CV type & regression method
           dfRes = mapply(c, my.stats.ENET, dfRes, SIMPLIFY=F)
@@ -3376,7 +3312,7 @@ Egon Willighagen | BiGCaT - Maastricht University, Netherlands | egon.willighage
       } 
     } # end enet
     
-  # END OF REGRESSION Functions !!!
+  # END OF REGRESSION METHODS/FUNCTIONS
 
   # -----------------------------------------------------------------------
   # (8.final) Produce comparison plots amongst models 
@@ -3428,13 +3364,11 @@ Egon Willighagen | BiGCaT - Maastricht University, Netherlands | egon.willighage
   # File names includin paths for the statistics outputs (only averages and split detailed; +averages [to be implemented])
   ResBySplitsF <- file.path(PathDataSet,ResBySplits)   # the main output file with statistics for each split
   write.csv(df.res, file = ResBySplitsF)    # write statistics data frame into a CSV output file
-  # file.show(ResBySplitsF)  # show the statistics file!
   
   #-------------------------------------------------------------------------------------
   # Averaged values of the results by each Regression Method & CV type
   #-------------------------------------------------------------------------------------
   cat("-> Averaged statistics ...\n")
-  
   ResAvgsF <- file.path(PathDataSet,ResAvgs)           # the main output file with averaged statistics for each regression method
   library(data.table)
   dt.res  <- data.table(df.res) # convert data frame into data table (for sorting abd averaging)
@@ -3460,7 +3394,7 @@ Egon Willighagen | BiGCaT - Maastricht University, Netherlands | egon.willighage
   #-------------------------------------------------------------------------------
   cat("-> Best model analysis ...\n")
   
-  # ADD an algorithm to verifty similar adjR2 values
+  # Add an algorithm to verifty similar adjR2 values
   # From the best ones (+/- 0.05 of adjR2), chose the one with less variables, after that the one with min RMSE!!!
   
   best.dt  <- dt.mean.ord[1] # the best model (adjR2.ts) should be the first value in the descendent ordered results
@@ -3476,6 +3410,7 @@ Egon Willighagen | BiGCaT - Maastricht University, Netherlands | egon.willighage
   best.reg <- paste(best.dt$RegrMeth,collapse="") # best regrression method
   
   # best model non-averaged ? no. of features
+  # -----------------------------------------------
   # best.method <- dt.res[CVtype == "repeatedcv"][RegrMeth == best.reg] # best modes corresponding with the avg best values
   # best.method.mean <- mean(as.numeric(data.frame(best.method)[,11])) # best adjR2.ts)
   # dt.res[CVtype == "repeatedcv"][RegrMeth == best.reg][NoModelFeats == min(NoModelFeats)][RMSE.ts == min(RMSE.ts)]
@@ -3528,19 +3463,13 @@ Egon Willighagen | BiGCaT - Maastricht University, Netherlands | egon.willighage
     my.stats.reg  <- RFRFEreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF)$stat.values # run RF RFE for each CV and regr method
   }
   
-  #save(ds,trainFrac,best.reg,my.stats.reg,noYrand,ResBestF,file="kk.rData")
-  
-  #------------------------------------------------------------------------------
-  # 12. Test best model with test dataset
-  #                   (+ Y randomization 100 times, bootstaping)
-  #-------------------------------------------------------------------------------
+  #--------------------------------------------------------------------------------------
+  # 12. Test best model with test dataset + Y randomization
+  #--------------------------------------------------------------------------------------
   # ratios Yrand R2 - Best model R2 / Best model R2
   R2Diff.Yrand <- Yrandom(ds,trainFrac,best.reg,my.stats.reg$R2.ts,noYrand,ResBestF) # mean value of ratio (deatails are printed to output file)
   
-  #------------------------------------------------------------------------------
-  # Assessment of Applicability Domain (plot leverage) was included as details
-  # in lm and glm methods
-  #-------------------------------------------------------------------------------
+  # Assessment of Applicability Domain (plot leverage) was included as details in each regression function
   
   #----------------------------
   # Indicate main result files
@@ -3553,6 +3482,6 @@ Egon Willighagen | BiGCaT - Maastricht University, Netherlands | egon.willighage
   cat("Best model plots:",paste(ResBestF,".repeatedcv.split",i,".pdf"),"\n")
   cat("Best model Y-randomization plot:",paste(ResBestF,".Yrand.Hist.pdf"),"\n")
   cat("\n* if you choose Details, additional CSV files will be create for each method.\n")
-  
+
   return(ResBestF) # return the statistics for the best model (all the other info could be found in output files)
 }
