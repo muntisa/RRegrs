@@ -3411,11 +3411,11 @@ Egon Willighagen | BiGCaT - Maastricht University, Netherlands | egon.willighage
   cat("-> [8.final] Produce comparisons plots...\n")
 
   for(cv in 1:length(CVtypes)){
-    if(length(dfMod[[cv]])>=2){
+    if(CVtypes[cv]!='LOOCV' && length(dfMod[[cv]])>=2){
     resamps <- resamples(dfMod[[cv]])  
 
     #plot different models in terms of R2 adn RMSE values in the training set 
-    pdf(file=paste("ModelsComp.",names(dfMod)[cv],".iSplits.",i,".pdf",sep=""))
+    pdf(file=PathDataSet,"/ModelsComp.",names(dfMod)[cv],".iSplits.",i,".pdf",sep=""))
     bwplot(resamps, layout = c(2, 1))
     dev.off()
 
@@ -3424,10 +3424,10 @@ Egon Willighagen | BiGCaT - Maastricht University, Netherlands | egon.willighage
     #summary(difValues)
 
     #plot differences of models in terms of R2 adn RMSE values in the training set 
-    pdf(file=paste("DifModels.R2.",names(dfMod)[cv],".iSplits.",i,".pdf",sep=""))
+    pdf(file=PathDataSet,"/DifModels.R2.",names(dfMod)[cv],".iSplits.",i,".pdf",sep=""))
     dotplot(difValues,metric='Rsquared')
     dev.off()
-    pdf(file=paste("DifModels.RMSE.",names(dfMod)[cv],".iSplits.",i,".pdf",sep=""))
+    pdf(file=PathDataSet,"/DifModels.RMSE.",names(dfMod)[cv],".iSplits.",i,".pdf",sep=""))
     dotplot(difValues,metric='RMSE')
     dev.off()
     }}
