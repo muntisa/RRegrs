@@ -2733,7 +2733,7 @@ findResamps.funct<- function(caret.obj){
 RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",
   ResAvgs="RRegsResAvgs.csv",ResBySplits="RRegrsResBySplit.csv",ResBest="RRegrsResBest.csv",
   fDet="T",fFilters="F",fScaling="T",fRemNear0Var="T",fRemCorr="T",fFeatureSel="F",
-  fLM="T",fGLM="T",fPLS="F",fLASSO="F",fRBFdda="F",fSVRM="F",fNN="F",fRF="F",fSVMRFE="F",fENET="F",
+  fLM="T",fGLM="T",fPLS="T",fLASSO="T",fRBFdda="T",fSVRM="T",fNN="T",fRF="T",fSVMRFE="T",fENET="T",
   RFE_SVM_C="1;5;15;50",RFE_SVM_epsilon="0.01;0.1;0.3",
   cutoff="0.9",iScaling="1",iScalCol="1",trainFrac="0.75",iSplitTimes="2",noYrand="2",
   CVtypes="repeatedcv;LOOCV",
@@ -2743,6 +2743,8 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",
   nnFile="8.8.NN.details.csv",rfFile="8.9.RF.details.csv",svmrfeFile="8.10.SVMRFE.details.csv",
   enetFile="8.11.ENET.details.csv") { # input = file with all parameters
   # Minimal use: RRegrs(DataFileName="MyDataSet.csv")
+  
+  # Default: all methods, no feature selection
 
   #==========================================================================================
   # (1) Load dataset and parameters
@@ -3497,5 +3499,6 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",
   cat("Best model Y-randomization plot:",paste(ResBestF,".Yrand.Hist.pdf"),"\n")
   cat("\n* if you choose Details, additional CSV files will be create for each method.\n")
 
-  return(ResBestF) # return the statistics for the best model (all the other info could be found in output files)
+  return(list(BestMethod=best.reg,BestStats=my.stats.reg, Models=dfMod))
+  # return a list with 3 items: the name of the best method, the statistics for the best model, the list with all the fitted models (including the best one)
 }
