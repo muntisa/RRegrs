@@ -2730,73 +2730,87 @@ findResamps.funct<- function(caret.obj){
 # RRegrs MAIN FUNCTION 
 ###############################################################################################
 
-RRegrs<- function(paramFile) { # input = file with all parameters
+RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",
+  ResAvgs="RRegsResAvgs.csv",ResBySplits="RRegrsResBySplit.csv",ResBest="RRegrsResBest.csv",
+  fDet="T",fFilters="F",fScaling="T",fRemNear0Var="T",fRemCorr="T",fFeatureSel="F",
+  fLM="T",fGLM="T",fPLS="F",fLASSO="F",fRBFdda="F",fSVRM="F",fNN="F",fRF="F",fSVMRFE="F",fENET="F",
+  RFE_SVM_C="1;5;15;50",RFE_SVM_epsilon="0.01;0.1;0.3",
+  cutoff="0.9",iScaling="1",iScalCol="1",trainFrac="0.75",iSplitTimes="2",noYrand="2",
+  CVtypes="repeatedcv;LOOCV",
+  No0NearVarFile="ds3.No0Var.csv",ScaledFile="ds4.scaled.csv",NoCorrFile="ds5.scaled.NoCorrs.csv",
+  lmFile="8.1.LM.details.csv",glmFile="8.2.GLM.details.csv",plsFile="8.3.PLS.details.csv",
+  lassoFile="8.4.LASSO.details.csv",rbfDDAFile="8.5.RBF_DDA.details.csv",svrmFile="8.6.SVMRadial.details.csv",
+  nnFile="8.8.NN.details.csv",rfFile="8.9.RF.details.csv",svmrfeFile="8.10.SVMRFE.details.csv",
+  enetFile="8.11.ENET.details.csv") { # input = file with all parameters
+  # Minimal use: RRegrs(DataFileName="MyDataSet.csv")
+
   #==========================================================================================
   # (1) Load dataset and parameters
-  #     (these parameters will be read from an input file! TO BE IMPLEMENTED at the end)
   #==========================================================================================
   
   # (1.1) PARAMETERS
-  #-------------------------
-  # Read parameters from a file as data frame
-  # -----------------------------------------
-  Param.df <- read.csv(paramFile,header=T)
-  
-  fDet         = as.logical(Param.df[which(Param.df$RRegrs.Parameters=="fDet"),2])         # flag to calculate and print details for all the functions
-  fFilters     = as.logical(Param.df[which(Param.df$RRegrs.Parameters=="fFilters"),2])     # flag to apply filters                          (2)
-  fScaling     = as.logical(Param.df[which(Param.df$RRegrs.Parameters=="fScaling"),2])     # flag for dataset Scaling                       (3)
-  fRemNear0Var = as.logical(Param.df[which(Param.df$RRegrs.Parameters=="fRemNear0Var"),2]) # flag for Removal of near zero variance columns (4)
-  fRemCorr     = as.logical(Param.df[which(Param.df$RRegrs.Parameters=="fRemCorr"),2])     # flag for Removal of correlated columns         (5)
-  fFeatureSel  = as.logical(Param.df[which(Param.df$RRegrs.Parameters=="fFeatureSel"),2])  # flag for wrapper methods for feature selection (7)
-  
-  cutoff       = as.numeric(as.character(Param.df[which(Param.df$RRegrs.Parameters=="cutoff"),2]))  # cut off for correlated features
-  fLM          = as.logical(Param.df[which(Param.df$RRegrs.Parameters=="fLM"),2])     # flag to run LM            (8.1)
-  fGLM         = as.logical(Param.df[which(Param.df$RRegrs.Parameters=="fGLM"),2])    # flag to run GLM           (8.2)
-  fPLS         = as.logical(Param.df[which(Param.df$RRegrs.Parameters=="fPLS"),2])    # flag to run PLS           (8.3)
-  fLASSO       = as.logical(Param.df[which(Param.df$RRegrs.Parameters=="fLASSO"),2])  # flag to run LASSO         (8.4)
-  fRBFdda      = as.logical(Param.df[which(Param.df$RRegrs.Parameters=="fRBFdda"),2]) # flat to run RBF DDA       (8.5)
-  fSVRM        = as.logical(Param.df[which(Param.df$RRegrs.Parameters=="fSVRM"),2])   # flat to run svmRadial     (8.6)
-  fNN          = as.logical(Param.df[which(Param.df$RRegrs.Parameters=="fNN"),2])     # flat to run NN            (8.8)
-  fRF          = as.logical(Param.df[which(Param.df$RRegrs.Parameters=="fRF"),2])      # flag to run RandomForest        (8.9)
-  fSVMRFE      = as.logical(Param.df[which(Param.df$RRegrs.Parameters=="fSVMRFE"),2])  # flag to run SVM RFE      (8.10)
-  rfe_SVM_param_c = strsplit(as.character(Param.df[which(Param.df$RRegrs.Parameters=="RFE_SVM_C"),2]),";")[[1]] # values of C for SVM RFE
-  rfe_SVM_param_eps = strsplit(as.character(Param.df[which(Param.df$RRegrs.Parameters=="RFE_SVM_epsilon"),2]),";")[[1]] # values of epsilon for SVM RFE
-  fenet      = as.logical(Param.df[which(Param.df$RRegrs.Parameters=="fENET"),2])  # flag to run ElasticNet      (8.11)
-  
-  # ----------------------------------------------------------------------------------------
-  iScaling = as.numeric(as.character(Param.df[which(Param.df$RRegrs.Parameters=="iScaling"),2])) # 1 = normalization; 2 = standardization, 3 = other; any other: no scaling
-  iScalCol = as.numeric(as.character(Param.df[which(Param.df$RRegrs.Parameters=="iScalCol"),2])) # 1 = including dependent variable in scaling; 2: only all features; etc.
-  # ----------------------------------------------------------------------------------------
-  trainFrac   = as.numeric(as.character(Param.df[which(Param.df$RRegrs.Parameters=="trainFrac"),2]))   # the fraction of training set from the entire dataset; trainFrac = the rest of dataset, the test set
-  iSplitTimes = as.numeric(as.character(Param.df[which(Param.df$RRegrs.Parameters=="iSplitTimes"),2])) # default is 10; time to split the data in train and test (steps 6-11); report each step + average
-  noYrand     = as.numeric(as.character(Param.df[which(Param.df$RRegrs.Parameters=="noYrand"),2]))     # number of Y randomization (default = 100)
-  
-  CVtypes = strsplit(as.character(Param.df[which(Param.df$RRegrs.Parameters=="CVtypes"),2]),";")[[1]] # types of cross-validation methods
-  CVtypes2 = c("repeatedcv") # for complex methods we run only 10-fold CV even the user is using other parameters!
-  
+  #------------------------------------------
+  # Get calculation parameters 
   # -------------------------------------------------------------------------------------------------------
   # Files
   # -------------------------------------------------------------------------------------------------------
-  PathDataSet    = as.character(Param.df[which(Param.df$RRegrs.Parameters=="PathDataSet"),2])    # dataset folder for input and output files
-  DataFileName   = as.character(Param.df[which(Param.df$RRegrs.Parameters=="DataFileName"),2])   # input step 1 = ds original file name
-  No0NearVarFile = as.character(Param.df[which(Param.df$RRegrs.Parameters=="No0NearVarFile"),2]) # output step 3 = ds without zero near vars
-  ScaledFile     = as.character(Param.df[which(Param.df$RRegrs.Parameters=="ScaledFile"),2])     # output step 4 = scaled ds file name (in the same folder)
-  NoCorrFile     = as.character(Param.df[which(Param.df$RRegrs.Parameters=="NoCorrFile"),2])     # output step 5 = dataset after correction removal
+  DataFileName   = as.character(DataFileName)   # input step 1 = ds original file name
+  PathDataSet    = as.character(PathDataSet)    # dataset folder for input and output files
   
-  ResAvgs        = as.character(Param.df[which(Param.df$RRegrs.Parameters=="ResAvgs"),2])     # the output file with averaged statistics for each regression method
-  ResBySplits    = as.character(Param.df[which(Param.df$RRegrs.Parameters=="ResBySplits"),2]) # the output file with statistics for each split and the averaged values
-  ResBest        = as.character(Param.df[which(Param.df$RRegrs.Parameters=="ResBest"),2])     # the output file with statistics for the best model
+  No0NearVarFile = as.character(No0NearVarFile) # output step 3 = ds without zero near vars
+  ScaledFile     = as.character(ScaledFile)     # output step 4 = scaled ds file name (in the same folder)
+  NoCorrFile     = as.character(NoCorrFile)     # output step 5 = dataset after correction removal
   
-  lmFile         = as.character(Param.df[which(Param.df$RRegrs.Parameters=="lmFile"),2])     # LM output file for details
-  glmFile        = as.character(Param.df[which(Param.df$RRegrs.Parameters=="glmFile"),2])    # GLM output file for details
-  plsFile        = as.character(Param.df[which(Param.df$RRegrs.Parameters=="plsFile"),2])    # PLS output file for details
-  lassoFile      = as.character(Param.df[which(Param.df$RRegrs.Parameters=="lassoFile"),2])  # Lasoo Radial output file for details
-  rbfDDAFile     = as.character(Param.df[which(Param.df$RRegrs.Parameters=="rbfDDAFile"),2]) # RBF DDA output file for details
-  svrmFile       = as.character(Param.df[which(Param.df$RRegrs.Parameters=="svrmFile"),2])   # SVM Radial output file for details
-  nnFile         = as.character(Param.df[which(Param.df$RRegrs.Parameters=="nnFile"),2])     # NN Radial output file for details
-  rfFile         = as.character(Param.df[which(Param.df$RRegrs.Parameters=="rfFile"),2])      # RF  output file for details
-  svmrfeFile     = as.character(Param.df[which(Param.df$RRegrs.Parameters=="svmrfeFile"),2])  # svMRFE  output file for details
-  enetFile     = as.character(Param.df[which(Param.df$RRegrs.Parameters=="enetFile"),2])  # elastic net  output file for details
+  ResAvgs        = as.character(ResAvgs)     # the output file with averaged statistics for each regression method
+  ResBySplits    = as.character(ResBySplits) # the output file with statistics for each split and the averaged values
+  ResBest        = as.character(ResBest)     # the output file with statistics for the best model
+  
+  lmFile         = as.character(lmFile)     # LM output file for details
+  glmFile        = as.character(glmFile)    # GLM output file for details
+  plsFile        = as.character(plsFile)    # PLS output file for details
+  lassoFile      = as.character(lassoFile)  # Lasoo Radial output file for details
+  rbfDDAFile     = as.character(rbfDDAFile) # RBF DDA output file for details
+  svrmFile       = as.character(svrmFile)   # SVM Radial output file for details
+  nnFile         = as.character(nnFile)     # NN Radial output file for details
+  rfFile         = as.character(rfFile)     # RF  output file for details
+  svmrfeFile     = as.character(svmrfeFile) # svMRFE  output file for details
+  enetFile       = as.character(enetFile)   # elastic net  output file for details
+
+  fDet         = as.logical(fDet)         # flag to calculate and print details for all the functions
+  fFilters     = as.logical(fFilters)     # flag to apply filters                          (2)
+  fScaling     = as.logical(fScaling)     # flag for dataset Scaling                       (3)
+  fRemNear0Var = as.logical(fRemNear0Var) # flag for Removal of near zero variance columns (4)
+  fRemCorr     = as.logical(fRemCorr)     # flag for Removal of correlated columns         (5)
+  fFeatureSel  = as.logical(fFeatureSel)  # flag for wrapper methods for feature selection (7)
+  
+  cutoff       = as.numeric(as.character(cutoff))  # cut off for correlated features
+  fLM          = as.logical(fLM)     # flag to run LM            (8.1)
+  fGLM         = as.logical(fGLM)    # flag to run GLM           (8.2)
+  fPLS         = as.logical(fPLS)    # flag to run PLS           (8.3)
+  fLASSO       = as.logical(fLASSO)  # flag to run LASSO         (8.4)
+  fRBFdda      = as.logical(fRBFdda) # flat to run RBF DDA       (8.5)
+  fSVRM        = as.logical(fSVRM)   # flat to run svmRadial     (8.6)
+  fNN          = as.logical(fNN)     # flat to run NN            (8.8)
+  fRF          = as.logical(fRF)     # flag to run RandomForest  (8.9)
+  fSVMRFE      = as.logical(fSVMRFE) # flag to run SVM RFE       (8.10)
+  fenet        = as.logical(fENET)   # flag to run ElasticNet    (8.11)
+
+  rfe_SVM_param_c   = strsplit(as.character(RFE_SVM_C),";")[[1]] # values of C for SVM RFE
+  rfe_SVM_param_eps = strsplit(as.character(RFE_SVM_epsilon),";")[[1]] # values of epsilon for SVM RFE
+  
+  
+  # ----------------------------------------------------------------------------------------
+  iScaling = as.numeric(as.character(iScaling)) # 1 = normalization; 2 = standardization, 3 = other; any other: no scaling
+  iScalCol = as.numeric(as.character(iScalCol)) # 1 = including dependent variable in scaling; 2: only all features; etc.
+  # ----------------------------------------------------------------------------------------
+  trainFrac   = as.numeric(as.character(trainFrac))   # the fraction of training set from the entire dataset; trainFrac = the rest of dataset, the test set
+  iSplitTimes = as.numeric(as.character(iSplitTimes)) # default is 10; time to split the data in train and test (steps 6-11); report each step + average
+  noYrand     = as.numeric(as.character(noYrand))     # number of Y randomization (default = 100)
+  
+  CVtypes = strsplit(as.character(CVtypes),";")[[1]] # types of cross-validation methods
+  CVtypes2 = c("repeatedcv") # for complex methods we run only 10-fold CV even the user is using other parameters!
+  
+  
   
   # Generate path + file name = original dataset
   inFile <- file.path(PathDataSet, DataFileName)

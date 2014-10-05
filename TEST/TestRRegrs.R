@@ -10,6 +10,5 @@ library(data.table)
 library(corrplot)
 source("../RRegrs/R/RRegrs_Functions.R")
 
-paramFile = "Parameters.csv"  # set the file with parameters
-RRegrsRes = RRegrs(paramFile) # Run RRegrs
+RRegrsRes = RRegrs(DataFileName="ds.House.csv") # Run RRegrs
 
