@@ -259,9 +259,9 @@ DsSplit <- function(ds,trainFrac=3/4,fDet=FALSE,PathDataSet="",iSeed) {
   if (fDet == TRUE) {
     # write the TRAIN and TEST set files
     # the index of each row will in the dataset will not be saved (row.names=F)
-    outTrain <- file.path(PathDataSet,"ds.Train.csv") # the same folder as the input
+    outTrain <- file.path(PathDataSet,paste("ds.Train.split",iSeed,".csv")) # the same folder as the input
     write.csv(my.datf.train,outTrain,row.names=FALSE)
-    outTest <- file.path(PathDataSet,"ds.Test.csv") # the same folder as the input
+    outTest <- file.path(PathDataSet,paste("ds.Test.split",iSeed,".csv")) # the same folder as the input
     write.csv(my.datf.test,outTest,row.names=FALSE) 
   }
   MyList<- list("train"=my.datf.train, "test"=my.datf.test) 
@@ -3378,36 +3378,37 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",
       } 
     } # end enet
     
-  # END OF REGRESSION METHODS/FUNCTIONS
+    # END OF REGRESSION METHODS/FUNCTIONS
 
-  # -----------------------------------------------------------------------
-  # (8.final) Produce comparison plots amongst models 
-  # -----------------------------------------------------------------------
+    # -----------------------------------------------------------------------
+    # (8.final) Produce comparison plots amongst models 
+    # -----------------------------------------------------------------------
 
-  cat("-> [8.final] Produce comparisons plots...\n")
+    cat("-> [8.final] Produce comparisons plots...\n")
+    
+    for(cv in 1:length(CVtypes)){
+      if(CVtypes[cv]!='LOOCV' && length(dfMod[[cv]])>=2){    
+        resamps <- resamples(dfMod[[cv]])#,modelNames=names(dfMod[[cv]]))  
+        # calculate their differences in terms of R2 and RMSE values
+        difValues <- diff(resamps)
+        #summary(difValues)
+        #plot different models in terms of R2 adn RMSE values in the training set 
+        pdf(file=paste(PathDataSet,"/ModelsComp.",names(dfMod)[cv],".iSplits.",i,".pdf",sep=""))
+        print(bwplot(resamps, layout = c(2, 1)))
+        dev.off()    
 
-  for(cv in 1:length(CVtypes)){
-    if(CVtypes[cv]!='LOOCV' && length(dfMod[[cv]])>=2){    
-
-      resamps <- resamples(dfMod[[cv]])#,modelNames=names(dfMod[[cv]]))  
-      #plot different models in terms of R2 adn RMSE values in the training set 
-      pdf(file=paste(PathDataSet,"/ModelsComp.",names(dfMod)[cv],".iSplits.",i,".pdf",sep=""))
-      bwplot(resamps, layout = c(2, 1))
-      dev.off()
-
-      # calculate their differences in terms of R2 and RMSE values
-      difValues <- diff(resamps)
-      #summary(difValues)
-
-      #plot differences of models in terms of R2 adn RMSE values in the training set 
-      pdf(file=paste(PathDataSet,"/DifModels.R2.",names(dfMod)[cv],".iSplits.",i,".pdf",sep=""))
-      dotplot(difValues,metric='Rsquared')
-      dev.off()
-      pdf(file=paste(PathDataSet,"/DifModels.RMSE.",names(dfMod)[cv],".iSplits.",i,".pdf",sep=""))
-      dotplot(difValues,metric='RMSE')
-      dev.off()
-    }}
-  } # ??????????????????
+        #plot differences of models in terms of R2 adn RMSE values in the training set 
+        pdf(file=paste(PathDataSet,"/DifModels.R2.",names(dfMod)[cv],".iSplits.",i,".pdf",sep=""))
+        print(dotplot(difValues,metric='Rsquared'))
+        dev.off()
+        
+        pdf(file=paste(PathDataSet,"/DifModels.RMSE.",names(dfMod)[cv],".iSplits.",i,".pdf",sep=""))
+        print(dotplot(difValues,metric='RMSE'))
+        dev.off()
+      }
+    }
+    
+  } # END SPLITTING
   
   #------------------------------------------------------------------------------
   # 9. Results for all splittings (not ordered)
