@@ -3039,7 +3039,7 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",
           dfRes = mapply(c, my.stats.LM, dfRes, SIMPLIFY=F)
           
           # List of models for each splitting, CV type & regression method
-          names1 <- strsplit(deparse(substitute(my.model.LM)),'my.model.')[[1]][2]
+          names1 <- strsplit(deparse(quote(my.model.LM)),'my.model.')[[1]][2]
           dfMod[[cv]]$names1 <- my.model.LM  
           names(dfMod[[cv]])[mod.ind[cv]] <- names1[1]
           mod.ind[cv] <- mod.ind[cv] +1 # update mod.ind indicator variable
@@ -3074,7 +3074,7 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",
           dfRes = mapply(c, my.stats.GLM, dfRes, SIMPLIFY=F)
           
           # List of models for each splitting, CV type & regression method
-          names1 <- strsplit(deparse(substitute(my.model.GLM)),'my.model.')[[1]][2]
+          names1 <- strsplit(deparse(quote(my.model.GLM)),'my.model.')[[1]][2]
           dfMod[[cv]]$names1 <- my.model.GLM  
           names(dfMod[[cv]])[mod.ind[cv]] <- names1[1]
           mod.ind[cv] <- mod.ind[cv] +1 # update mod.ind indicator variable
@@ -3107,7 +3107,7 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",
           dfRes = mapply(c, my.stats.PLS, dfRes, SIMPLIFY=F)
           
           # List of models for each splitting, CV type & regression method
-          names1 <- strsplit(deparse(substitute(my.model.PLS)),'my.model.')[[1]][2]
+          names1 <- strsplit(deparse(quote(my.model.PLS)),'my.model.')[[1]][2]
           dfMod[[cv]]$names1 <- my.model.PLS  
           names(dfMod[[cv]])[mod.ind[cv]] <- names1[1]
           mod.ind[cv] <- mod.ind[cv] +1 # update mod.ind indicator variable
@@ -3152,7 +3152,7 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",
           # List of results for each splitting, CV type & regression method
           dfRes = mapply(c, my.stats.LASSO, dfRes, SIMPLIFY=F)
           # List of models for each splitting, CV type & regression method
-          names1 <- strsplit(deparse(substitute(my.model.LASSO)),'my.model.')[[1]][2]
+          names1 <- strsplit(deparse(quote(my.model.LASSO)),'my.model.')[[1]][2]
           dfMod[[cv]]$names1 <- my.model.LASSO  
           names(dfMod[[cv]])[mod.ind[cv]] <- names1[1]
           mod.ind[cv] <- mod.ind[cv] +1 # update mod.ind indicator variable
@@ -3185,7 +3185,7 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",
           dfRes = mapply(c, my.stats.rbfDDA, dfRes, SIMPLIFY=F)
           
           # List of models for each splitting, CV type & regression method
-          names1 <- strsplit(deparse(substitute(my.model.rbfDDA)),'my.model.')[[1]][2]
+          names1 <- strsplit(deparse(quote(my.model.rbfDDA)),'my.model.')[[1]][2]
           dfMod[[cv]]$names1 <- my.model.rbfDDA  
           names(dfMod[[cv]])[mod.ind[cv]] <- names1[1]
           mod.ind[cv] <- mod.ind[cv] +1 # update mod.ind indicator variable
@@ -3218,7 +3218,7 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",
           # List of results for each splitting, CV type & regression method
           dfRes = mapply(c, my.stats.SVRM, dfRes, SIMPLIFY=F)
           # List of models for each splitting, CV type & regression method
-          names1 <- strsplit(deparse(substitute(my.model.SVRM)),'my.model.')[[1]][2]
+          names1 <- strsplit(deparse(quote(my.model.SVRM)),'my.model.')[[1]][2]
           dfMod[[cv]]$names1 <- my.model.SVRM  
           names(dfMod[[cv]])[mod.ind[cv]] <- names1[1]
           mod.ind[cv] <- mod.ind[cv] +1 # update mod.ind indicator variable
@@ -3255,7 +3255,7 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",
           # List of results for each splitting, CV type & regression method
           dfRes = mapply(c, my.stats.NN, dfRes, SIMPLIFY=F)
           # List of models for each splitting, CV type & regression method
-          names1 <- strsplit(deparse(substitute(my.model.NN)),'my.model.')[[1]][2]
+          names1 <- strsplit(deparse(quote(my.model.NN)),'my.model.')[[1]][2]
           dfMod[[cv]]$names1 <- my.model.NN  
           names(dfMod[[cv]])[mod.ind[cv]] <- names1[1]
           mod.ind[cv] <- mod.ind[cv] +1 # update mod.ind indicator variable
@@ -3288,7 +3288,7 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",
           # List of results for each splitting, CV type & regression method
           dfRes = mapply(c, my.stats.RF, dfRes, SIMPLIFY=F)
           # List of models for each splitting, CV type & regression method
-          names1 <- strsplit(deparse(substitute(my.model.RF)),'my.model.')[[1]][2]
+          names1 <- strsplit(deparse(quote(my.model.RF)),'my.model.')[[1]][2]
           dfMod[[cv]]$names1 <- my.model.RF  
           names(dfMod[[cv]])[mod.ind[cv]] <- names1[1]
           mod.ind[cv] <- mod.ind[cv] +1 # update mod.ind indicator variable
@@ -3332,7 +3332,7 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",
           # List of results for each splitting, CV type & regression method
           dfRes = mapply(c, my.stats.SVMRFE, dfRes, SIMPLIFY=F)
           # List of models for each splitting, CV type & regression method
-          names1 <- strsplit(deparse(substitute(my.model.SVMRFE)),'my.model.')[[1]][2]
+          names1 <- strsplit(deparse(quote(my.model.SVMRFE)),'my.model.')[[1]][2]
           dfMod[[cv]]$names1 <- my.model.SVMRFE  
           names(dfMod[[cv]])[mod.ind[cv]] <- names1[1]
           mod.ind[cv] <- mod.ind[cv] +1 # update mod.ind indicator variable
@@ -3366,7 +3366,7 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",
           # List of results for each splitting, CV type & regression method
           dfRes = mapply(c, my.stats.ENET, dfRes, SIMPLIFY=F)
           # List of models for each splitting, CV type & regression method
-          names1 <- strsplit(deparse(substitute(my.model.ENET)),'my.model.')[[1]][2]
+          names1 <- strsplit(deparse(quote(my.model.ENET)),'my.model.')[[1]][2]
           dfMod[[cv]]$names1 <- my.model.ENET  
           names(dfMod[[cv]])[mod.ind[cv]] <- names1[1]
           mod.ind[cv] <- mod.ind[cv] +1 # update mod.ind indicator variable
@@ -3389,33 +3389,23 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",
   for(cv in 1:length(CVtypes)){
     if(CVtypes[cv]!='LOOCV' && length(dfMod[[cv]])>=2){    
 
-#inside.names <- names(dfMod[[cv]])
-#inside.list<- list()
-#k <- 1
-#while(k <= length(inside.names)){
-#	inside.list$names1<- dfMod[[cv]][[k]]
-#	names(inside.list)[k]<- inside.names[k]
-#	k <- k+1
-#}
-#resamps <- resamples(dfMod[[cv]],modelNames=names(dfMod[[cv]]))  
-#resamps <- resamples(list(LM=dfMod[[cv]][[1]],GLM=dfMod[[cv]][[2]]))
-#resamps <- resamples(inside.list)
-    #plot different models in terms of R2 adn RMSE values in the training set 
-#    pdf(file=paste(PathDataSet,"/ModelsComp.",names(dfMod)[cv],".iSplits.",i,".pdf",sep=""))
-#    bwplot(resamps, layout = c(2, 1))
-#    dev.off()
+      resamps <- resamples(dfMod[[cv]])#,modelNames=names(dfMod[[cv]]))  
+      #plot different models in terms of R2 adn RMSE values in the training set 
+      pdf(file=paste(PathDataSet,"/ModelsComp.",names(dfMod)[cv],".iSplits.",i,".pdf",sep=""))
+      bwplot(resamps, layout = c(2, 1))
+      dev.off()
 
-    # calculate their differences in terms of R2 and RMSE values
-#    difValues <- diff(resamps)
-    #summary(difValues)
+      # calculate their differences in terms of R2 and RMSE values
+      difValues <- diff(resamps)
+      #summary(difValues)
 
-    #plot differences of models in terms of R2 adn RMSE values in the training set 
-#    pdf(file=paste(PathDataSet,"/DifModels.R2.",names(dfMod)[cv],".iSplits.",i,".pdf",sep=""))
-#    dotplot(difValues,metric='Rsquared')
-#    dev.off()
-#    pdf(file=paste(PathDataSet,"/DifModels.RMSE.",names(dfMod)[cv],".iSplits.",i,".pdf",sep=""))
-#    dotplot(difValues,metric='RMSE')
-#    dev.off()
+      #plot differences of models in terms of R2 adn RMSE values in the training set 
+      pdf(file=paste(PathDataSet,"/DifModels.R2.",names(dfMod)[cv],".iSplits.",i,".pdf",sep=""))
+      dotplot(difValues,metric='Rsquared')
+      dev.off()
+      pdf(file=paste(PathDataSet,"/DifModels.RMSE.",names(dfMod)[cv],".iSplits.",i,".pdf",sep=""))
+      dotplot(difValues,metric='RMSE')
+      dev.off()
     }}
   } # ??????????????????
   
