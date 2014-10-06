@@ -2752,6 +2752,56 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",
   
   # (1.1) PARAMETERS
   #------------------------------------------
+  # Write parameter file
+  #------------------------------------------
+  ParamFile <- file.path(PathDataSet, "Parameters.csv")
+
+  Params.df=data.frame(RRegrs.Parameters="DataFileName",Parameter.Value=DataFileName,Description="Input dataset file (Step 1)") # data frame with used parameters
+  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="PathDataSet",Parameter.Value=PathDataSet,Description="Working folder for all input and output files"))
+  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="ResAvgs",Parameter.Value=ResAvgs,Description="Output file averaged statistics (by splittings) for each regression method"))
+  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="ResBySplits",Parameter.Value=ResBySplits,Description="Output file statistics for each splitting and each regression method"))
+  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="ResBest",Parameter.Value=ResBest,Description="Output file statistics for the best model"))
+  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="fDet",Parameter.Value=fDet,Description="If calculate and print details for all the functions"))
+  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="fFilters",Parameter.Value=fFilters,Description="If run Filters (Step 2)"))
+  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="fScaling",Parameter.Value=fScaling,Description="If Scalling dataset (Step 3)"))
+  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="fRemNear0Var",Parameter.Value=fRemNear0Var,Description="If run Removal of near zero variance columns (Step 4)"))
+  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="fRemCorr",Parameter.Value=fRemCorr,Description="If run Removal of correlated columns (Step 5)"))
+  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="fFeatureSel",Parameter.Value=fFeatureSel,Description="If run wrapper methods for feature selection (Step 7)"))
+  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="fLM",Parameter.Value=fLM,Description="If run LM (Step 8.1)"))
+  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="fGLM",Parameter.Value=fGLM,Description="If run GLM (Step 8.2)"))
+  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="fPLS",Parameter.Value=fPLS,Description="If run PLS (Step 8.3)"))
+  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="fLASSO",Parameter.Value=fLASSO,Description="If run LASSO (Step 8.4)"))
+  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="fRBFdda",Parameter.Value=fRBFdda,Description="If run RBF DDA (Step 8.5)"))
+  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="fSVRM",Parameter.Value=fSVRM,Description="If run svmRadial.RMSE (Step 8.6)"))
+  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="fNN",Parameter.Value=fNN,Description="If run Neural Networks (Step 8.8)"))
+  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="fRF",Parameter.Value=fRF,Description="If run Random Forest  (Step 8.9)"))
+  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="fSVMRFE",Parameter.Value=fSVMRFE,Description="If run Random Forest  (Step 8.10)"))
+  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="RFE_SVM_C",Parameter.Value=RFE_SVM_C,Description="Values of C for SVM RFE"))
+  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="RFE_SVM_epsilon",Parameter.Value=RFE_SVM_epsilon,Description="Values of epsilon for SVM RFE"))
+  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="fENET",Parameter.Value=fENET,Description="If run ENET  (Step 8.11)"))
+  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="cutoff",Parameter.Value=cutoff,Description="Cutoff for correlated features (default = 0.9)"))
+  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="iScaling",Parameter.Value=iScaling,Description="Type of scalling: 1 = normalization; 2 = standardization; 3 = other; any other: no scaling"))
+  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="iScalCol",Parameter.Value=iScalCol,Description="Scalling columns: 1 = including dependent variable; 2: only all the features"))
+  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="trainFrac",Parameter.Value=trainFrac,Description="Fraction of training set from the entire dataset; the rest of dataset is the test set"))
+  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="iSplitTimes",Parameter.Value=iSplitTimes,Description="Number of splittings the dataset into train and test (default  = 10)"))
+  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="noYrand",Parameter.Value=noYrand,Description="Number of Y-Randomization (default = 100)"))
+  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="CVtypes",Parameter.Value=CVtypes,Description="Cross-validation types: 10-CV (repeatedcv) and LOOCV"))
+  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="No0NearVarFile",Parameter.Value=No0NearVarFile,Description="Dataset without zero near features from Step 3 (if fDet is True)"))
+  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="ScaledFile",Parameter.Value=ScaledFile,Description="Scaled dataset file from Step 4 (if fDet is True)"))
+  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="NoCorrFile",Parameter.Value=NoCorrFile,Description="Dataset after correction removal in Step 5 (if fDet is True)"))
+  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="lmFile",Parameter.Value=lmFile,Description="LM output file with details"))
+  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="glmFile",Parameter.Value=glmFile,Description="GLM output file with details"))
+  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="plsFile",Parameter.Value=plsFile,Description="PLS output file with details"))
+  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="lassoFile",Parameter.Value=lassoFile,Description="Lasoo output file with details"))
+  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="rbfDDAFile",Parameter.Value=rbfDDAFile,Description="RBF DDA output file with details"))
+  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="svrmFile",Parameter.Value=svrmFile,Description="SVM Radial output file with details"))
+  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="nnFile",Parameter.Value=nnFile,Description="NN output file with details"))
+  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="rfFile",Parameter.Value=rfFile,Description="RF output"))
+  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="svmrfeFile",Parameter.Value=svmrfeFile,Description="SVMRFE output"))
+  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="enetFile",Parameter.Value=enetFile,Description="ENET output"))
+
+  write.csv(Params.df,file=ParamFile,row.names=F,quote=F) # write parameters to a CSV in the working folder
+
   # Get calculation parameters 
   # -------------------------------------------------------------------------------------------------------
   # Files
