@@ -277,11 +277,23 @@ LMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
   # 8.1. Basic LM
   #==================
 
-  # only Linux or Mac: parallel calculations
+  noCores=as.numeric(Sys.getenv('NUMBER_OF_PROCESSORS')) # automatically detects the no. of CPU cores
   # ------------------------------------------
-  #library(doMC)
-  #registerDoMC(cores = 2) # CPU cores
+  # parallel for Linux or Mac:
   # ------------------------------------------
+  if (Sys.info()[['sysname']]=="Linux" | Sys.info()[['sysname']]=="Darwin"){
+    ibrary(doMC)
+    registerDoMC(cores = noCores) # CPU cores
+  }
+  # ------------------------------------------
+  # parallel for windows:
+  # ------------------------------------------
+  if (Sys.info()[['sysname']]=="Windows"){
+    library(doSNOW)
+    library(foreach)
+    cl<-makeCluster(noCores) 
+    registerDoSNOW(cl)
+  }
   
   net.c = my.datf.train[,1]   # make available the names of variables from training dataset
   RegrMethod <- "lm" # type of regression
@@ -490,11 +502,23 @@ GLMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
   #   (tr = train, ts = test, both = tr+ts = full dataset)
   # -----------------------------------------------------------------------------------------------
   
-  # only Linux or Mac: parallel calculations
+  noCores=as.numeric(Sys.getenv('NUMBER_OF_PROCESSORS')) # automatically detects the no. of CPU cores
   # ------------------------------------------
-  #library(doMC)
-  #registerDoMC(cores = 2) # CPU cores
+  # parallel for Linux or Mac:
   # ------------------------------------------
+  if (Sys.info()[['sysname']]=="Linux" | Sys.info()[['sysname']]=="Darwin"){
+    ibrary(doMC)
+    registerDoMC(cores = noCores) # CPU cores
+  }
+  # ------------------------------------------
+  # parallel for windows:
+  # ------------------------------------------
+  if (Sys.info()[['sysname']]=="Windows"){
+    library(doSNOW)
+    library(foreach)
+    cl<-makeCluster(noCores) 
+    registerDoSNOW(cl)
+  }
   
   library(caret)
   #attach(my.datf.train)    # make available the names of variables from training dataset
@@ -694,11 +718,23 @@ PLSreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
   # 8.3. PLS regression (caret)
   #================================
   
-  # only Linux or Mac: parallel calculations
+  noCores=as.numeric(Sys.getenv('NUMBER_OF_PROCESSORS')) # automatically detects the no. of CPU cores
   # ------------------------------------------
-  #library(doMC)
-  #registerDoMC(cores = 2) # CPU cores
+  # parallel for Linux or Mac:
   # ------------------------------------------
+  if (Sys.info()[['sysname']]=="Linux" | Sys.info()[['sysname']]=="Darwin"){
+    ibrary(doMC)
+    registerDoMC(cores = noCores) # CPU cores
+  }
+  # ------------------------------------------
+  # parallel for windows:
+  # ------------------------------------------
+  if (Sys.info()[['sysname']]=="Windows"){
+    library(doSNOW)
+    library(foreach)
+    cl<-makeCluster(noCores) 
+    registerDoSNOW(cl)
+  }
   
   library(caret)
   
@@ -883,11 +919,23 @@ LASSOreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") 
   # 8.4 Lasso Regression (caret)
   #================================
   
-  # only Linux or Mac: parallel calculations
+  noCores=as.numeric(Sys.getenv('NUMBER_OF_PROCESSORS')) # automatically detects the no. of CPU cores
   # ------------------------------------------
-  #library(doMC)
-  #registerDoMC(cores = 2) # CPU cores
+  # parallel for Linux or Mac:
   # ------------------------------------------
+  if (Sys.info()[['sysname']]=="Linux" | Sys.info()[['sysname']]=="Darwin"){
+    ibrary(doMC)
+    registerDoMC(cores = noCores) # CPU cores
+  }
+  # ------------------------------------------
+  # parallel for windows:
+  # ------------------------------------------
+  if (Sys.info()[['sysname']]=="Windows"){
+    library(doSNOW)
+    library(foreach)
+    cl<-makeCluster(noCores) 
+    registerDoSNOW(cl)
+  }
   
   library(caret)
   
@@ -1071,11 +1119,23 @@ RBF_DDAreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile=""
   # 8.5. RBF network with the DDA algorithm regression (caret)
   #============================================================
   
-  # only Linux or Mac: parallel calculations
+  noCores=as.numeric(Sys.getenv('NUMBER_OF_PROCESSORS')) # automatically detects the no. of CPU cores
   # ------------------------------------------
-  #library(doMC)
-  #registerDoMC(cores = 2) # CPU cores
+  # parallel for Linux or Mac:
   # ------------------------------------------
+  if (Sys.info()[['sysname']]=="Linux" | Sys.info()[['sysname']]=="Darwin"){
+    ibrary(doMC)
+    registerDoMC(cores = noCores) # CPU cores
+  }
+  # ------------------------------------------
+  # parallel for windows:
+  # ------------------------------------------
+  if (Sys.info()[['sysname']]=="Windows"){
+    library(doSNOW)
+    library(foreach)
+    cl<-makeCluster(noCores) 
+    registerDoSNOW(cl)
+  }
   
   library(caret)
   
@@ -1257,11 +1317,23 @@ SVRMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
   # 8.6 SVM Radial Regression (caret)
   #====================================
   
-  # only Linux or Mac: parallel calculations
+  noCores=as.numeric(Sys.getenv('NUMBER_OF_PROCESSORS')) # automatically detects the no. of CPU cores
   # ------------------------------------------
-  #library(doMC)
-  #registerDoMC(cores = 2) # CPU cores
+  # parallel for Linux or Mac:
   # ------------------------------------------
+  if (Sys.info()[['sysname']]=="Linux" | Sys.info()[['sysname']]=="Darwin"){
+    ibrary(doMC)
+    registerDoMC(cores = noCores) # CPU cores
+  }
+  # ------------------------------------------
+  # parallel for windows:
+  # ------------------------------------------
+  if (Sys.info()[['sysname']]=="Windows"){
+    library(doSNOW)
+    library(foreach)
+    cl<-makeCluster(noCores) 
+    registerDoSNOW(cl)
+  }
   
   library(caret)
   
@@ -1445,11 +1517,23 @@ NNreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
   # 8.8 Neural Network Regression (caret)
   #========================================
   
-  # only Linux or Mac: parallel calculations
+  noCores=as.numeric(Sys.getenv('NUMBER_OF_PROCESSORS')) # automatically detects the no. of CPU cores
   # ------------------------------------------
-  #library(doMC)
-  #registerDoMC(cores = 2) # CPU cores
+  # parallel for Linux or Mac:
   # ------------------------------------------
+  if (Sys.info()[['sysname']]=="Linux" | Sys.info()[['sysname']]=="Darwin"){
+    ibrary(doMC)
+    registerDoMC(cores = noCores) # CPU cores
+  }
+  # ------------------------------------------
+  # parallel for windows:
+  # ------------------------------------------
+  if (Sys.info()[['sysname']]=="Windows"){
+    library(doSNOW)
+    library(foreach)
+    cl<-makeCluster(noCores) 
+    registerDoSNOW(cl)
+  }
 
   library(caret)
 
@@ -1639,11 +1723,23 @@ PLSregWSel <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile=""
   # 8.3W. PLS regression with filter feature selection (caret)
   #====================================================================================================
   
-  # only Linux or Mac: parallel calculations
+  noCores=as.numeric(Sys.getenv('NUMBER_OF_PROCESSORS')) # automatically detects the no. of CPU cores
   # ------------------------------------------
-  #library(doMC)
-  #registerDoMC(cores = 2) # CPU cores
+  # parallel for Linux or Mac:
   # ------------------------------------------
+  if (Sys.info()[['sysname']]=="Linux" | Sys.info()[['sysname']]=="Darwin"){
+    ibrary(doMC)
+    registerDoMC(cores = noCores) # CPU cores
+  }
+  # ------------------------------------------
+  # parallel for windows:
+  # ------------------------------------------
+  if (Sys.info()[['sysname']]=="Windows"){
+    library(doSNOW)
+    library(foreach)
+    cl<-makeCluster(noCores) 
+    registerDoSNOW(cl)
+  }
 
   library(caret)
   
@@ -1946,12 +2042,24 @@ RFreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
   #======================================
   # Basic RandomForest
   #======================================
-  
-  # only Linux or Mac: parallel calculations
+
+  noCores=as.numeric(Sys.getenv('NUMBER_OF_PROCESSORS')) # automatically detects the no. of CPU cores
   # ------------------------------------------
-  #library(doMC)
-  #registerDoMC(cores = 2) # CPU cores
+  # parallel for Linux or Mac:
   # ------------------------------------------
+  if (Sys.info()[['sysname']]=="Linux" | Sys.info()[['sysname']]=="Darwin"){
+    ibrary(doMC)
+    registerDoMC(cores = noCores) # CPU cores
+  }
+  # ------------------------------------------
+  # parallel for windows:
+  # ------------------------------------------
+  if (Sys.info()[['sysname']]=="Windows"){
+    library(doSNOW)
+    library(foreach)
+    cl<-makeCluster(noCores) 
+    registerDoSNOW(cl)
+  }
   
   net.c = my.datf.train[,1]   # make available the names of variables from training dataset
   RegrMethod <- "rf" # type of regression
@@ -2129,18 +2237,23 @@ SVMRFEreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="",
   # SVM-RFE
   #===========================================
   
-  # only Linux or Mac: parallel calculations
+  noCores=as.numeric(Sys.getenv('NUMBER_OF_PROCESSORS')) # automatically detects the no. of CPU cores
   # ------------------------------------------
-  #library(doMC)
-  #registerDoMC(cores = 2) # CPU cores
+  # parallel for Linux or Mac:
   # ------------------------------------------
-  
+  if (Sys.info()[['sysname']]=="Linux" | Sys.info()[['sysname']]=="Darwin"){
+    ibrary(doMC)
+    registerDoMC(cores = noCores) # CPU cores
+  }
+  # ------------------------------------------
   # parallel for windows:
   # ------------------------------------------
-  #library(doSNOW)
-  #library(foreach)
-  #cl<-makeCluster(5) #change the 2 to your number of CPU cores
-  #registerDoSNOW(cl)
+  if (Sys.info()[['sysname']]=="Windows"){
+    library(doSNOW)
+    library(foreach)
+    cl<-makeCluster(noCores) 
+    registerDoSNOW(cl)
+  }
   
   library(kernlab)
 
@@ -2336,11 +2449,23 @@ ENETreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
   # 8.4 ElasticNet Regression (caret/glmnet)
   #================================
   
-  # only Linux or Mac: parallel calculations
+  noCores=as.numeric(Sys.getenv('NUMBER_OF_PROCESSORS')) # automatically detects the no. of CPU cores
   # ------------------------------------------
-  #library(doMC)
-  #registerDoMC(cores = 2) # CPU cores
+  # parallel for Linux or Mac:
   # ------------------------------------------
+  if (Sys.info()[['sysname']]=="Linux" | Sys.info()[['sysname']]=="Darwin"){
+    ibrary(doMC)
+    registerDoMC(cores = noCores) # CPU cores
+  }
+  # ------------------------------------------
+  # parallel for windows:
+  # ------------------------------------------
+  if (Sys.info()[['sysname']]=="Windows"){
+    library(doSNOW)
+    library(foreach)
+    cl<-makeCluster(noCores) 
+    registerDoSNOW(cl)
+  }
   
   library(caret)
   library(glmnet)
@@ -2527,18 +2652,23 @@ RFRFEreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") 
   # Random Forest-RFE
   #=============================
   
-  # only Linux or Mac: parallel calculations
+  noCores=as.numeric(Sys.getenv('NUMBER_OF_PROCESSORS')) # automatically detects the no. of CPU cores
   # ------------------------------------------
-  #library(doMC)
-  #registerDoMC(cores = 2) # CPU cores
+  # parallel for Linux or Mac:
   # ------------------------------------------
-  
+  if (Sys.info()[['sysname']]=="Linux" | Sys.info()[['sysname']]=="Darwin"){
+    ibrary(doMC)
+    registerDoMC(cores = noCores) # CPU cores
+  }
+  # ------------------------------------------
   # parallel for windows:
   # ------------------------------------------
-  #library(doSNOW)
-  #library(foreach)
-  #cl<-makeCluster(5) #change the 2 to your number of CPU cores
-  #registerDoSNOW(cl)
+  if (Sys.info()[['sysname']]=="Windows"){
+    library(doSNOW)
+    library(foreach)
+    cl<-makeCluster(noCores) 
+    registerDoSNOW(cl)
+  }
   
   net.c = my.datf.train[,1]   # make available the names of variables from training dataset
   RegrMethod <- "rfRFE" # type of regression
@@ -2862,8 +2992,6 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",
   CVtypes = strsplit(as.character(CVtypes),";")[[1]] # types of cross-validation methods
   CVtypes2 = c("repeatedcv") # for complex methods we run only 10-fold CV even the user is using other parameters!
   
-  
-  
   # Generate path + file name = original dataset
   inFile <- file.path(PathDataSet, DataFileName)
   
@@ -2903,9 +3031,9 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",
   # 2.2 Custom filter (percentage threshold)
   # 2.3 Processing of missing values - use of preProcess();
   #     caret employs knnImpute algorithm to impute values from a neighborhood of k
-  if (fFilters==T) {
+  #if (fFilters==T) {
     # cat("-> [2] Filtering dataset ... \n")
-  }
+  #}
   
   # -----------------------------------------------------------------------
   # (3) Remove near zero variance columns
@@ -3139,30 +3267,24 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",
     if (fLASSO==T) {   # if LASSO was selected, run the method
       cat("-> [8.4] LASSO ...\n")
       outFile.LASSO <- file.path(PathDataSet,lassoFile)   # the same folder as the input is used for the output
-      
-      if (fFeatureSel==F) {    # if there is no need of feature selection ->> use normal functions
-        # For each type of CV do all the statistics
-        # -----------------------------------------------------
-        for (cv in 1:length(CVtypes2)) {
-          lasso.model <- LASSOreg(ds.train,ds.test,CVtypes2[cv],i,fDet,outFile.LASSO) # run LASSO for each CV and regr method
-          my.stats.LASSO <- lasso.model$stat.values
-          my.model.LASSO <- lasso.model$model
-          #-------------------------------------------------------
-          # Add output from Lasso to the list of results
-          #-------------------------------------------------------
-          # List of results for each splitting, CV type & regression method
-          dfRes = mapply(c, my.stats.LASSO, dfRes, SIMPLIFY=F)
-          # List of models for each splitting, CV type & regression method
-          names1 <- strsplit(deparse(quote(my.model.LASSO)),'my.model.')[[1]][2]
-          dfMod[[cv]]$names1 <- my.model.LASSO  
-          names(dfMod[[cv]])[mod.ind[cv]] <- names1[1]
-          mod.ind[cv] <- mod.ind[cv] +1 # update mod.ind indicator variable
-        } # end CV types
-      } 
-      else    # if there is a need for previous feature selection ->> use wrapper functions
-      {                     
-        # run Lasso with wrapper method (TO BE IMPLEMENTED!)
-      }
+
+      # For each type of CV do all the statistics
+      # -----------------------------------------------------
+      for (cv in 1:length(CVtypes2)) {
+        lasso.model <- LASSOreg(ds.train,ds.test,CVtypes2[cv],i,fDet,outFile.LASSO) # run LASSO for each CV and regr method
+        my.stats.LASSO <- lasso.model$stat.values
+        my.model.LASSO <- lasso.model$model
+        #-------------------------------------------------------
+        # Add output from Lasso to the list of results
+        #-------------------------------------------------------
+        # List of results for each splitting, CV type & regression method
+        dfRes = mapply(c, my.stats.LASSO, dfRes, SIMPLIFY=F)
+        # List of models for each splitting, CV type & regression method
+        names1 <- strsplit(deparse(quote(my.model.LASSO)),'my.model.')[[1]][2]
+        dfMod[[cv]]$names1 <- my.model.LASSO  
+        names(dfMod[[cv]])[mod.ind[cv]] <- names1[1]
+        mod.ind[cv] <- mod.ind[cv] +1 # update mod.ind indicator variable
+      } # end CV types
     } # end Lasso
     
     # ----------------------------------------------------------------
