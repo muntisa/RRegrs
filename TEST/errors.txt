@@ -1,0 +1,84 @@
+In SVM, the code will stop at line: fitModel <- svmL.fit$finalModel
+
+-> [8.6] SVM radial ...
+Loading required package: kernlab
+Loading required package: pROC
+Type 'citation("pROC")' for a citation.
+
+Attaching package: ‘pROC’
+
+The following objects are masked from ‘package:stats’:
+
+    cov, smooth, var
+
+Error: $ operator not defined for this S4 class
+
+-------------------------------------------------------------------------------
+IF run LM and RF, there is an error into the comparison part:
+
+-> [8.9] Random Forest ...
+Loading required package: randomForest
+randomForest 4.6-10
+Type rfNews() to see new features/changes/bug fixes.
+-> [8.final] Produce comparisons plots...
+Error in resamples.default(dfMod[[cv]]) : 
+  There are different numbers of resamples in each model
+
+--------------------------------------------------------------------------------
+
+[8.10] SVM RFE ...
+-> [8.final] Produce comparisons plots...
+Error in resamples.default(dfMod[[cv]]) : 
+  There are different numbers of resamples in each model
+
+--------------------------------------------------------------------------------
+
+-> [8.11] ElasticNET ...
+Loading required package: Matrix
+Loaded glmnet 1.9-8
+
+-> [8.final] Produce comparisons plots...
+ Hide Traceback
+ 
+ Rerun with Debug
+ Error in resamples.default(dfMod[[cv]]) : 
+  There are different numbers of resamples in each model 
+8 stop("There are different numbers of resamples in each model") 
+7 resamples.default(dfMod[[cv]]) 
+6 resamples(dfMod[[cv]]) at RRegrs_Functions.R#3514
+5 RRegrs(DataFileName = "ds.House.csv", fLM = "T", fGLM = "F", 
+    fPLS = "F", fLASSO = "F", fRBFdda = "F", fSVRM = "F", fNN = "F", 
+    fRF = "F", fSVMRFE = "F", fENET = "T") at TestRRegrs.R#34
+4 eval(expr, envir, enclos) 
+3 eval(ei, envir) 
+2 withVisible(eval(ei, envir)) 
+1 source("C:/Users/cristian/Desktop/RRegrs_TESTS/TEST/TestRRegrs.R") 
+-------------------------------------------------------------------------
+
+Error if we remove the dataR file: model.svmRadialReg.RData
+
+
+source('C:/Users/cristian/Desktop/RRegrs_TESTS/TEST/TestRRegrs.R')
+data.table 1.9.2  For help type: help("data.table")
+Loading required package: lattice
+Loading required package: ggplot2
+ Hide Traceback
+ 
+ Rerun with Debug
+ Error in readChar(con, 5L, useBytes = TRUE) : cannot open the connection 
+10 readChar(con, 5L, useBytes = TRUE) 
+9 load("model.svmRadialReg.RData") at RRegrs_Functions.R#1967
+8 eval(expr, envir, enclos) 
+7 eval(ei, envir) 
+6 withVisible(eval(ei, envir)) 
+5 source("../RRegrs/R/RRegrs_Functions.R") at TestRRegrs.R#11
+4 eval(expr, envir, enclos) 
+3 eval(ei, envir) 
+2 withVisible(eval(ei, envir)) 
+1 source("C:/Users/cristian/Desktop/RRegrs_TESTS/TEST/TestRRegrs.R") 
+In addition: Warning message:
+In readChar(con, 5L, useBytes = TRUE) :
+  cannot open compressed file 'model.svmRadialReg.RData', probable reason 'No such file or directory'
+
+------------------------------------------------------------------------------------------------------------
+
