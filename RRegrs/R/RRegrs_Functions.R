@@ -194,7 +194,7 @@ RemCorrs <- function(ds,fDet,cutoff,outFile) {
     png(height=1200, width=1200, pointsize=25, file=CorrPlotFile)
     col1 <-rainbow(100, s = 1, v = 1, start = 0, end = 0.9, alpha = 1)
     corrplot(corrMat,tl.cex=3,title="Initial feature correlation matrix",
-             method="circle",is.corr=FALSE,type="full",
+             method="circle",is.corr=FALSE,#type="full",
              cl.lim=c(-1,1),cl.cex=2,addgrid.col="red",
              addshade="positive",col=col1,
              addCoef.col = rgb(0,0,0, alpha = 0.6), mar=c(0,0,1,0), diag= FALSE) 
@@ -2946,7 +2946,8 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",
   
   # Check data has at least 5 columns for meaningful analysis
   if(dim(ds)[2] < 5){
-  stop("Your corected dataset has less then 5 columns. Try repeating analysis without filtering options.")
+  print(c(dim(ds)))
+  stop("Your corrected dataset has less then 5 columns. Try repeating analysis without filtering options.")
   }
   
   #=========================================================================================================
