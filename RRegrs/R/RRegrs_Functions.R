@@ -3395,16 +3395,16 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",
         #summary(difValues)
         #plot different models in terms of R2 adn RMSE values in the training set 
         pdf(file=paste(PathDataSet,"/ModelsComp.",names(dfMod)[cv],".iSplits.",i,".pdf",sep=""))
-        print(bwplot(resamps, layout = c(2, 1)))
+        print(bwplot(resamps, layout = c(2, 1),main='Resampling results on the training set'))
         dev.off()    
 
         #plot differences of models in terms of R2 adn RMSE values in the training set 
         pdf(file=paste(PathDataSet,"/DifModels.R2.",names(dfMod)[cv],".iSplits.",i,".pdf",sep=""))
-        print(dotplot(difValues,metric='Rsquared'))
+        print(dotplot(difValues,metric='Rsquared',main='Models` differences on the training set'))
         dev.off()
         
         pdf(file=paste(PathDataSet,"/DifModels.RMSE.",names(dfMod)[cv],".iSplits.",i,".pdf",sep=""))
-        print(dotplot(difValues,metric='RMSE'))
+        print(dotplot(difValues,metric='RMSE',main='Models` differences on the training set'))
         dev.off()
       }
     }
