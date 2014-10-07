@@ -2995,15 +2995,16 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",
   # Generate path + file name = original dataset
   inFile <- file.path(PathDataSet, DataFileName)
   
-  sDescription=paste("======================================================================","RRegrs - R Regression Models",
+  sDescription=paste("=======================================================================================================",
+    "RRegrs - R Regression Models",
     "Get the best regression models for one dataset using R caret methods", "eNanoMapper.net","AUTHORS:",
-    "Georgia Tsiliki | ChemEng - NTUA, Greece | g_tsiliki [at] hotmail [dot] com",
-    "Cristian R Munteanu | RNASA-IMEDIR, University of A Coruna, Spain | muntisa [at] gmail [dot] com",
-    "Jose A. Seoane | Stanford Cancer Institute, USA | seoane [at] stanford [dot] edu",
-    "Carlos Fernandez-Lozano | RNASA-IMEDIR, University of A Coruna, Spain | carlos.fernandez [at] udc [dot] es",
-    "Haralambos Sarimveis | ChemEng - NTUA, Greece | hsarimv [at] central [dot] ntua [dot] gr",
-    "Egon Willighagen | BiGCaT - Maastricht University, Netherlands | egon.willighagen [at] gmail [dot] com",
-    "======================================================================",sep="\n")
+    "Georgia Tsiliki: ChemEng - NTUA, Greece, g_tsiliki@hotmail.com",
+    "Cristian R. Munteanu: RNASA-IMEDIR, University of A Coruna, Spain, muntisa@gmail.com",
+    "Jose A. Seoane: Stanford Cancer Institute, USA, seoane@stanford.edu",
+    "Carlos Fernandez-Lozano: RNASA-IMEDIR, University of A Coruna, Spain, carlos.fernandez@udc.es",
+    "Haralambos Sarimveis: ChemEng - NTUA, Greece, hsarimv@central.ntua.gr",
+    "Egon Willighagen: BiGCaT - Maastricht University, The Netherlands, egon.willighagen@gmail.com",
+    "=======================================================================================================",sep="\n")
   cat(sDescription) # print package header information
 
   # -----------------------------------
@@ -3297,8 +3298,8 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",
       if (fFeatureSel==F) {    # if there is no need of feature selection ->> use normal functions
         # For each type of CV do all the statistics
         # -----------------------------------------------------
-        for (cv in 1:length(CVtypes)) {
-          rbfDDA.model <- RBF_DDAreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.rbfDDA) # run rbfDDA for each CV and regr method
+        for (cv in 1:length(CVtypes2)) {
+          rbfDDA.model <- RBF_DDAreg(ds.train,ds.test,CVtypes2[cv],i,fDet,outFile.rbfDDA) # run rbfDDA for each CV and regr method
           my.stats.rbfDDA <- rbfDDA.model$stat.values
           my.model.rbfDDA <- rbfDDA.model$model 
           #-------------------------------------------------------

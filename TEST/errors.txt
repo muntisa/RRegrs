@@ -1,3 +1,23 @@
+METHOD CHECKINGS
+==============================================
+Standard:
+LM      = OK
+GLM     = OK
+PLS     = OK
+Lasso   = OK
+SVRM    = Error into the method!
+NN      = OK
+RBF-DDA = too slow!
+RF      = Error in plot comparison
+SVMRFE  = Error in plot comparison
+ENET    = Error in plot comparison
+
+Wrappers:
+PLSw    = [to be checked]
+RFRFE   = [to be checked]
+==============================================
+
+
 In SVM, the code will stop at line: fitModel <- svmL.fit$finalModel
 
 -> [8.6] SVM radial ...
