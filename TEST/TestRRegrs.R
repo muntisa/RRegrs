@@ -32,5 +32,5 @@ source("../RRegrs/R/RRegrs_Functions.R")
 # enetFile="8.11.ENET.details.csv"
 
 RRegrsResults = RRegrs(DataFileName="ds.House.csv",
-                       fLM="T",fGLM="T",fPLS="F",fLASSO="F",fRBFdda="F",
-                       fSVRM="F",fNN="F",fRF="F",fSVMRFE="F",fENET="F") # Run RRegrs without some methods
+                       fLM="T",fGLM="F",fPLS="T",fLASSO="F",fRBFdda="F",
+                       fSVRM="F",fNN="F",fRF="T",fSVMRFE="F",fENET="F") # Run RRegrs without some methods
