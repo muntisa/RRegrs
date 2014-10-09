@@ -6,12 +6,12 @@
 # -------------------------------------------------------------------------------------------------------------
 # AUTHORS: 
 # -------------------------------------------------------------------------------------------------------------
-# Georgia Tsiliki | ChemEng - NTUA, Greece | g_tsiliki [at] hotmail [dot] com
-# Cristian R Munteanu | RNASA-IMEDIR, University of A Coruna, Spain | muntisa [at] gmail [dot] com
-# Jose A. Seoane | Stanford Cancer Institute, USA | seoane [at] stanford [dot] edu
-# Carlos Fernandez-Lozano | RNASA-IMEDIR, University of A Coruna, Spain | carlos.fernandez [at] udc [dot] es
-# Haralambos Sarimveis | ChemEng - NTUA, Greece | hsarimv [at] central [dot] ntua [dot] gr
-# Egon Willighagen | BiGCaT - Maastricht University, Netherlands | egon.willighagen [at] gmail [dot] com
+# Georgia Tsiliki: ChemEng - NTUA, Greece, g_tsiliki@hotmail.com
+# Cristian R. Munteanu: RNASA-IMEDIR, University of A Coruna, Spain, muntisa@gmail.com
+# Jose A. Seoane: Stanford Cancer Institute, USA, seoane@stanford.edu
+# Carlos Fernandez-Lozano: RNASA-IMEDIR, University of A Coruna, Spain, carlos.fernandez@udc.es
+# Haralambos Sarimveis: ChemEng - NTUA, Greece, hsarimv@central.ntua.gr
+# Egon Willighagen: BiGCaT - Maastricht University, Netherlands, egon.willighagen@gmail.com
 # -------------------------------------------------------------------------------------------------------------
 
 library(caret)
@@ -277,24 +277,6 @@ LMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
   # 8.1. Basic LM
   #==================
 
-  noCores=as.numeric(Sys.getenv('NUMBER_OF_PROCESSORS')) # automatically detects the no. of CPU cores
-  # ------------------------------------------
-  # parallel for Linux or Mac:
-  # ------------------------------------------
-  if (Sys.info()[['sysname']]=="Linux" | Sys.info()[['sysname']]=="Darwin"){
-    ibrary(doMC)
-    registerDoMC(cores = noCores) # CPU cores
-  }
-  # ------------------------------------------
-  # parallel for windows:
-  # ------------------------------------------
-  if (Sys.info()[['sysname']]=="Windows"){
-    library(doSNOW)
-    library(foreach)
-    cl<-makeCluster(noCores) 
-    registerDoSNOW(cl)
-  }
-  
   net.c = my.datf.train[,1]   # make available the names of variables from training dataset
   RegrMethod <- "lm" # type of regression
   
@@ -502,24 +484,6 @@ GLMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
   #   (tr = train, ts = test, both = tr+ts = full dataset)
   # -----------------------------------------------------------------------------------------------
   
-  noCores=as.numeric(Sys.getenv('NUMBER_OF_PROCESSORS')) # automatically detects the no. of CPU cores
-  # ------------------------------------------
-  # parallel for Linux or Mac:
-  # ------------------------------------------
-  if (Sys.info()[['sysname']]=="Linux" | Sys.info()[['sysname']]=="Darwin"){
-    ibrary(doMC)
-    registerDoMC(cores = noCores) # CPU cores
-  }
-  # ------------------------------------------
-  # parallel for windows:
-  # ------------------------------------------
-  if (Sys.info()[['sysname']]=="Windows"){
-    library(doSNOW)
-    library(foreach)
-    cl<-makeCluster(noCores) 
-    registerDoSNOW(cl)
-  }
-  
   library(caret)
   #attach(my.datf.train)    # make available the names of variables from training dataset
   net.c = my.datf.train[,1] # dependent variable is the first column in Training set
@@ -718,24 +682,6 @@ PLSreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
   # 8.3. PLS regression (caret)
   #================================
   
-  noCores=as.numeric(Sys.getenv('NUMBER_OF_PROCESSORS')) # automatically detects the no. of CPU cores
-  # ------------------------------------------
-  # parallel for Linux or Mac:
-  # ------------------------------------------
-  if (Sys.info()[['sysname']]=="Linux" | Sys.info()[['sysname']]=="Darwin"){
-    ibrary(doMC)
-    registerDoMC(cores = noCores) # CPU cores
-  }
-  # ------------------------------------------
-  # parallel for windows:
-  # ------------------------------------------
-  if (Sys.info()[['sysname']]=="Windows"){
-    library(doSNOW)
-    library(foreach)
-    cl<-makeCluster(noCores) 
-    registerDoSNOW(cl)
-  }
-  
   library(caret)
   
   net.c = my.datf.train[,1] # dependent variable is the first column in Training set
@@ -919,24 +865,6 @@ LASSOreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") 
   # 8.4 Lasso Regression (caret)
   #================================
   
-  noCores=as.numeric(Sys.getenv('NUMBER_OF_PROCESSORS')) # automatically detects the no. of CPU cores
-  # ------------------------------------------
-  # parallel for Linux or Mac:
-  # ------------------------------------------
-  if (Sys.info()[['sysname']]=="Linux" | Sys.info()[['sysname']]=="Darwin"){
-    ibrary(doMC)
-    registerDoMC(cores = noCores) # CPU cores
-  }
-  # ------------------------------------------
-  # parallel for windows:
-  # ------------------------------------------
-  if (Sys.info()[['sysname']]=="Windows"){
-    library(doSNOW)
-    library(foreach)
-    cl<-makeCluster(noCores) 
-    registerDoSNOW(cl)
-  }
-  
   library(caret)
   
   net.c = my.datf.train[,1] # dependent variable is the first column in Training set
@@ -1114,28 +1042,39 @@ LASSOreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") 
 }
 #----------------------------------------------------------------------------------------------------------------------
 
-RBF_DDAreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
+RBF_DDAreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="",noCores=1) {
   #============================================================
   # 8.5. RBF network with the DDA algorithm regression (caret)
   #============================================================
   
-  noCores=as.numeric(Sys.getenv('NUMBER_OF_PROCESSORS')) # automatically detects the no. of CPU cores
-  # ------------------------------------------
-  # parallel for Linux or Mac:
-  # ------------------------------------------
-  if (Sys.info()[['sysname']]=="Linux" | Sys.info()[['sysname']]=="Darwin"){
-    ibrary(doMC)
-    registerDoMC(cores = noCores) # CPU cores
-  }
-  # ------------------------------------------
-  # parallel for windows:
-  # ------------------------------------------
-  if (Sys.info()[['sysname']]=="Windows"){
-    library(doSNOW)
-    library(foreach)
-    cl<-makeCluster(noCores) 
-    registerDoSNOW(cl)
-  }
+  # ----------------------------------
+  # Parallel support
+  # ----------------------------------
+  if (noCores==0 | noCores>1){ # all available CPU cores or specific no of cores (if noCores = 1, no parallel support!)
+    noCoresSys=as.numeric(Sys.getenv('NUMBER_OF_PROCESSORS')) # automatically detected no. of CPU cores
+    
+    if (noCores==0 | noCores>noCoresSys){ # all available CPU cores or the specific cores is greater than the available ones
+      noCores=noCoresSys # use the available no of cores
+    }
+    # ------------------------------------------
+    # parallel for Linux or Mac:
+    # ------------------------------------------
+    if (Sys.info()[['sysname']]=="Linux" | Sys.info()[['sysname']]=="Darwin"){
+      library(doMC)
+      registerDoMC(cores = noCores) # CPU cores
+    }
+    # ------------------------------------------
+    # parallel for windows:
+    # ------------------------------------------
+    if (Sys.info()[['sysname']]=="Windows"){
+      library(doSNOW)
+      library(foreach)
+      cl<-makeCluster(noCores) 
+      registerDoSNOW(cl)
+    }
+
+  } 
+  # ----------------------------------
   
   library(caret)
   
@@ -1312,28 +1251,39 @@ RBF_DDAreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile=""
 }
 #----------------------------------------------------------------------------------------------------------------------
 
-SVRMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
+SVRMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="",noCores=1) {
   #====================================
   # 8.6 SVM Radial Regression (caret)
   #====================================
   
-  noCores=as.numeric(Sys.getenv('NUMBER_OF_PROCESSORS')) # automatically detects the no. of CPU cores
-  # ------------------------------------------
-  # parallel for Linux or Mac:
-  # ------------------------------------------
-  if (Sys.info()[['sysname']]=="Linux" | Sys.info()[['sysname']]=="Darwin"){
-    ibrary(doMC)
-    registerDoMC(cores = noCores) # CPU cores
-  }
-  # ------------------------------------------
-  # parallel for windows:
-  # ------------------------------------------
-  if (Sys.info()[['sysname']]=="Windows"){
-    library(doSNOW)
-    library(foreach)
-    cl<-makeCluster(noCores) 
-    registerDoSNOW(cl)
-  }
+  # ----------------------------------
+  # Parallel support
+  # ----------------------------------
+  if (noCores==0 | noCores>1){ # all available CPU cores or specific no of cores (if noCores = 1, no parallel support!)
+    noCoresSys=as.numeric(Sys.getenv('NUMBER_OF_PROCESSORS')) # automatically detected no. of CPU cores
+    
+    if (noCores==0 | noCores>noCoresSys){ # all available CPU cores or the specific cores is greater than the available ones
+      noCores=noCoresSys # use the available no of cores
+    }
+    # ------------------------------------------
+    # parallel for Linux or Mac:
+    # ------------------------------------------
+    if (Sys.info()[['sysname']]=="Linux" | Sys.info()[['sysname']]=="Darwin"){
+      library(doMC)
+      registerDoMC(cores = noCores) # CPU cores
+    }
+    # ------------------------------------------
+    # parallel for windows:
+    # ------------------------------------------
+    if (Sys.info()[['sysname']]=="Windows"){
+      library(doSNOW)
+      library(foreach)
+      cl<-makeCluster(noCores) 
+      registerDoSNOW(cl)
+    }
+
+  } 
+  # ----------------------------------
   
   library(caret)
   
@@ -1512,28 +1462,39 @@ SVRMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
 }
 #----------------------------------------------------------------------------------------------------------------------
 
-NNreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
+NNreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="",noCores=1) {
   #========================================
   # 8.8 Neural Network Regression (caret)
   #========================================
   
-  noCores=as.numeric(Sys.getenv('NUMBER_OF_PROCESSORS')) # automatically detects the no. of CPU cores
-  # ------------------------------------------
-  # parallel for Linux or Mac:
-  # ------------------------------------------
-  if (Sys.info()[['sysname']]=="Linux" | Sys.info()[['sysname']]=="Darwin"){
-    ibrary(doMC)
-    registerDoMC(cores = noCores) # CPU cores
-  }
-  # ------------------------------------------
-  # parallel for windows:
-  # ------------------------------------------
-  if (Sys.info()[['sysname']]=="Windows"){
-    library(doSNOW)
-    library(foreach)
-    cl<-makeCluster(noCores) 
-    registerDoSNOW(cl)
-  }
+  # ----------------------------------
+  # Parallel support
+  # ----------------------------------
+  if (noCores==0 | noCores>1){ # all available CPU cores or specific no of cores (if noCores = 1, no parallel support!)
+    noCoresSys=as.numeric(Sys.getenv('NUMBER_OF_PROCESSORS')) # automatically detected no. of CPU cores
+    
+    if (noCores==0 | noCores>noCoresSys){ # all available CPU cores or the specific cores is greater than the available ones
+      noCores=noCoresSys # use the available no of cores
+    }
+    # ------------------------------------------
+    # parallel for Linux or Mac:
+    # ------------------------------------------
+    if (Sys.info()[['sysname']]=="Linux" | Sys.info()[['sysname']]=="Darwin"){
+      library(doMC)
+      registerDoMC(cores = noCores) # CPU cores
+    }
+    # ------------------------------------------
+    # parallel for windows:
+    # ------------------------------------------
+    if (Sys.info()[['sysname']]=="Windows"){
+      library(doSNOW)
+      library(foreach)
+      cl<-makeCluster(noCores) 
+      registerDoSNOW(cl)
+    }
+
+  } 
+  # ----------------------------------
 
   library(caret)
 
@@ -1722,24 +1683,6 @@ PLSregWSel <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile=""
   #====================================================================================================
   # 8.3W. PLS regression with filter feature selection (caret)
   #====================================================================================================
-  
-  noCores=as.numeric(Sys.getenv('NUMBER_OF_PROCESSORS')) # automatically detects the no. of CPU cores
-  # ------------------------------------------
-  # parallel for Linux or Mac:
-  # ------------------------------------------
-  if (Sys.info()[['sysname']]=="Linux" | Sys.info()[['sysname']]=="Darwin"){
-    ibrary(doMC)
-    registerDoMC(cores = noCores) # CPU cores
-  }
-  # ------------------------------------------
-  # parallel for windows:
-  # ------------------------------------------
-  if (Sys.info()[['sysname']]=="Windows"){
-    library(doSNOW)
-    library(foreach)
-    cl<-makeCluster(noCores) 
-    registerDoSNOW(cl)
-  }
 
   library(caret)
   
@@ -1875,7 +1818,7 @@ PLSregWSel <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile=""
 }
 #----------------------------------------------------------------------------------------------------------------------
 
-Yrandom<- function(dss,trainFrac,best.reg,best.R2.ts,noYrand,ResBestF){
+Yrandom<- function(dss,trainFrac,best.reg,best.R2.ts,noYrand,ResBestF,noCores=1){
   #================================================
   # Y-randomization for the best model (Step 12)
   #================================================
@@ -1912,33 +1855,35 @@ Yrandom<- function(dss,trainFrac,best.reg,best.R2.ts,noYrand,ResBestF){
       my.stats.reg  <- LASSOreg(ds.train,ds.test,"repeatedcv",i,F,ResBestF)$stat.values # run SVRM Radial for each CV and regr method
     }
     if (best.reg=="rbfDDA") {  
-      my.stats.reg  <- RBF_DDAreg(ds.train,ds.test,"repeatedcv",i,F,ResBestF)$stat.values # run SVRM Radial for each CV and regr method
+      my.stats.reg  <- RBF_DDAreg(ds.train,ds.test,"repeatedcv",i,F,ResBestF,noCores)$stat.values # run SVRM Radial for each CV and regr method
     }
     if (best.reg=="svmRadial") {  
-      my.stats.reg  <- SVRMreg(ds.train,ds.test,"repeatedcv",i,F,ResBestF)$stat.values # run SVRM Radial for each CV and regr method
+      my.stats.reg  <- SVRMreg(ds.train,ds.test,"repeatedcv",i,F,ResBestF,noCores)$stat.values # run SVRM Radial for each CV and regr method
     }
     if (best.reg=="nnet") {  
-      my.stats.reg  <- NNreg(ds.train,ds.test,"repeatedcv",i,F,ResBestF)$stat.values # run NNet for each CV and regr method
+      my.stats.reg  <- NNreg(ds.train,ds.test,"repeatedcv",i,F,ResBestF,noCores)$stat.values # run NNet for each CV and regr method
     } 
     if (best.reg=="rf") {  
-      my.stats.reg  <- RFreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF)$stat.values # run NNet for each CV and regr method
+      my.stats.reg  <- RFreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF,noCores)$stat.values # run NNet for each CV and regr method
     } 
     if (best.reg=="svmRFE") {  
-      my.stats.reg  <- SVMRFEreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF)$stat.values # run NNet for each CV and regr method
+      my.stats.reg  <- SVMRFEreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF,noCores)$stat.values # run NNet for each CV and regr method
     } 
     if (best.reg=="glmnet") {  
-      my.stats.reg  <- ENETreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF)$stat.values # run NNet for each CV and regr method
+      my.stats.reg  <- ENETreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF,noCores)$stat.values # run NNet for each CV and regr method
     }  
     if (best.reg=="rfRFE") {  
-      my.stats.reg  <- RFRFEreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF)$stat.values # run NNet for each CV and regr method
-    }    
+      my.stats.reg  <- RFRFEreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF,noCores)$stat.values # run NNet for each CV and regr method
+    } 
+
+    # ?? ENET ??   
    
     Yrand.R2.ts <- c(Yrand.R2.ts,my.stats.reg$R2.ts) # adding test R2 value Y randomization 
   }
   
   # get histogram for differences between best R2 and the values for each Y randomization
-  R2diffs     <- abs(Yrand.R2.ts - best.R2.ts) # absolute differences between R2 values (best model vs Y randomized results)
-  R2diffsPerBestR2 <- R2diffs/best.R2.ts        # the same difference in percents
+  R2diffs          <- abs(Yrand.R2.ts - best.R2.ts) # absolute differences between R2 values (best model vs Y randomized results)
+  R2diffsPerBestR2 <- R2diffs/best.R2.ts            # the same difference in percents
   
   pdf(file=paste(ResBestF,".Yrand.Hist.pdf",sep=""))    # save histogram if ratio diffs R2 into PDF for Y random
   Yrand.hist  <- hist(R2diffsPerBestR2)         # draw histogram of the ratio diffs/Best R2 for Y random
@@ -2038,28 +1983,39 @@ svmFuncsGradW$rank=function(object,x,y){ # RAKOTOMAMONJY gradient w
 }
 #----------------------------------------------------------------------------------------------------------------------
 
-RFreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
+RFreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="",noCores=1) {
   #======================================
   # Basic RandomForest
   #======================================
 
-  noCores=as.numeric(Sys.getenv('NUMBER_OF_PROCESSORS')) # automatically detects the no. of CPU cores
-  # ------------------------------------------
-  # parallel for Linux or Mac:
-  # ------------------------------------------
-  if (Sys.info()[['sysname']]=="Linux" | Sys.info()[['sysname']]=="Darwin"){
-    library(doMC)
-    registerDoMC(cores = noCores) # CPU cores
-  }
-  # ------------------------------------------
-  # parallel for windows:
-  # ------------------------------------------
-  if (Sys.info()[['sysname']]=="Windows"){
-    library(doSNOW)
-    library(foreach)
-    cl<-makeCluster(noCores) 
-    registerDoSNOW(cl)
-  }
+  # ----------------------------------
+  # Parallel support
+  # ----------------------------------
+  if (noCores==0 | noCores>1){ # all available CPU cores or specific no of cores (if noCores = 1, no parallel support!)
+    noCoresSys=as.numeric(Sys.getenv('NUMBER_OF_PROCESSORS')) # automatically detected no. of CPU cores
+    
+    if (noCores==0 | noCores>noCoresSys){ # all available CPU cores or the specific cores is greater than the available ones
+      noCores=noCoresSys # use the available no of cores
+    }
+    # ------------------------------------------
+    # parallel for Linux or Mac:
+    # ------------------------------------------
+    if (Sys.info()[['sysname']]=="Linux" | Sys.info()[['sysname']]=="Darwin"){
+      library(doMC)
+      registerDoMC(cores = noCores) # CPU cores
+    }
+    # ------------------------------------------
+    # parallel for windows:
+    # ------------------------------------------
+    if (Sys.info()[['sysname']]=="Windows"){
+      library(doSNOW)
+      library(foreach)
+      cl<-makeCluster(noCores) 
+      registerDoSNOW(cl)
+    }
+
+  } 
+  # ----------------------------------
   
   net.c = my.datf.train[,1]   # make available the names of variables from training dataset
   RegrMethod <- "rf" # type of regression
@@ -2232,28 +2188,39 @@ RFreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
 }
 #----------------------------------------------------------------------------------------------------------------------
 
-SVMRFEreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="",cs=c(1,5,15,50),eps=c(0.01,0.1,0.3)) {
+SVMRFEreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="",cs=c(1,5,15,50),eps=c(0.01,0.1,0.3),noCores=1) {
   #===========================================
   # SVM-RFE
   #===========================================
   
-  noCores=as.numeric(Sys.getenv('NUMBER_OF_PROCESSORS')) # automatically detects the no. of CPU cores
-  # ------------------------------------------
-  # parallel for Linux or Mac:
-  # ------------------------------------------
-  if (Sys.info()[['sysname']]=="Linux" | Sys.info()[['sysname']]=="Darwin"){
-    ibrary(doMC)
-    registerDoMC(cores = noCores) # CPU cores
-  }
-  # ------------------------------------------
-  # parallel for windows:
-  # ------------------------------------------
-  if (Sys.info()[['sysname']]=="Windows"){
-    library(doSNOW)
-    library(foreach)
-    cl<-makeCluster(noCores) 
-    registerDoSNOW(cl)
-  }
+  # ----------------------------------
+  # Parallel support
+  # ----------------------------------
+  if (noCores==0 | noCores>1){ # all available CPU cores or specific no of cores (if noCores = 1, no parallel support!)
+    noCoresSys=as.numeric(Sys.getenv('NUMBER_OF_PROCESSORS')) # automatically detected no. of CPU cores
+    
+    if (noCores==0 | noCores>noCoresSys){ # all available CPU cores or the specific cores is greater than the available ones
+      noCores=noCoresSys # use the available no of cores
+    }
+    # ------------------------------------------
+    # parallel for Linux or Mac:
+    # ------------------------------------------
+    if (Sys.info()[['sysname']]=="Linux" | Sys.info()[['sysname']]=="Darwin"){
+      library(doMC)
+      registerDoMC(cores = noCores) # CPU cores
+    }
+    # ------------------------------------------
+    # parallel for windows:
+    # ------------------------------------------
+    if (Sys.info()[['sysname']]=="Windows"){
+      library(doSNOW)
+      library(foreach)
+      cl<-makeCluster(noCores) 
+      registerDoSNOW(cl)
+    }
+
+  } 
+  # ----------------------------------
   
   library(kernlab)
 
@@ -2449,24 +2416,6 @@ ENETreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
   # 8.4 ElasticNet Regression (caret/glmnet)
   #================================
   
-  noCores=as.numeric(Sys.getenv('NUMBER_OF_PROCESSORS')) # automatically detects the no. of CPU cores
-  # ------------------------------------------
-  # parallel for Linux or Mac:
-  # ------------------------------------------
-  if (Sys.info()[['sysname']]=="Linux" | Sys.info()[['sysname']]=="Darwin"){
-    ibrary(doMC)
-    registerDoMC(cores = noCores) # CPU cores
-  }
-  # ------------------------------------------
-  # parallel for windows:
-  # ------------------------------------------
-  if (Sys.info()[['sysname']]=="Windows"){
-    library(doSNOW)
-    library(foreach)
-    cl<-makeCluster(noCores) 
-    registerDoSNOW(cl)
-  }
-  
   library(caret)
   library(glmnet)
   load("glmnetModel.RData")
@@ -2647,28 +2596,39 @@ ENETreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
 }
 #----------------------------------------------------------------------------------------------------------------------
 
-RFRFEreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
+RFRFEreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="",noCores=1) {
   #=============================
   # Random Forest-RFE
   #=============================
   
-  noCores=as.numeric(Sys.getenv('NUMBER_OF_PROCESSORS')) # automatically detects the no. of CPU cores
-  # ------------------------------------------
-  # parallel for Linux or Mac:
-  # ------------------------------------------
-  if (Sys.info()[['sysname']]=="Linux" | Sys.info()[['sysname']]=="Darwin"){
-    ibrary(doMC)
-    registerDoMC(cores = noCores) # CPU cores
-  }
-  # ------------------------------------------
-  # parallel for windows:
-  # ------------------------------------------
-  if (Sys.info()[['sysname']]=="Windows"){
-    library(doSNOW)
-    library(foreach)
-    cl<-makeCluster(noCores) 
-    registerDoSNOW(cl)
-  }
+  # ----------------------------------
+  # Parallel support
+  # ----------------------------------
+  if (noCores==0 | noCores>1){ # all available CPU cores or specific no of cores (if noCores = 1, no parallel support!)
+    noCoresSys=as.numeric(Sys.getenv('NUMBER_OF_PROCESSORS')) # automatically detected no. of CPU cores
+    
+    if (noCores==0 | noCores>noCoresSys){ # all available CPU cores or the specific cores is greater than the available ones
+      noCores=noCoresSys # use the available no of cores
+    }
+    # ------------------------------------------
+    # parallel for Linux or Mac:
+    # ------------------------------------------
+    if (Sys.info()[['sysname']]=="Linux" | Sys.info()[['sysname']]=="Darwin"){
+      library(doMC)
+      registerDoMC(cores = noCores) # CPU cores
+    }
+    # ------------------------------------------
+    # parallel for windows:
+    # ------------------------------------------
+    if (Sys.info()[['sysname']]=="Windows"){
+      library(doSNOW)
+      library(foreach)
+      cl<-makeCluster(noCores) 
+      registerDoSNOW(cl)
+    }
+
+  } 
+  # ----------------------------------
   
   net.c = my.datf.train[,1]   # make available the names of variables from training dataset
   RegrMethod <- "rfRFE" # type of regression
@@ -2860,21 +2820,22 @@ findResamps.funct<- function(caret.obj){
 # RRegrs MAIN FUNCTION 
 ###############################################################################################
 
-RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",
-  ResAvgs="RRegsResAvgs.csv",ResBySplits="RRegrsResBySplit.csv",ResBest="RRegrsResBest.csv",
+RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=1,
+  ResAvgs="RRegsResAvgs.csv",ResBySplits="RRegrsResAllSplits.csv",ResBest="RRegrsResBest.csv",
   fDet="T",fFilters="F",fScaling="T",fRemNear0Var="T",fRemCorr="T",fFeatureSel="F",
   fLM="T",fGLM="T",fPLS="T",fLASSO="T",fRBFdda="T",fSVRM="T",fNN="T",fRF="T",fSVMRFE="T",fENET="T",
   RFE_SVM_C="1;5;15;50",RFE_SVM_epsilon="0.01;0.1;0.3",
-  cutoff="0.9",iScaling="1",iScalCol="1",trainFrac="0.75",iSplitTimes="2",noYrand="2",
+  cutoff=0.9,iScaling=1,iScalCol=1,trainFrac=0.75,iSplitTimes=10,noYrand=100,
   CVtypes="repeatedcv;LOOCV",
-  No0NearVarFile="ds3.No0Var.csv",ScaledFile="ds4.scaled.csv",NoCorrFile="ds5.scaled.NoCorrs.csv",
-  lmFile="8.1.LM.details.csv",glmFile="8.2.GLM.details.csv",plsFile="8.3.PLS.details.csv",
-  lassoFile="8.4.LASSO.details.csv",rbfDDAFile="8.5.RBF_DDA.details.csv",svrmFile="8.6.SVMRadial.details.csv",
-  nnFile="8.8.NN.details.csv",rfFile="8.9.RF.details.csv",svmrfeFile="8.10.SVMRFE.details.csv",
-  enetFile="8.11.ENET.details.csv") { # input = file with all parameters
+  No0NearVarFile="ds.No0Var.csv",ScaledFile="ds.scaled.csv",NoCorrFile="ds.scaled.NoCorrs.csv",
+  lmFile="LM.details.csv",glmFile="GLM.details.csv",plsFile="PLS.details.csv",
+  lassoFile="Lasso.details.csv",rbfDDAFile="RBF_DDA.details.csv",svrmFile="SVMRadial.details.csv",
+  nnFile="NN.details.csv",rfFile="RF.details.csv",svmrfeFile="SVMRFE.details.csv",
+  enetFile="ENET.details.csv") { # input = file with all parameters
   # Minimal use: RRegrs(DataFileName="MyDataSet.csv")
   
   # Default: all methods, no feature selection
+  ptmTot <- proc.time() # total time
 
   #==========================================================================================
   # (1) Load dataset and parameters
@@ -2884,10 +2845,12 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",
   #------------------------------------------
   # Write parameter file
   #------------------------------------------
-  ParamFile <- file.path(PathDataSet, "Parameters.csv")
+  ParamFile <- file.path(PathDataSet, "Parameters.csv") # file to output the parameters
 
+  # define a data frame with all parameters of the current calculation
   Params.df=data.frame(RRegrs.Parameters="DataFileName",Parameter.Value=DataFileName,Description="Input dataset file (Step 1)") # data frame with used parameters
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="PathDataSet",Parameter.Value=PathDataSet,Description="Working folder for all input and output files"))
+  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="noCores",Parameter.Value=noCores,Description="No of CPU cores (0=all available, 1=no parallel, >1 = specific no. of cores)"))
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="ResAvgs",Parameter.Value=ResAvgs,Description="Output file averaged statistics (by splittings) for each regression method"))
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="ResBySplits",Parameter.Value=ResBySplits,Description="Output file statistics for each splitting and each regression method"))
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="ResBest",Parameter.Value=ResBest,Description="Output file statistics for the best model"))
@@ -2936,27 +2899,28 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",
   # -------------------------------------------------------------------------------------------------------
   # Files
   # -------------------------------------------------------------------------------------------------------
-  DataFileName   = as.character(DataFileName)   # input step 1 = ds original file name
-  PathDataSet    = as.character(PathDataSet)    # dataset folder for input and output files
+  #DataFileName   = as.character(DataFileName)   # input step 1 = ds original file name
+  #PathDataSet    = as.character(PathDataSet)    # dataset folder for input and output files
+  # noCores        = as.numeric(noCores)  # no of CPU cores (0=all available, 1=no parallel, >1 = specific no. of cores)
+
+  #No0NearVarFile = as.character(No0NearVarFile) # output step 3 = ds without zero near vars
+  #ScaledFile     = as.character(ScaledFile)     # output step 4 = scaled ds file name (in the same folder)
+  #NoCorrFile     = as.character(NoCorrFile)     # output step 5 = dataset after correction removal
   
-  No0NearVarFile = as.character(No0NearVarFile) # output step 3 = ds without zero near vars
-  ScaledFile     = as.character(ScaledFile)     # output step 4 = scaled ds file name (in the same folder)
-  NoCorrFile     = as.character(NoCorrFile)     # output step 5 = dataset after correction removal
+  #ResAvgs        = as.character(ResAvgs)     # the output file with averaged statistics for each regression method
+  #ResBySplits    = as.character(ResBySplits) # the output file with statistics for each split and the averaged values
+  #ResBest        = as.character(ResBest)     # the output file with statistics for the best model
   
-  ResAvgs        = as.character(ResAvgs)     # the output file with averaged statistics for each regression method
-  ResBySplits    = as.character(ResBySplits) # the output file with statistics for each split and the averaged values
-  ResBest        = as.character(ResBest)     # the output file with statistics for the best model
-  
-  lmFile         = as.character(lmFile)     # LM output file for details
-  glmFile        = as.character(glmFile)    # GLM output file for details
-  plsFile        = as.character(plsFile)    # PLS output file for details
-  lassoFile      = as.character(lassoFile)  # Lasoo Radial output file for details
-  rbfDDAFile     = as.character(rbfDDAFile) # RBF DDA output file for details
-  svrmFile       = as.character(svrmFile)   # SVM Radial output file for details
-  nnFile         = as.character(nnFile)     # NN Radial output file for details
-  rfFile         = as.character(rfFile)     # RF  output file for details
-  svmrfeFile     = as.character(svmrfeFile) # svMRFE  output file for details
-  enetFile       = as.character(enetFile)   # elastic net  output file for details
+  #lmFile         = as.character(lmFile)     # LM output file for details
+  #glmFile        = as.character(glmFile)    # GLM output file for details
+  #plsFile        = as.character(plsFile)    # PLS output file for details
+  #lassoFile      = as.character(lassoFile)  # Lasoo Radial output file for details
+  #rbfDDAFile     = as.character(rbfDDAFile) # RBF DDA output file for details
+  #svrmFile       = as.character(svrmFile)   # SVM Radial output file for details
+  #nnFile         = as.character(nnFile)     # NN Radial output file for details
+  #rfFile         = as.character(rfFile)     # RF  output file for details
+  #svmrfeFile     = as.character(svmrfeFile) # svMRFE  output file for details
+  #enetFile       = as.character(enetFile)   # elastic net  output file for details
 
   fDet         = as.logical(fDet)         # flag to calculate and print details for all the functions
   fFilters     = as.logical(fFilters)     # flag to apply filters                          (2)
@@ -2965,7 +2929,7 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",
   fRemCorr     = as.logical(fRemCorr)     # flag for Removal of correlated columns         (5)
   fFeatureSel  = as.logical(fFeatureSel)  # flag for wrapper methods for feature selection (7)
   
-  cutoff       = as.numeric(as.character(cutoff))  # cut off for correlated features
+  #cutoff       = as.numeric(as.character(cutoff))  # cut off for correlated features
   fLM          = as.logical(fLM)     # flag to run LM            (8.1)
   fGLM         = as.logical(fGLM)    # flag to run GLM           (8.2)
   fPLS         = as.logical(fPLS)    # flag to run PLS           (8.3)
@@ -2982,12 +2946,12 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",
   
   
   # ----------------------------------------------------------------------------------------
-  iScaling = as.numeric(as.character(iScaling)) # 1 = normalization; 2 = standardization, 3 = other; any other: no scaling
-  iScalCol = as.numeric(as.character(iScalCol)) # 1 = including dependent variable in scaling; 2: only all features; etc.
+  #iScaling = as.numeric(as.character(iScaling)) # 1 = normalization; 2 = standardization, 3 = other; any other: no scaling
+  #iScalCol = as.numeric(as.character(iScalCol)) # 1 = including dependent variable in scaling; 2: only all features; etc.
   # ----------------------------------------------------------------------------------------
   trainFrac   = as.numeric(as.character(trainFrac))   # the fraction of training set from the entire dataset; trainFrac = the rest of dataset, the test set
-  iSplitTimes = as.numeric(as.character(iSplitTimes)) # default is 10; time to split the data in train and test (steps 6-11); report each step + average
-  noYrand     = as.numeric(as.character(noYrand))     # number of Y randomization (default = 100)
+  #iSplitTimes = as.numeric(as.character(iSplitTimes)) # default is 10; time to split the data in train and test (steps 6-11); report each step + average
+  #noYrand     = as.numeric(as.character(noYrand))     # number of Y randomization (default = 100)
   
   CVtypes = strsplit(as.character(CVtypes),";")[[1]] # types of cross-validation methods
   CVtypes2 = c("repeatedcv") # for complex methods we run only 10-fold CV even the user is using other parameters!
@@ -3010,7 +2974,7 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",
   # -----------------------------------
   # (1.2) Load the ORIGINAL DATASET
   # -----------------------------------
-  cat("\n-> [1] Loading original dataset ...\n")  # it can contain errors, correlations, near zero variance columns
+  cat("\n-> Loading original dataset ...\n")  # it can contain errors, correlations, near zero variance columns
   ds.dat0 <- read.csv(inFile,header=T)          # original dataset frame
   
   # resolving the text to number errors for future calculations
@@ -3040,7 +3004,7 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",
   # (3) Remove near zero variance columns
   # -----------------------------------------------------------------------
   if (fRemNear0Var==T) {
-    cat("-> [3] Removal of near zero variance columns ...\n")
+    cat("-> Removal of near zero variance columns ...\n")
     outFile <- file.path(PathDataSet,No0NearVarFile) # the same folder as input  
     
     # get the ds without near zero cols 
@@ -3053,7 +3017,7 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",
   # (4) Scaling dataset: normalization (default), standardization, other
   # -----------------------------------------------------------------------
   if (fScaling==T) {
-    cat("-> [4] Scaling original dataset ...\n")
+    cat("-> Scaling original dataset ...\n")
     outFile <- file.path(PathDataSet,ScaledFile)       # the same folder as input
     
     # run fuction for scaling input dataset file
@@ -3066,7 +3030,7 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",
   # (5) Remove correlated features
   # -----------------------------------------------------------------------
   if (fRemCorr==T) {    
-    cat("-> [5] Removing correlated features ...\n") 
+    cat("-> Removing correlated features ...\n") 
     outFile <- file.path(PathDataSet,NoCorrFile)    # the same folder as the input
     
     # run function to remove the correlations between the features
@@ -3101,13 +3065,12 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",
                 "adjR2.both" = NULL,
                 "RMSE.both"  = NULL,
                 "R2.both"    = NULL)
-
   #-------------------------------------------------------------------------------------------------
   for (i in 1:iSplitTimes) {   # Step splitting number = i
     # -----------------------------------------------------------------------
     # (6) Dataset split: Training and Test sets
     # -----------------------------------------------------------------------
-    cat("-> [6] Splitting dataset in Training and Test sets ...\n")
+    cat("-> Splitting dataset in Training and Test sets ...\n")
     cat(paste("--> Split No.",i,"from",iSplitTimes,"\n"))
 
     # Initialize the list with the statistical models for all types of CV; per iSplitTimes
@@ -3143,14 +3106,17 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",
     # -----------------------------------------------------------------------
     # (8) REGRESSION METHODS
     # -----------------------------------------------------------------------
-    #
-    cat("-> [8] Run Regressions ...\n")
     
+    # print no of CPU cores used for calculation
+    noCoresSys=as.numeric(Sys.getenv('NUMBER_OF_PROCESSORS')) # automatically detected no. of CPU cores
+    if (noCores==0){ cat("       -> CPU Cores = ",noCoresSys,"(only complex methods)\n") }
+    else{ cat("       -> CPU Cores = ",noCores,"(only complex methods)\n") }
+
     # --------------------------------------------
     # 8.1. Basic LM : default
     # --------------------------------------------
     if (fLM==T) {   # if LM was selected, run the method
-      cat("-> [8.1] LM ...\n")
+      cat("-> LM ...\n")
       outFile.LM <- file.path(PathDataSet,lmFile)   # the same folder as the input is used for the output
       
       if (fFeatureSel==F) {    # if there is no need of feature selection ->> use normal functions
@@ -3158,7 +3124,11 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",
         # For each type of CV do all the statistics
         # -----------------------------------------------------
         for (cv in 1:length(CVtypes)) { # there is no CV but it will be implemented in the future!!!
+          cat("    -->",CVtypes[cv],"\n")
+          ptmLM <- proc.time()
           lm.model <- LMreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.LM) # run GLM for each CV and regr method
+          print(proc.time() - ptmLM) # print running time
+
           my.stats.LM <- lm.model$stat.values # stat values
           my.model.LM <- lm.model$model # model 
           
@@ -3185,14 +3155,18 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",
     # (8.2) GLM based on AIC regression - Generalized Linear Model with Stepwise Feature Selection
     # -----------------------------------------------------------------------------------------
     if (fGLM==T) {   # if GLM was selected, run the method
-      cat("-> [8.2] GLM stepwise - based on AIC ...\n")
+      cat("-> GLM stepwise - based on AIC ...\n")
       outFile.GLM <- file.path(PathDataSet,glmFile)   # the same folder as the input is used for the output
       
       if (fFeatureSel==F) {    # if there is no need of feature selection ->> use normal functions
         # For each type of CV do all the statistics
         # -----------------------------------------------------
         for (cv in 1:length(CVtypes)) {
+          cat("    -->",CVtypes[cv],"\n")
+          ptmGLM <- proc.time()
           glm.model  <- GLMreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.GLM) # run GLM for each CV and regr method
+          print(proc.time() - ptmGLM) # print running time
+
           my.stats.GLM <- glm.model$stat.values # stat values
           my.model.GLM <- glm.model$model # model
 	        #my.stats.split <- c(my.stats.dsInfo,my.stats.GLM) # merge the ds info with statistics results for each Cv & reg method
@@ -3223,11 +3197,15 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",
       outFile.PLS <- file.path(PathDataSet,plsFile)   # the same folder as the input is used for the output
       
       if (fFeatureSel==F) {    # if there is no need of feature selection ->> use normal functions
-        cat("-> [8.3] PLS ...\n")
+        cat("-> PLS ...\n")
         # For each type of CV do all the statistics
         # -----------------------------------------------------
         for (cv in 1:length(CVtypes)) {
+          cat("    -->",CVtypes[cv],"\n")
+          ptmPLS <- proc.time()
           pls.model <- PLSreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.PLS) # run PLS for each CV and regr method
+          print(proc.time() - ptmPLS) # print running time
+
           my.stats.PLS <- pls.model$stat.values
           my.model.PLS <- pls.model$model
           #-------------------------------------------------------
@@ -3245,11 +3223,15 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",
       } 
       else    # if there is a need for previous feature selection ->> use wrapper functions
       {                     
-        cat("-> [8.3] PLS Wrapper Feature Selection ...\n")
+        cat("-> PLS Wrapper Feature Selection ...\n")
         # For each type of CV do all the statistics
         # -----------------------------------------------------
         for (cv in 1:length(CVtypes)) {
+          cat("    -->",CVtypes[cv],"\n")
+          ptmPLSw <- proc.time()
           pls.model <- PLSregWSel(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.PLS) # run PLSw for each CV and regr method
+          print(proc.time() - ptmPLSw) # print running time
+
           my.stats.PLS <- pls.model$stat.values
           my.model.PLS <- pls.model$model
 
@@ -3266,13 +3248,17 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",
     # 8.4. LASSO regression
     # --------------------------------------------
     if (fLASSO==T) {   # if LASSO was selected, run the method
-      cat("-> [8.4] LASSO ...\n")
+      cat("-> Lasso ...\n")
       outFile.LASSO <- file.path(PathDataSet,lassoFile)   # the same folder as the input is used for the output
 
       # For each type of CV do all the statistics
       # -----------------------------------------------------
       for (cv in 1:length(CVtypes2)) {
+        cat("    -->",CVtypes2[cv],"\n")
+        ptmLASSO <- proc.time()
         lasso.model <- LASSOreg(ds.train,ds.test,CVtypes2[cv],i,fDet,outFile.LASSO) # run LASSO for each CV and regr method
+        print(proc.time() - ptmLASSO) # print running time
+
         my.stats.LASSO <- lasso.model$stat.values
         my.model.LASSO <- lasso.model$model
         #-------------------------------------------------------
@@ -3292,14 +3278,18 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",
     # 8.5. RBF network with the DDA algorithm regression (caret)
     # ----------------------------------------------------------------
     if (fRBFdda==T) {   # if RBF-DDA was selected, run the method
-      cat("-> [8.5] RBF network with the DDA ...\n")
+      cat("-> RBF network with the DDA ...\n")
       outFile.rbfDDA <- file.path(PathDataSet,rbfDDAFile)   # the same folder as the input is used for the output
       
       if (fFeatureSel==F) {    # if there is no need of feature selection ->> use normal functions
         # For each type of CV do all the statistics
         # -----------------------------------------------------
         for (cv in 1:length(CVtypes2)) {
-          rbfDDA.model <- RBF_DDAreg(ds.train,ds.test,CVtypes2[cv],i,fDet,outFile.rbfDDA) # run rbfDDA for each CV and regr method
+          cat("    -->",CVtypes2[cv],"\n")
+          ptmRBF_DDA <- proc.time()
+          rbfDDA.model <- RBF_DDAreg(ds.train,ds.test,CVtypes2[cv],i,fDet,outFile.rbfDDA,noCores) # run rbfDDA for each CV and regr method
+          print(proc.time() - ptmRBF_DDA) # print running time
+
           my.stats.rbfDDA <- rbfDDA.model$stat.values
           my.model.rbfDDA <- rbfDDA.model$model 
           #-------------------------------------------------------
@@ -3325,14 +3315,18 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",
     # 8.6. SVM radial regression
     # --------------------------------------------
     if (fSVRM==T) {   # if SVM Radial was selected, run the method
-      cat("-> [8.6] SVM radial ...\n")
+      cat("-> SVM radial ...\n")
       outFile.SVRM <- file.path(PathDataSet,svrmFile)   # the same folder as the input is used for the output
       
       if (fFeatureSel==F) {    # if there is no need of feature selection ->> use normal functions
         # For each type of CV do all the statistics
         # -----------------------------------------------------
         for (cv in 1:length(CVtypes)) {
-          SVRM.model <- SVRMreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.SVRM) # run SVRM Radial for each CV and regr method
+          cat("    -->",CVtypes[cv],"\n")
+          ptmSVRM <- proc.time()
+          SVRM.model <- SVRMreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.SVRM,noCores) # run SVRM Radial for each CV and regr method
+          print(proc.time() - ptmSVRM) # print running time
+
           my.stats.SVRM <- SVRM.model$stat.values
           my.model.SVRM <- SVRM.model$model 
           
@@ -3362,14 +3356,18 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",
     # 8.8. Neural Networks Regression
     # --------------------------------------------
     if (fNN==T) {   # if NNet was selected, run the method
-      cat("-> [8.8] Neural Networks ...\n")
+      cat("-> Neural Networks ...\n")
       outFile.NN <- file.path(PathDataSet,nnFile)   # the same folder as the input is used for the output
       
       if (fFeatureSel==F) {    # if there is no need of feature selection ->> use normal functions
         # For each type of CV do all the statistics
         # -----------------------------------------------------
         for (cv in 1:length(CVtypes)) {
-          nn.model <- NNreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.NN) # run NNet for each CV and regr method
+          cat("    -->",CVtypes[cv],"\n")
+          ptmNN <- proc.time()
+          nn.model <- NNreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.NN,noCores) # run NNet for each CV and regr method
+          print(proc.time() - ptmNN) # print running time
+
           my.stats.NN <- nn.model$stat.values
           my.model.NN <- nn.model$model
           
@@ -3395,14 +3393,18 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",
     # 8.9. Random Forest Regression (RF)
     # --------------------------------------------
     if (fRF==T) {   # if RF was selected, run the method
-      cat("-> [8.9] Random Forest ...\n")
+      cat("-> Random Forest ...\n")
       outFile.RF <- file.path(PathDataSet,rfFile)   # the same folder as the input is used for the output
       
       if (fFeatureSel==F) {    # if there is no need of feature selection ->> use normal functions
         # For each type of CV do all the statistics
         # -----------------------------------------------------
         for (cv in 1:length(CVtypes2)) {
-          rf.model <- RFreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.RF) # run RF for each CV and regr method
+          cat("    -->",CVtypes2[cv],"\n")
+          ptmRF <- proc.time()
+          rf.model <- RFreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.RF,noCores) # run RF for each CV and regr method
+          print(proc.time() - ptmRF) # print running time
+
           my.stats.RF <- rf.model$stat.values
           my.model.RF <- rf.model$model
           
@@ -3420,10 +3422,15 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",
       } 
       else    # if there is a need for previous feature selection ->> use wrapper functions
       {                     
+        cat("-> RF-RFE wrapper...\n")
         # For each type of CV do all the statistics
         # -----------------------------------------------------
         for (cv in 1:length(CVtypes2)) {
-          rf.model <- RFRFEreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.RF) # run RF for each CV and regr method
+          cat("    -->",CVtypes2[cv],"\n")
+          ptmRFRFE <- proc.time()
+          rf.model <- RFRFEreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.RF,noCores) # run RF for each CV and regr method
+          print(proc.time() - ptmRFRFE) # print running time
+
           my.stats.RF <- rf.model$stat.values
           my.model.RF <- rf.model$model
           #-------------------------------------------------------
@@ -3439,14 +3446,18 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",
     # 8.10. SVM RFE
     # --------------------------------------------
     if (fSVMRFE==T) {   # if SVM-RFE was selected, run the method
-      cat("-> [8.10] SVM RFE ...\n")
+      cat("-> SVM RFE ...\n")
       outFile.SVMRFE <- file.path(PathDataSet,svmrfeFile)   # the same folder as the input is used for the output
       
       if (fFeatureSel==F) {    # if there is no need of feature selection ->> use normal functions
         # For each type of CV do all the statistics
         # -----------------------------------------------------
         for (cv in 1:length(CVtypes2)) {
-          svmrfe.model <- SVMRFEreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.SVMRFE,rfe_SVM_param_c,rfe_SVM_param_eps) # run SVM RFEet for each CV and regr method
+          cat("    -->",CVtypes2[cv],"\n")
+          ptmSVMRFE <- proc.time()
+          svmrfe.model <- SVMRFEreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.SVMRFE,rfe_SVM_param_c,rfe_SVM_param_eps,noCores) # run SVM RFEet for each CV and regr method
+          print(proc.time() - ptmSVMRFE) # print running time
+
           my.stats.SVMRFE <- svmrfe.model$stat.values
           my.model.SVMRFE <- svmrfe.model$model 
           
@@ -3473,14 +3484,18 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",
     # --------------------------------------------
     if (fenet==T) {   # if ENET was selected, run the method
      
-      cat("-> [8.11] ElasticNET ...\n")
+      cat("-> ElasticNET ...\n")
       outFile.ENET <- file.path(PathDataSet,enetFile)   # the same folder as the input is used for the output
       
       if (fFeatureSel==F) {    # if there is no need of feature selection ->> use normal functions
         # For each type of CV do all the statistics
         # -----------------------------------------------------
         for (cv in 1:length(CVtypes)) {
+          cat("    -->",CVtypes[cv],"\n")
+          ptmENET <- proc.time()
           enet.model <- ENETreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.ENET) # run elastic net for each CV and regr method
+          print(proc.time() - ptmENET) # print running time
+
           my.stats.ENET <- enet.model$stat.values
           my.model.ENET <- enet.model$model 
           
@@ -3508,17 +3523,17 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",
     # (8.final) Produce comparison plots amongst models 
     # -----------------------------------------------------------------------
 
-    cat("-> [8.final] Produce comparisons plots...\n")
+    cat("-> Comparisons plots for multiple regression methods ...\n")
     
     for(cv in 1:length(CVtypes)){
-	dfMod.n<- dfMod[[cv]]# keep only models with the same number of resamples
-	dfMod.ind<- unlist(lapply(dfMod[[cv]],findResamps.funct))
-	dfMod.ind.d<- which(duplicated(dfMod.ind)=='TRUE')[1]
-	dfMod.in<- which(dfMod.ind!=dfMod.ind[dfMod.ind.d])
+	   dfMod.n<- dfMod[[cv]]# keep only models with the same number of resamples
+	   dfMod.ind<- unlist(lapply(dfMod[[cv]],findResamps.funct))
+	   dfMod.ind.d<- which(duplicated(dfMod.ind)=='TRUE')[1]
+	   dfMod.in<- which(dfMod.ind!=dfMod.ind[dfMod.ind.d])
 	
-	dfMod.flag<- 0 # flag to indicate that dfMod consists of models with different resamples  
-	if(length(dfMod.in)!=0){dfMod.n<- dfMod.n[-dfMod.in]}
-	else{dfMod.flag<- 1}
+	   dfMod.flag<- 0 # flag to indicate that dfMod consists of models with different resamples  
+	   if(length(dfMod.in)!=0){dfMod.n<- dfMod.n[-dfMod.in]}
+	   else{dfMod.flag<- 1}
 
       if(CVtypes[cv]!='LOOCV' && length(dfMod.n)>=2 && dfMod.flag!=1){       
         resamps <- resamples(dfMod.n)#,modelNames=names(dfMod[[cv]]))  
@@ -3546,9 +3561,9 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",
   #------------------------------------------------------------------------------
   # 9. Results for all splittings (not ordered)
   #-------------------------------------------------------------------------------
-  cat("[12] Results for all splitings ...\n")
+  cat("-> Results for all splitings ...\n")
   df.res <- data.frame(dfRes)
-  print(df.res) # print all results as data frame
+  # print(df.res) # print all results as data frame
   
   # Writing the statistics into output files: one with detailed splits, other with only averages
   # File names includin paths for the statistics outputs (only averages and split detailed; +averages [to be implemented])
@@ -3632,46 +3647,52 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",
     my.stats.reg  <- LASSOreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF)$stat.values # run LASSO for each CV and regr method
   }
   if (best.reg=="rbfDDA") {  
-    my.stats.reg  <- RBF_DDAreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF)$stat.values # run rbfDDA for each CV and regr method
+    my.stats.reg  <- RBF_DDAreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF,noCores)$stat.values # run rbfDDA for each CV and regr method
   }
   if (best.reg=="svmRadial") {  
-    my.stats.reg  <- SVRMreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF)$stat.values # run SVRM Radial for each CV and regr method
+    my.stats.reg  <- SVRMreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF,noCores)$stat.values # run SVRM Radial for each CV and regr method
   }
   if (best.reg=="nnet") {  
-    my.stats.reg  <- NNreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF)$stat.values # run NNet for each CV and regr method
+    my.stats.reg  <- NNreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF,noCores)$stat.values # run NNet for each CV and regr method
   } 
   if (best.reg=="rf") {  
-    my.stats.reg  <- RFreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF)$stat.values # run NNet for each CV and regr method
+    my.stats.reg  <- RFreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF,noCores)$stat.values # run NNet for each CV and regr method
   } 
   if (best.reg=="svmRFE") {  
-    my.stats.reg  <- SVMRFEreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF,rfe_SVM_param_c,rfe_SVM_param_eps)$stat.values # run NNet for each CV and regr method
+    my.stats.reg  <- SVMRFEreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF,rfe_SVM_param_c,rfe_SVM_param_eps,noCores)$stat.values # run NNet for each CV and regr method
   } 
   if (best.reg=="glmnet") {  
-    my.stats.reg  <- ENETreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF)$stat.values # run ENET for each CV and regr method
+    my.stats.reg  <- ENETreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF,noCores)$stat.values # run ENET for each CV and regr method
   }
   if (best.reg=="rfRFE") {  
-    my.stats.reg  <- RFRFEreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF)$stat.values # run RF RFE for each CV and regr method
+    my.stats.reg  <- RFRFEreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF,noCores)$stat.values # run RF RFE for each CV and regr method
   }
+
+  # ?? elastic net ???
   
   #--------------------------------------------------------------------------------------
   # 12. Test best model with test dataset + Y randomization
   #--------------------------------------------------------------------------------------
   # ratios Yrand R2 - Best model R2 / Best model R2
-  R2Diff.Yrand <- Yrandom(ds,trainFrac,best.reg,my.stats.reg$R2.ts,noYrand,ResBestF) # mean value of ratio (deatails are printed to output file)
+  R2Diff.Yrand <- Yrandom(ds,trainFrac,best.reg,my.stats.reg$R2.ts,noYrand,ResBestF,noCores) # mean value of ratio (deatails are printed to output file)
   
   # Assessment of Applicability Domain (plot leverage) was included as details in each regression function
   
+  # Print total execution time
+  cat("\nRRegrs total execution time\n")
+  print(proc.time() - ptmTot) # print running time
+
   #----------------------------
   # Indicate main result files
   #----------------------------
-  cat("\n MAIN RESULT FILES:\n")
-  cat("===================================\n")
-  cat("Statistics for each data set splitting/method/CV type:", ResBySplits,"\n")
-  cat("Averages for all data set splittings by method/CV type:",ResAvgsF,"\n")
+  cat("\nMAIN RESULT FILES\n")
+  cat("======================\n")
+  cat("Statistics for all data set splittings/methods/CV types:", ResBySplits,"\n")
+  cat("Averages by method/CV type:",ResAvgsF,"\n")
   cat("Best model statistics:",ResBestF,"\n")
   cat("Best model plots:",paste(ResBestF,".repeatedcv.split",i,".pdf"),"\n")
   cat("Best model Y-randomization plot:",paste(ResBestF,".Yrand.Hist.pdf"),"\n")
-  cat("\n* if you choose Details, additional CSV files will be create for each method.\n")
+  cat("\n* if you choose Details, additional CSV and PDF files will be create for each method.\n")
 
   return(list(BestMethod=best.reg,BestStats=my.stats.reg, Models=dfMod))
   # return a list with 3 items: the name of the best method, the statistics for the best model, the list with all the fitted models (including the best one)
