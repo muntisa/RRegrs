@@ -3523,35 +3523,36 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
     # (8.final) Produce comparison plots amongst models 
     # -----------------------------------------------------------------------
 
-    cat("-> Comparisons plots for multiple regression methods ...\n")
-    
+
     for(cv in 1:length(CVtypes)){
 	   dfMod.n<- dfMod[[cv]]# keep only models with the same number of resamples
 	   dfMod.ind<- unlist(lapply(dfMod[[cv]],findResamps.funct))
 	   dfMod.ind.d<- which(duplicated(dfMod.ind)=='TRUE')[1]
 	   dfMod.in<- which(dfMod.ind!=dfMod.ind[dfMod.ind.d])
-	
 	   dfMod.flag<- 0 # flag to indicate that dfMod consists of models with different resamples  
-	   if(length(dfMod.in)!=0){dfMod.n<- dfMod.n[-dfMod.in]}
+	   if(is.na(dfMod.ind.d)!= TRUE){if(length(dfMod.in)!=0){dfMod.n<- dfMod.n[-dfMod.in]}}
 	   else{dfMod.flag<- 1}
+      if(CVtypes[cv]!='LOOCV' && length(dfMod.n)>=2 && dfMod.flag!=1){ 
 
-      if(CVtypes[cv]!='LOOCV' && length(dfMod.n)>=2 && dfMod.flag!=1){       
+    cat("-> Comparisons plots for multiple regression methods ...\n")
+          
         resamps <- resamples(dfMod.n)#,modelNames=names(dfMod[[cv]]))  
         # calculate their differences in terms of R2 and RMSE values
         difValues <- diff(resamps)
         #summary(difValues)
         #plot different models in terms of R2 adn RMSE values in the training set 
         pdf(file=paste(PathDataSet,"/ModelsComp.","iSplits.",i,".pdf",sep=""))
-        print(bwplot(resamps, layout = c(2, 1),main='Resampling results on the training set'))
+        print(bwplot(resamps, layout = c(2, 1),main=paste('Resampling results on the training set',' (data split ',i,')',sep='')))
         dev.off()    
 
         #plot differences of models in terms of R2 adn RMSE values in the training set 
         pdf(file=paste(PathDataSet,"/DifModels.R2.","iSplits.",i,".pdf",sep=""))
-        print(dotplot(difValues,metric='Rsquared',main='Models` differences on the training set'))
+        print(dotplot(difValues,metric='Rsquared',main=paste('Models` differences on the training set',' (data split ',i,')',sep='')))
         dev.off()
         
         pdf(file=paste(PathDataSet,"/DifModels.RMSE.","iSplits.",i,".pdf",sep=""))
-        print(dotplot(difValues,metric='RMSE',main='Models` differences on the training set'))
+        print(dotplot(difValues,metric='RMSE',main=paste('Models` differences on the training set',' (data split ',i,')',sep='')))
+
         dev.off()
       }
     }
