@@ -2840,8 +2840,10 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
   lassoFile="Lasso.details.csv",rbfDDAFile="RBF_DDA.details.csv",svrmFile="SVMRadial.details.csv",
   nnFile="NN.details.csv",rfFile="RF.details.csv",svmrfeFile="SVMRFE.details.csv",
   enetFile="ENET.details.csv") { # input = file with all parameters
-  # Minimal use: RRegrs(DataFileName="MyDataSet.csv")
-  
+  # Minimal use:
+  # RRegrs()                              # all default params
+  # RRegrs(DataFileName="MyDataSet.csv")
+  # RRegrs(DataFileName="MyDataSet.csv",PathDataSet="MyResultsFolder")
   # Default: all methods, no feature selection
   ptmTot <- proc.time() # total time
 
@@ -2904,32 +2906,6 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
   write.csv(Params.df,file=ParamFile,row.names=F,quote=F) # write parameters to a CSV in the working folder
 
   # Get calculation parameters 
-  # -------------------------------------------------------------------------------------------------------
-  # Files
-  # -------------------------------------------------------------------------------------------------------
-  #DataFileName   = as.character(DataFileName)   # input step 1 = ds original file name
-  #PathDataSet    = as.character(PathDataSet)    # dataset folder for input and output files
-  # noCores        = as.numeric(noCores)  # no of CPU cores (0=all available, 1=no parallel, >1 = specific no. of cores)
-
-  #No0NearVarFile = as.character(No0NearVarFile) # output step 3 = ds without zero near vars
-  #ScaledFile     = as.character(ScaledFile)     # output step 4 = scaled ds file name (in the same folder)
-  #NoCorrFile     = as.character(NoCorrFile)     # output step 5 = dataset after correction removal
-  
-  #ResAvgs        = as.character(ResAvgs)     # the output file with averaged statistics for each regression method
-  #ResBySplits    = as.character(ResBySplits) # the output file with statistics for each split and the averaged values
-  #ResBest        = as.character(ResBest)     # the output file with statistics for the best model
-  
-  #lmFile         = as.character(lmFile)     # LM output file for details
-  #glmFile        = as.character(glmFile)    # GLM output file for details
-  #plsFile        = as.character(plsFile)    # PLS output file for details
-  #lassoFile      = as.character(lassoFile)  # Lasoo Radial output file for details
-  #rbfDDAFile     = as.character(rbfDDAFile) # RBF DDA output file for details
-  #svrmFile       = as.character(svrmFile)   # SVM Radial output file for details
-  #nnFile         = as.character(nnFile)     # NN Radial output file for details
-  #rfFile         = as.character(rfFile)     # RF  output file for details
-  #svmrfeFile     = as.character(svmrfeFile) # svMRFE  output file for details
-  #enetFile       = as.character(enetFile)   # elastic net  output file for details
-
   fDet         = as.logical(fDet)         # flag to calculate and print details for all the functions
   fFilters     = as.logical(fFilters)     # flag to apply filters                          (2)
   fScaling     = as.logical(fScaling)     # flag for dataset Scaling                       (3)
@@ -2952,15 +2928,9 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
   rfe_SVM_param_c   = strsplit(as.character(RFE_SVM_C),";")[[1]] # values of C for SVM RFE
   rfe_SVM_param_eps = strsplit(as.character(RFE_SVM_epsilon),";")[[1]] # values of epsilon for SVM RFE
   
-  
-  # ----------------------------------------------------------------------------------------
-  #iScaling = as.numeric(as.character(iScaling)) # 1 = normalization; 2 = standardization, 3 = other; any other: no scaling
-  #iScalCol = as.numeric(as.character(iScalCol)) # 1 = including dependent variable in scaling; 2: only all features; etc.
   # ----------------------------------------------------------------------------------------
   trainFrac   = as.numeric(as.character(trainFrac))   # the fraction of training set from the entire dataset; trainFrac = the rest of dataset, the test set
-  #iSplitTimes = as.numeric(as.character(iSplitTimes)) # default is 10; time to split the data in train and test (steps 6-11); report each step + average
-  #noYrand     = as.numeric(as.character(noYrand))     # number of Y randomization (default = 100)
-  
+ 
   CVtypes = strsplit(as.character(CVtypes),";")[[1]] # types of cross-validation methods
   CVtypes2 = c("repeatedcv") # for complex methods we run only 10-fold CV even the user is using other parameters!
   
@@ -3124,7 +3094,7 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
     # 8.1. Basic LM : default
     # --------------------------------------------
     if (fLM==T) {   # if LM was selected, run the method
-      cat("-> LM ...\n")
+      cat("-> LM : Linear Multi-regression ...\n")
       outFile.LM <- file.path(PathDataSet,lmFile)   # the same folder as the input is used for the output
       
       if (fFeatureSel==F) {    # if there is no need of feature selection ->> use normal functions
@@ -3163,7 +3133,7 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
     # (8.2) GLM based on AIC regression - Generalized Linear Model with Stepwise Feature Selection
     # -----------------------------------------------------------------------------------------
     if (fGLM==T) {   # if GLM was selected, run the method
-      cat("-> GLM stepwise - based on AIC ...\n")
+      cat("-> GLM : Generalized Linear Model stepwise - based on AIC ...\n")
       outFile.GLM <- file.path(PathDataSet,glmFile)   # the same folder as the input is used for the output
       
       if (fFeatureSel==F) {    # if there is no need of feature selection ->> use normal functions
@@ -3205,7 +3175,7 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
       outFile.PLS <- file.path(PathDataSet,plsFile)   # the same folder as the input is used for the output
       
       if (fFeatureSel==F) {    # if there is no need of feature selection ->> use normal functions
-        cat("-> PLS ...\n")
+        cat("-> PLS : Partial Least Squares Regression ...\n")
         # For each type of CV do all the statistics
         # -----------------------------------------------------
         for (cv in 1:length(CVtypes)) {
@@ -3286,7 +3256,7 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
     # 8.5. RBF network with the DDA algorithm regression (caret)
     # ----------------------------------------------------------------
     if (fRBFdda==T) {   # if RBF-DDA was selected, run the method
-      cat("-> RBF network with the DDA ...\n")
+      cat("-> RBF-DDA : Radial Basis Functions - Dynamic Decay Adjustment ...\n")
       outFile.rbfDDA <- file.path(PathDataSet,rbfDDAFile)   # the same folder as the input is used for the output
       
       if (fFeatureSel==F) {    # if there is no need of feature selection ->> use normal functions
@@ -3323,7 +3293,7 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
     # 8.6. SVM radial regression
     # --------------------------------------------
     if (fSVRM==T) {   # if SVM Radial was selected, run the method
-      cat("-> SVM radial ...\n")
+      cat("-> SVM radial : Support vector machine using radial functions ...\n")
       outFile.SVRM <- file.path(PathDataSet,svrmFile)   # the same folder as the input is used for the output
       
       if (fFeatureSel==F) {    # if there is no need of feature selection ->> use normal functions
@@ -3364,7 +3334,7 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
     # 8.8. Neural Networks Regression
     # --------------------------------------------
     if (fNN==T) {   # if NNet was selected, run the method
-      cat("-> Neural Networks ...\n")
+      cat("-> NN : Neural Networks ...\n")
       outFile.NN <- file.path(PathDataSet,nnFile)   # the same folder as the input is used for the output
       
       if (fFeatureSel==F) {    # if there is no need of feature selection ->> use normal functions
@@ -3401,7 +3371,7 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
     # 8.9. Random Forest Regression (RF)
     # --------------------------------------------
     if (fRF==T) {   # if RF was selected, run the method
-      cat("-> Random Forest ...\n")
+      cat("-> RF : Random Forest ...\n")
       outFile.RF <- file.path(PathDataSet,rfFile)   # the same folder as the input is used for the output
       
       if (fFeatureSel==F) {    # if there is no need of feature selection ->> use normal functions
@@ -3430,7 +3400,7 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
       } 
       else    # if there is a need for previous feature selection ->> use wrapper functions
       {                     
-        cat("-> RF-RFE wrapper...\n")
+        cat("-> RF-RFE wrapper : Random Forest-Recursive Feature Elimination ...\n")
         # For each type of CV do all the statistics
         # -----------------------------------------------------
         for (cv in 1:length(CVtypes2)) {
@@ -3454,7 +3424,7 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
     # 8.10. SVM RFE
     # --------------------------------------------
     if (fSVMRFE==T) {   # if SVM-RFE was selected, run the method
-      cat("-> SVM RFE ...\n")
+      cat("-> SVM-RFE : Support Vector Machines Recursive Feature Elimination ...\n")
       outFile.SVMRFE <- file.path(PathDataSet,svmrfeFile)   # the same folder as the input is used for the output
       
       if (fFeatureSel==F) {    # if there is no need of feature selection ->> use normal functions
@@ -3492,7 +3462,7 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
     # --------------------------------------------
     if (fenet==T) {   # if ENET was selected, run the method
      
-      cat("-> ElasticNET ...\n")
+      cat("-> ENET : Elastic Nets ...\n")
       outFile.ENET <- file.path(PathDataSet,enetFile)   # the same folder as the input is used for the output
       
       if (fFeatureSel==F) {    # if there is no need of feature selection ->> use normal functions
@@ -3622,6 +3592,7 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
   # best model with adjR2.ts +/- 0.05 and min of RMSE for Avgs
   best.dt  <- dt.mean.ord[adjR2.ts.Avg %between% c(best.adjR2.ts-0.05,best.adjR2.ts+0.05)][RMSE.ts.Avg == min(RMSE.ts.Avg)]
   best.reg <- paste(best.dt$RegrMeth,collapse="") # best regrression method
+  cat("    -> Method:",best.reg,"\n")
   
   # best model non-averaged ? no. of features
   # -----------------------------------------------
