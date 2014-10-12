@@ -2029,14 +2029,15 @@ RFreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="",noCo
   RegrMethod <- "rf" # type of regression
   
   # Define the CV conditions
-  ctrl<- trainControl(method=sCV, number=5,repeats=2,#number=10,repeats=10,
+  ctrl<- trainControl(method=sCV, number=10,repeats=10,#number=10,repeats=10,
                       summaryFunction=defaultSummary)
   
+  tuneParam = data.frame(.mtry=c(ncol(my.datf.train)/3,ncol(my.datf.train)/2,ncol(my.datf.train)))
   # Train the model using only training set
   set.seed(iSplit)
   rf.fit<- train(net.c~.,data=my.datf.train,
-                 method='rf', tuneLength = 10,trControl=ctrl,
-                 metric='RMSE')
+                 method='rf', trControl=ctrl,
+                 metric='RMSE',ntree=1500,tuneGrid =tuneParam)
   
   #------------------------------
   # Training RESULTS
@@ -2239,7 +2240,7 @@ SVMRFEreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="",
   ctrl<- trainControl(method=sCV, number=3,repeats=1,#number=10,repeats=10,
                       summaryFunction=defaultSummary,verboseIter = F)
   
-  rfeCtr = rfeControl(functions=svmFuncsGradW,method="cv",number=5,repeats=1, saveDetails = T, verbose=T,rerank = T,allowParallel=T)#number=10,repeats=10,
+  rfeCtr = rfeControl(functions=svmFuncsGradW,method="cv",number=10,repeats=10, saveDetails = T, verbose=T,rerank = T,allowParallel=T)#number=10,repeats=10,
   sigma = sigest (as.matrix(my.datf.train[,-1]))[2]
   #cs = c(0.0001,0.1,1,5,15,50)  # EXTERNAL PARAMETERS!!!
   #cs = c(1,5,15,50)
@@ -2432,7 +2433,7 @@ ENETreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
   RegrMethod <- "glmnet" # type of regression
   
   # Define the CV conditions
-  ctrl<- trainControl(method = sCV, number = 10,repeats = 2,verboseIter=F,#number=10,repeats=10,
+  ctrl<- trainControl(method = sCV, number = 10,repeats = 10,verboseIter=F,#number=10,repeats=10,
                       summaryFunction = defaultSummary)
   tuneGrid=expand.grid(.alpha = seq(0.1,1,length=10),.lambda=99 )
   
@@ -2645,7 +2646,7 @@ RFRFEreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="",n
   ctrl<- trainControl(method=sCV, number=5,repeats=1,#number=10,repeats=10,
                       summaryFunction=defaultSummary,verboseIter = F)
   
-  rfeCtr = rfeControl(functions = rfFuncs,method="cv",number=5,repeats=2, saveDetails = T, verbose=T,rerank = F,allowParallel=T)#number=10,repeats=10,
+  rfeCtr = rfeControl(functions = rfFuncs,method="cv",number=10,repeats=10, saveDetails = T, verbose=T,rerank = F,allowParallel=T)#number=10,repeats=10,
   
   sizes = 2^(1:sqrt(ncol(my.datf.train)-1))
   
@@ -3591,6 +3592,7 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
   
   # best model with adjR2.ts +/- 0.05 and min of RMSE for Avgs
   best.dt  <- dt.mean.ord[adjR2.ts.Avg %between% c(best.adjR2.ts-0.05,best.adjR2.ts+0.05)][RMSE.ts.Avg == min(RMSE.ts.Avg)]
+  #best.dt  <- dt.mean.ord[adjR2.ts.Avg %between% c(best.adjR2.ts-0.05,best.adjR2.ts+0.05)][which.min(RMSE.ts.Avg)]
   best.reg <- paste(best.dt$RegrMeth,collapse="") # best regrression method
   cat("    -> Method:",best.reg,"\n")
   
