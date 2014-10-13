@@ -2,7 +2,7 @@
 \alias{SVMRFEreg}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-Fitting Recursive Feature Elimination - Random Forest Models.
+Fitting Recursive Feature Elimination - Support Vector Machines Regression Models.
 }
 \description{
 SVMRFEreg fits RFE SVM regression models and returns resampling based performance measure using the train function by caret package. 
