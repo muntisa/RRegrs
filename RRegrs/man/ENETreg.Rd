@@ -55,9 +55,9 @@
                          # types of cross-validation methods
                          CVtypes <- c('repeatedcv','LOOCV')
                          
-                         outLM<- 'ENEToutput.csv'
+                         outENET<- 'ENEToutput.csv'
                          
-                         enet.fit <- ENETreg(ds.train,ds.test,CVtypes[1],iSplit=1,fDet=F,outFile=outLM)
+                         ENET.fit <- ENETreg(ds.train,ds.test,CVtypes[1],iSplit=1,fDet=F,outFile=outENET)
                          }
                          }
                          \author{

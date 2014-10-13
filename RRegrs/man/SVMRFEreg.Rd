@@ -60,9 +60,9 @@ SVMRFEreg(my.datf.train,my.datf.test,sCV,iSplit1,
                          # types of cross-validation methods
                          CVtypes <- c('repeatedcv','LOOCV')
                          
-                         outLM<- 'svmRFEoutput.csv'
+                         outSVMRFE<- 'SVMRFEoutput.csv'
                          
-                         svmrfe.fit <- SVMRFEreg(ds.train,ds.test,CVtypes[1],iSplit=1,fDet=F,outFile=outLM)
+                         SVMRFE.fit <- SVMRFEreg(ds.train,ds.test,CVtypes[1],iSplit=1,fDet=F,outFile=outSVMRFE)
                          }
                          }
                          \author{

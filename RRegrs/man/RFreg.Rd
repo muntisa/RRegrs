@@ -55,9 +55,9 @@
                          # types of cross-validation methods
                          CVtypes <- c('repeatedcv','LOOCV')
                          
-                         outLM<- 'rfoutput.csv'
+                         outRF<- 'RFoutput.csv'
                          
-                         rf.fit <- RFreg(ds.train,ds.test,CVtypes[1],iSplit=1,fDet=F,outFile=outLM)
+                         RF.fit <- RFreg(ds.train,ds.test,CVtypes[1],iSplit=1,fDet=F,outFile=outRF)
                          }
                          }
                          \author{
