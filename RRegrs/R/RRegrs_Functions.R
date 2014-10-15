@@ -2825,6 +2825,25 @@ findResamps.funct<- function(caret.obj){
 	return(length(in.caret.obj))
 }
 
+impute.funct<- function(ds,FUN=mean){
+  #=============================================================================
+  # A function to impute missing values from columns of matrix or data frame
+  # using the mean value as the default 
+  #=============================================================================
+  #ds== data.frame or matrix to be imputed 
+
+	sum.na <- apply(ds,2,sum)
+	ind.na <- which(is.na(sum.na)!=FALSE)
+
+	ds.imputeV <- apply(as.matrix(ds[,ind.na]),2,function(x)FUN(x,na.rm=T))
+	ds.imputeI <- apply(as.matrix(ds[,ind.na]),2,function(x)which(is.na(x)))
+
+	if(is.list(ds.imputeI)!=TRUE){ds.imputI<- list(ds.imputeI)}
+
+	for(i in 1:length(ds.imputI)){ds[ds.imputI[[i]],ind.na[i]]<- ds.imputeV[i]}
+	return(ds)
+}
+
 ###############################################################################################
 # RRegrs MAIN FUNCTION 
 ###############################################################################################
@@ -2835,7 +2854,7 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
   fLM="T",fGLM="T",fPLS="T",fLASSO="T",fRBFdda="T",fSVRM="T",fNN="T",fRF="T",fSVMRFE="T",fENET="T",
   RFE_SVM_C="1;5;15;50",RFE_SVM_epsilon="0.01;0.1;0.3",
   cutoff=0.9,iScaling=1,iScalCol=1,trainFrac=0.75,iSplitTimes=10,noYrand=100,
-  CVtypes="repeatedcv;LOOCV",
+  CVtypes="repeatedcv;LOOCV",NoNAValFile="ds.NoNA.csv",
   No0NearVarFile="ds.No0Var.csv",ScaledFile="ds.scaled.csv",NoCorrFile="ds.scaled.NoCorrs.csv",
   lmFile="LM.details.csv",glmFile="GLM.details.csv",plsFile="PLS.details.csv",
   lassoFile="Lasso.details.csv",rbfDDAFile="RBF_DDA.details.csv",svrmFile="SVMRadial.details.csv",
@@ -2890,6 +2909,7 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="iSplitTimes",Parameter.Value=iSplitTimes,Description="Number of splittings the dataset into train and test (default  = 10)"))
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="noYrand",Parameter.Value=noYrand,Description="Number of Y-Randomization (default = 100)"))
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="CVtypes",Parameter.Value=CVtypes,Description="Cross-validation types: 10-CV (repeatedcv) and LOOCV"))
+  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="NoNAValFile",Parameter.Value=NoNAValFile,Description="Dataset without NA values (if fDet is True)"))
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="No0NearVarFile",Parameter.Value=No0NearVarFile,Description="Dataset without zero near features from Step 3 (if fDet is True)"))
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="ScaledFile",Parameter.Value=ScaledFile,Description="Scaled dataset file from Step 4 (if fDet is True)"))
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="NoCorrFile",Parameter.Value=NoCorrFile,Description="Dataset after correction removal in Step 5 (if fDet is True)"))
@@ -2978,7 +2998,21 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
   #if (fFilters==T) {
     # cat("-> [2] Filtering dataset ... \n")
   #}
-  
+
+  # -----------------------------------------------------------------------
+  # (2) Remove NA values
+  # -----------------------------------------------------------------------
+  if(length(which(is.na(ds)==TRUE))!=0){
+    cat("-> Removal of NA values ...\n")
+    outFile <- file.path(PathDataSet,NoNAValFile) # the same folder as input  
+    
+    # get the ds without NA values-- currently use the default function (mean) 
+    ds <- impute.funct(ds)
+    if (fDet == TRUE){   # write as details the corrected ds file
+     write.csv(ds, outFile,row.names=F, quote=F)}
+
+  }
+ 
   # -----------------------------------------------------------------------
   # (3) Remove near zero variance columns
   # -----------------------------------------------------------------------
