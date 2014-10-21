@@ -1059,7 +1059,9 @@ RBF_DDAreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile=""
   # Parallel support
   # ----------------------------------
   if (noCores==0 | noCores>1){ # all available CPU cores or specific no of cores (if noCores = 1, no parallel support!)
-    noCoresSys=as.numeric(Sys.getenv('NUMBER_OF_PROCESSORS')) # automatically detected no. of CPU cores
+    #noCoresSys=as.numeric(Sys.getenv('NUMBER_OF_PROCESSORS')) # automatically detected no. of CPU cores
+    library(parallel)
+    noCoresSys=detectCores()
     
     if (noCores==0 | noCores>noCoresSys){ # all available CPU cores or the specific cores is greater than the available ones
       noCores=noCoresSys # use the available no of cores
@@ -1268,8 +1270,10 @@ SVRMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="",no
   # Parallel support
   # ----------------------------------
   if (noCores==0 | noCores>1){ # all available CPU cores or specific no of cores (if noCores = 1, no parallel support!)
-    noCoresSys=as.numeric(Sys.getenv('NUMBER_OF_PROCESSORS')) # automatically detected no. of CPU cores
-    
+    library(parallel)
+    noCoresSys=detectCores()
+    #noCoresSys=as.numeric(Sys.getenv('NUMBER_OF_PROCESSORS')) # automatically detected no. of CPU cores
+    #noCoresSys=20
     if (noCores==0 | noCores>noCoresSys){ # all available CPU cores or the specific cores is greater than the available ones
       noCores=noCoresSys # use the available no of cores
     }
@@ -1296,7 +1300,7 @@ SVRMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="",no
   library(caret)
   
   net.c = my.datf.train[,1] # dependent variable is the first column in Training set
-  RegrMethod <- "svmRadial.RMSE" # type of regression
+  RegrMethod <- "svmRadial" # type of regression
   
   # Define the CV conditions
   ctrl<- trainControl(method=sCV,number=10,repeats=10,
@@ -1304,11 +1308,11 @@ SVRMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="",no
 
   # Train the model using only training set
   set.seed(iSplit)
-  
+  sigma = sigest (as.matrix(my.datf.train[,-1]))[2]
   svmL.fit<- train(net.c~.,data=my.datf.train,
                    method='svmRadial',tuneLength=10,trControl=ctrl,
                    metric='RMSE',
-                   tuneGrid=expand.grid(.sigma=seq(0,1,0.1),.C= c(1:10)))
+                   tuneGrid=expand.grid(.sigma=sigma,.C= c(1:10)))
   
   #------------------------------
   # Training RESULTS
@@ -1405,13 +1409,13 @@ SVRMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="",no
     AppendList2CSv(FeatImp,outFile)
     
     fitModel <- svmL.fit$finalModel
-    
+       
     # =============================================================================
     # Assessment of Applicability Domain (plot leverage)
     # =============================================================================
     
-    # Residuals
-    resids <- residuals(fitModel) # residuals
+    # Residuals    
+    resids = pred.tr-svmL.fit$trainingData$.outcome # residuals
     write.table("Residuals of the fitted model: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
     write.table(data.frame(resids), file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F) # write residuals
     
@@ -1452,7 +1456,7 @@ SVRMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="",no
     dotchart(as.matrix(FeatImp$importance),main="Feature Importance")
     
     # Fitted vs Residuals
-    plot(fitted(fitModel),residuals(fitModel),
+    plot(fitted(fitModel),resids,
          main="Fitted vs. Residuals for Fitted Model",
          xlab="Fitted", ylab="Residuals")
     abline(h = 0, lty = 2)
@@ -1479,7 +1483,9 @@ NNreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="",noCo
   # Parallel support
   # ----------------------------------
   if (noCores==0 | noCores>1){ # all available CPU cores or specific no of cores (if noCores = 1, no parallel support!)
-    noCoresSys=as.numeric(Sys.getenv('NUMBER_OF_PROCESSORS')) # automatically detected no. of CPU cores
+    #noCoresSys=as.numeric(Sys.getenv('NUMBER_OF_PROCESSORS')) # automatically detected no. of CPU cores
+    library(parallel)
+    noCoresSys=detectCores()
     
     if (noCores==0 | noCores>noCoresSys){ # all available CPU cores or the specific cores is greater than the available ones
       noCores=noCoresSys # use the available no of cores
@@ -2000,7 +2006,9 @@ RFreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="",noCo
   # Parallel support
   # ----------------------------------
   if (noCores==0 | noCores>1){ # all available CPU cores or specific no of cores (if noCores = 1, no parallel support!)
-    noCoresSys=as.numeric(Sys.getenv('NUMBER_OF_PROCESSORS')) # automatically detected no. of CPU cores
+    #noCoresSys=as.numeric(Sys.getenv('NUMBER_OF_PROCESSORS')) # automatically detected no. of CPU cores
+    library(parallel)
+    noCoresSys=detectCores()
     
     if (noCores==0 | noCores>noCoresSys){ # all available CPU cores or the specific cores is greater than the available ones
       noCores=noCoresSys # use the available no of cores
@@ -2206,7 +2214,9 @@ SVMRFEreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="",
   # Parallel support
   # ----------------------------------
   if (noCores==0 | noCores>1){ # all available CPU cores or specific no of cores (if noCores = 1, no parallel support!)
-    noCoresSys=as.numeric(Sys.getenv('NUMBER_OF_PROCESSORS')) # automatically detected no. of CPU cores
+    #noCoresSys=as.numeric(Sys.getenv('NUMBER_OF_PROCESSORS')) # automatically detected no. of CPU cores
+    library(parallel)
+    noCoresSys=detectCores()
     
     if (noCores==0 | noCores>noCoresSys){ # all available CPU cores or the specific cores is greater than the available ones
       noCores=noCoresSys # use the available no of cores
@@ -2360,7 +2370,7 @@ SVMRFEreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="",
     # =============================================================================
     
     # Residuals
-    resids <- pred.both-ds.full[,1]    # residuals
+    resids <- pred.tr-my.datf.train[,1]    # residuals
     write.table("Residuals of the fitted model: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
     write.table(data.frame(resids), file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F) # write residuals
     
@@ -2614,7 +2624,9 @@ RFRFEreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="",n
   # Parallel support
   # ----------------------------------
   if (noCores==0 | noCores>1){ # all available CPU cores or specific no of cores (if noCores = 1, no parallel support!)
-    noCoresSys=as.numeric(Sys.getenv('NUMBER_OF_PROCESSORS')) # automatically detected no. of CPU cores
+    #noCoresSys=as.numeric(Sys.getenv('NUMBER_OF_PROCESSORS')) # automatically detected no. of CPU cores
+    library(parallel)
+    noCoresSys=detectCores()
     
     if (noCores==0 | noCores>noCoresSys){ # all available CPU cores or the specific cores is greater than the available ones
       noCores=noCoresSys # use the available no of cores
@@ -3121,7 +3133,9 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
     # -----------------------------------------------------------------------
     
     # print no of CPU cores used for calculation
-    noCoresSys=as.numeric(Sys.getenv('NUMBER_OF_PROCESSORS')) # automatically detected no. of CPU cores
+    #noCoresSys=as.numeric(Sys.getenv('NUMBER_OF_PROCESSORS')) # automatically detected no. of CPU cores
+    library(parallel)
+    noCoresSys=detectCores()
     if (noCores==0){ cat("       -> CPU Cores = ",noCoresSys,"(only complex methods)\n") }
     else{ cat("       -> CPU Cores = ",noCores,"(only complex methods)\n") }
 
