@@ -1261,7 +1261,7 @@ RBF_DDAreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile=""
 }
 #----------------------------------------------------------------------------------------------------------------------
 
-SVRMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="",noCores=1) {
+SVRMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="",cs=c(1,5,10,15,20),noCores=1) {
   #====================================
   # 8.6 SVM Radial Regression (caret)
   #====================================
@@ -1298,7 +1298,8 @@ SVRMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="",no
   # ----------------------------------
   
   library(caret)
-  
+  library(kernlab)
+  cs = as.numeric(cs)
   net.c = my.datf.train[,1] # dependent variable is the first column in Training set
   RegrMethod <- "svmRadial" # type of regression
   
@@ -1312,7 +1313,7 @@ SVRMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="",no
   svmL.fit<- train(net.c~.,data=my.datf.train,
                    method='svmRadial',tuneLength=10,trControl=ctrl,
                    metric='RMSE',
-                   tuneGrid=expand.grid(.sigma=sigma,.C= c(1:10)))
+                   tuneGrid=expand.grid(.sigma=sigma,.C= cs))
   
   #------------------------------
   # Training RESULTS
@@ -1832,7 +1833,7 @@ PLSregWSel <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile=""
 }
 #----------------------------------------------------------------------------------------------------------------------
 
-Yrandom<- function(dss,trainFrac,best.reg,best.R2.ts,noYrand,ResBestF,noCores=1){
+Yrandom<- function(dss,trainFrac,best.reg,best.R2.ts,noYrand,ResBestF,rfe_SVM_param_c,rfe_SVM_param_eps,noCores=1){
   #================================================
   # Y-randomization for the best model (Step 12)
   #================================================
@@ -1865,14 +1866,14 @@ Yrandom<- function(dss,trainFrac,best.reg,best.R2.ts,noYrand,ResBestF,noCores=1)
     if (best.reg=="pls") {
       my.stats.reg  <- PLSreg(ds.train,ds.test,"repeatedcv",i,F,ResBestF)$stat.values # run SVRM Radial for each CV and regr method
     }
-    if (best.reg=="lasso") {
+    if (best.reg=="lasso.RMSE") {
       my.stats.reg  <- LASSOreg(ds.train,ds.test,"repeatedcv",i,F,ResBestF)$stat.values # run SVRM Radial for each CV and regr method
     }
     if (best.reg=="rbfDDA") {  
       my.stats.reg  <- RBF_DDAreg(ds.train,ds.test,"repeatedcv",i,F,ResBestF,noCores)$stat.values # run SVRM Radial for each CV and regr method
     }
     if (best.reg=="svmRadial") {  
-      my.stats.reg  <- SVRMreg(ds.train,ds.test,"repeatedcv",i,F,ResBestF,noCores)$stat.values # run SVRM Radial for each CV and regr method
+      my.stats.reg  <- SVRMreg(ds.train,ds.test,"repeatedcv",i,F,ResBestF,rfe_SVM_param_c,noCores)$stat.values # run SVRM Radial for each CV and regr method
     }
     if (best.reg=="nnet") {  
       my.stats.reg  <- NNreg(ds.train,ds.test,"repeatedcv",i,F,ResBestF,noCores)$stat.values # run NNet for each CV and regr method
@@ -1881,7 +1882,7 @@ Yrandom<- function(dss,trainFrac,best.reg,best.R2.ts,noYrand,ResBestF,noCores=1)
       my.stats.reg  <- RFreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF,noCores)$stat.values # run NNet for each CV and regr method
     } 
     if (best.reg=="svmRFE") {  
-      my.stats.reg  <- SVMRFEreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF,noCores)$stat.values # run NNet for each CV and regr method
+      my.stats.reg  <- SVMRFEreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF,rfe_SVM_param_c,rfe_SVM_param_eps,noCores)$stat.values # run NNet for each CV and regr method
     } 
     if (best.reg=="glmnet") {  
       my.stats.reg  <- ENETreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF,noCores)$stat.values # run NNet for each CV and regr method
@@ -2205,7 +2206,9 @@ RFreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="",noCo
 }
 #----------------------------------------------------------------------------------------------------------------------
 
-SVMRFEreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="",cs=c(1,5,15,50),eps=c(0.01,0.1,0.3),noCores=1) {
+SVMRFEreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="",cs=c(1,5,10,15,20),eps=c(0.01,0.1,0.3),noCores=1) {
+#SVMRFEreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="",cs=c(1:10),eps=c(0.01,0.1,0.3),noCores=1) {
+  
   #===========================================
   # SVM-RFE
   #===========================================
@@ -2411,7 +2414,7 @@ SVMRFEreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="",
     dotchart(fi,main="Feature Importance") # plot 3
     
     # Fitted vs Residuals - plot 4
-    plot(pred.both,resids,
+    plot(fitted(fitModel),resids,
          main="Fitted vs. Residuals for Fitted Model",
          xlab="Fitted", ylab="Residuals")
     abline(h = 0, lty = 2)
@@ -2864,7 +2867,7 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
   ResAvgs="RRegsResAvgs.csv",ResBySplits="RRegrsResAllSplits.csv",ResBest="RRegrsResBest.csv",
   fDet="T",fFilters="F",fScaling="T",fRemNear0Var="T",fRemCorr="T",fFeatureSel="F",
   fLM="T",fGLM="T",fPLS="T",fLASSO="T",fRBFdda="T",fSVRM="T",fNN="T",fRF="T",fSVMRFE="T",fENET="T",
-  RFE_SVM_C="1;5;15;50",RFE_SVM_epsilon="0.01;0.1;0.3",
+  RFE_SVM_C="1;5;10;15;20",RFE_SVM_epsilon="0.01;0.1;0.3",
   cutoff=0.9,iScaling=1,iScalCol=1,trainFrac=0.75,iSplitTimes=10,noYrand=100,
   CVtypes="repeatedcv;LOOCV",NoNAValFile="ds.NoNA.csv",
   No0NearVarFile="ds.No0Var.csv",ScaledFile="ds.scaled.csv",NoCorrFile="ds.scaled.NoCorrs.csv",
@@ -3351,7 +3354,7 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
         for (cv in 1:length(CVtypes)) {
           cat("    -->",CVtypes[cv],"\n")
           ptmSVRM <- proc.time()
-          SVRM.model <- SVRMreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.SVRM,noCores) # run SVRM Radial for each CV and regr method
+          SVRM.model <- SVRMreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.SVRM,rfe_SVM_param_c,noCores) # run SVRM Radial for each CV and regr method
           print(proc.time() - ptmSVRM) # print running time
 
           my.stats.SVRM <- SVRM.model$stat.values
@@ -3673,14 +3676,14 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
   if (best.reg=="pls") {
     my.stats.reg  <- PLSreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF)$stat.values # run PLS for each CV and regr method
   }
-  if (best.reg=="lasso") {
+  if (best.reg=="lasso.RMSE") {
     my.stats.reg  <- LASSOreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF)$stat.values # run LASSO for each CV and regr method
   }
   if (best.reg=="rbfDDA") {  
     my.stats.reg  <- RBF_DDAreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF,noCores)$stat.values # run rbfDDA for each CV and regr method
   }
   if (best.reg=="svmRadial") {  
-    my.stats.reg  <- SVRMreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF,noCores)$stat.values # run SVRM Radial for each CV and regr method
+    my.stats.reg  <- SVRMreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF,rfe_SVM_param_c,noCores)$stat.values # run SVRM Radial for each CV and regr method
   }
   if (best.reg=="nnet") {  
     my.stats.reg  <- NNreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF,noCores)$stat.values # run NNet for each CV and regr method
@@ -3704,7 +3707,7 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
   # 12. Test best model with test dataset + Y randomization
   #--------------------------------------------------------------------------------------
   # ratios Yrand R2 - Best model R2 / Best model R2
-  R2Diff.Yrand <- Yrandom(ds,trainFrac,best.reg,my.stats.reg$R2.ts,noYrand,ResBestF,noCores) # mean value of ratio (deatails are printed to output file)
+  R2Diff.Yrand <- Yrandom(ds,trainFrac,best.reg,my.stats.reg$R2.ts,noYrand,ResBestF,rfe_SVM_param_c,rfe_SVM_param_eps,noCores) # mean value of ratio (deatails are printed to output file)
   
   # Assessment of Applicability Domain (plot leverage) was included as details in each regression function
   
