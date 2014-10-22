@@ -1299,7 +1299,11 @@ SVRMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="",cs
   
   library(caret)
   library(kernlab)
+<<<<<<< HEAD
   cs = as.numeric(cs)
+=======
+  
+>>>>>>> 8f349de0a62262a78d3f3324f40c919296ee4fbd
   net.c = my.datf.train[,1] # dependent variable is the first column in Training set
   RegrMethod <- "svmRadial" # type of regression
   
