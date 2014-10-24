@@ -211,7 +211,12 @@ RemCorrs <- function(ds,fDet,cutoff,outFile) {
   
   highlyCor <- findCorrelation(corrMat, cutoff) # find corralated columns
   
-  # Apply correlation filter with the cutoff
+  # if no correlation found, return the original dataset
+  if (length(highlyCor) == 0){
+    return (ds)
+  }
+
+  # Apply correlation filter with the cutoff only if exists!
   # by removing all the variable correlated with more than cutoff
   DataSetFiltered.scale <- DataSet[,-highlyCor]
   
