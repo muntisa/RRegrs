@@ -102,5 +102,29 @@ Abalon datgaset:
 1 source("D:/Cristian/RRegrsCalculations/RRegrs/TEST/TestRRegrs.R") 
 
 -----------------------------------------------------------------------------------------
+Weather Izmir dataset
+
+-> Comparisons plots for multiple regression methods ...
+ Hide Traceback
+ 
+ Rerun with Debug
+ Error in t.test.default(x, ...) : not enough 'x' observations 
+13 stop("not enough 'x' observations") 
+12 t.test.default(x, ...) 
+11 tst(x, ...) 
+10 FUN(newX[, i], ...) 
+9 apply(dif, 2, function(x, tst, ...) tst(x, ...), tst = test, 
+    conf.level = confLevel, ...) 
+8 diff.resamples(resamps) 
+7 diff(resamps) 
+6 diff(resamps) at RRegrs_Functions.R#3578
+5 RRegrs(DataFileName = "ds.WeatherIzmir.csv", PathDataSet = "Results_WeatherIzmir", 
+    noCores = 3, iSplitTimes = 1, noYrand = 1) at TestRRegrs.R#44
+4 eval(expr, envir, enclos) 
+3 eval(ei, envir) 
+2 withVisible(eval(ei, envir)) 
+1 source("D:/Cristian/RRegrsCalculations/RRegrs/TEST/TestRRegrs.R") 
+
+-----------------------------------------------------------------------------
 
 
