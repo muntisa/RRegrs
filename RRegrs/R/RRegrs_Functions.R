@@ -53,7 +53,7 @@ r2.funct<- function(obs,pred){
 r2.t.funct<- function(obs,pred){  
 #obs==y, pred=predicted
   y.mean<- mean(obs)
-  x.in<- sum((obs-pred)^2)/sum((obs-pred)^2)
+  x.in<- sum((obs-pred)^2)/sum((obs-y.mean)^2)
   x.in<- 1-x.in #r squared
   return(x.in)
 }
@@ -450,8 +450,9 @@ LMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
     
     plot(my.datf.train[,1],pred.tr,xlab="Yobs", ylab="Ypred", type="b", main="Train Yobs-Ypred") # plot 1
     plot(my.datf.test[,1], pred.ts,xlab="Yobs", ylab="Ypred", type="b", main="Test Yobs-Ypred")  # plot 2
-    dotchart(as.matrix(FeatImp$importance),main="Feature Importance")                            # plot 3
-    
+    if(length(is.na(c(FeatImp$importance$Overall)))<=(length(c(FeatImp$importance$Overall))-3)){  
+     dotchart(as.matrix(FeatImp$importance),main="Feature Importance")}                          # plot 3    
+  
     # Fitted vs Residuals - plot 4
     plot(fitted(fitModel),residuals(fitModel),
          main="Fitted vs. Residuals for Fitted Model",
@@ -465,14 +466,15 @@ LMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
     abline(h = thresh.lever, lty = 2, col="red") # leverage thresh
     
     # Cook's distance - plot 6
-    plot(cook.dists,
+    if(length(is.na(cook.dists))<=(length(cook.dists)-3)){  
+    	   plot(cook.dists,
          main="Cook's Distance for Fitted Model",
          xlab="Index", ylab="Cook Distance")
     
-    for (p in 1:6) {
-      plot(fitModel, which=p, cook.levels=cutoff.Cook) # 6 standard fitting plots
-    }
-    
+         for (p in 1:6) {
+           plot(fitModel, which=p, cook.levels=cutoff.Cook) # 6 standard fitting plots
+         }
+    }    
     # plot(FeatImp, top = components,main="Feature Importance") # ERROR !
     dev.off()
     # --------------------------------------------------------------
@@ -659,7 +661,8 @@ GLMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
     
     plot(my.datf.train[,1],pred.tr,xlab="Yobs", ylab="Ypred", type="b", main="Train Yobs-Ypred") # plot 1
     plot(my.datf.test[,1], pred.ts,xlab="Yobs", ylab="Ypred", type="b", main="Test Yobs-Ypred")  # plot 2
-    dotchart(as.matrix(FeatImp$importance),main="Feature Importance")                            # plot 3
+    if(length(is.na(c(FeatImp$importance$Overall)))<=(length(c(FeatImp$importance$Overall))-3)){  
+     dotchart(as.matrix(FeatImp$importance),main="Feature Importance")}                          # plot 3
     
     # Fitted vs Residuals - plot 4
     plot(fitted(fitModel),residuals(fitModel),
@@ -674,14 +677,15 @@ GLMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
     abline(h = thresh.lever, lty = 2, col="red") # leverage thresh
     
     # Cook's distance - plot 6
-    plot(cook.dists,
+    if(length(is.na(cook.dists))<=(length(cook.dists)-3)){  
+    	   plot(cook.dists,
          main="Cook's Distance for Fitted Model",
          xlab="Index", ylab="Cook Distance")
     
-    for (p in 1:6) {
-      plot(fitModel, which=p, cook.levels=cutoff.Cook) # 6 standard fitting plots
-    }
-    
+         for (p in 1:6) {
+           plot(fitModel, which=p, cook.levels=cutoff.Cook) # 6 standard fitting plots
+         }
+    }    
     # plot(FeatImp, top = components,main="Feature Importance") # ERROR !
     dev.off()
     # --------------------------------------------------------------
@@ -710,7 +714,7 @@ PLSreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
   pls.fit<- train(net.c~.,data=my.datf.train,
                   method = 'pls', tuneLength = 10, trControl = ctrl,
                   metric = 'RMSE',
-                  tuneGrid=expand.grid(.ncomp=c(1:(dim(my.datf.train)[2]-1))))
+                  tuneGrid=expand.grid(.ncomp=c(1:floor((dim(my.datf.train)[2]-1)/5))))
   #------------------------------
   # Training RESULTS
   #------------------------------
@@ -820,30 +824,35 @@ PLSreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
     predVals.pls.ad <- pred.ts
     Traind.pls= as.matrix(my.datf.train)
     Testd.pls = as.matrix(my.datf.test)
-    Hat.train = diag(Traind.pls %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Traind.pls))
-    Hat.test  = diag(Testd.pls  %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Testd.pls))  
-    
-    # Leverage / Hat values
-    hat.fit <- Hat.test          # hat values
-    hat.fit.df <- as.data.frame(hat.fit)    # hat data frame
-    hat.mean <- mean(hat.fit)               # mean hat values
-    hat.fit.df$warn <- ifelse(hat.fit.df[, 'hat.fit']>3*hat.mean, 'x3',ifelse(hat.fit.df[, 'hat.fit']>2*hat.mean, 'x2', '-' ))
-    
-    write.table("Leverage output: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-    write.table(paste("Mean of hat values: ", hat.mean), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-    write.table("Leverage / Hat values with warnings (X3 & X2 = values 3 & 2 times than hat mean): ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-    write.table(hat.fit.df, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F) # write hat values and the levels X3, X2 (of hat mean)
-    
-    #THRESHOLD values: 3m/n, where m is the number of parameters, and n number of observations
-    thresh.lever<- (3*(dim(my.datf.train)[2]-1))/dim(my.datf.train)[1] # leverage thresh
-    hat.problems<- data.frame(hat.fit[hat.fit>thresh.lever]) # points with high leverage
-    
-    write.table(paste("Leverage Threshold: ", thresh.lever), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-    write.table("Points with leverage > threshold: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-    write.table(hat.problems, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F)
-    
-    # Cook's distance ?
-    
+    mat.Traind.pls<- t(Traind.pls) %*%(Traind.pls) 
+    det.Traind.pls<- det(mat.Traind.pls)
+
+    if(det.Traind.pls!=0){
+     Hat.train = diag(Traind.pls %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Traind.pls))
+     Hat.test  = diag(Testd.pls  %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Testd.pls))  
+     
+     # Leverage / Hat values
+     hat.fit <- Hat.test          # hat values
+     hat.fit.df <- as.data.frame(hat.fit)    # hat data frame
+     hat.mean <- mean(hat.fit)               # mean hat values
+     hat.fit.df$warn <- ifelse(hat.fit.df[, 'hat.fit']>3*hat.mean, 'x3',ifelse(hat.fit.df[, 'hat.fit']>2*hat.mean, 'x2', '-' ))
+     
+     write.table("Leverage output: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+     write.table(paste("Mean of hat values: ", hat.mean), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+     write.table("Leverage / Hat values with warnings (X3 & X2 = values 3 & 2 times than hat mean): ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+     write.table(hat.fit.df, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F) # write hat values and the levels X3, X2 (of hat mean)
+     
+     #THRESHOLD values: 3m/n, where m is the number of parameters, and n number of observations
+     thresh.lever<- (3*(dim(my.datf.train)[2]-1))/dim(my.datf.train)[1] # leverage thresh
+     hat.problems<- data.frame(hat.fit[hat.fit>thresh.lever]) # points with high leverage
+     
+     write.table(paste("Leverage Threshold: ", thresh.lever), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+     write.table("Points with leverage > threshold: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+     write.table(hat.problems, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F)
+     
+     # Cook's distance ?
+    }
+
     # Influence ?
     
     # PDF plots
@@ -860,11 +869,12 @@ PLSreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
     abline(h = 0, lty = 2)
     
     # Leverage plots
-    plot(hat.fit, type = "h",
-         main="Leverage for Fitted Model",
-         xlab="Index", ylab="Hat")
-    abline(h = thresh.lever, lty = 2, col="red") # leverage thresh
-    
+    if(det.Traind.pls!=0){
+     plot(hat.fit, type = "h",
+          main="Leverage for Fitted Model",
+          xlab="Index", ylab="Hat")
+     abline(h = thresh.lever, lty = 2, col="red") # leverage thresh
+    }
     dev.off()
     # --------------------------------------------------------------
   }
@@ -1003,30 +1013,34 @@ LASSOreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") 
     predVals.pls.ad <- pred.ts
     Traind.pls= as.matrix(my.datf.train)
     Testd.pls = as.matrix(my.datf.test)
-    Hat.train = diag(Traind.pls %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Traind.pls))
-    Hat.test  = diag(Testd.pls  %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Testd.pls))  
-    
-    # Leverage / Hat values
-    hat.fit <- Hat.test          # hat values
-    hat.fit.df <- as.data.frame(hat.fit)    # hat data frame
-    hat.mean <- mean(hat.fit)               # mean hat values
-    hat.fit.df$warn <- ifelse(hat.fit.df[, 'hat.fit']>3*hat.mean, 'x3',ifelse(hat.fit.df[, 'hat.fit']>2*hat.mean, 'x2', '-' ))
-    
-    write.table("Leverage output: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-    write.table(paste("Mean of hat values: ", hat.mean), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-    write.table("Leverage / Hat values with warnings (X3 & X2 = values 3 & 2 times than hat mean): ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-    write.table(hat.fit.df, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F) # write hat values and the levels X3, X2 (of hat mean)
-    
-    #THRESHOLD values: 3m/n, where m is the number of parameters, and n number of observations
-    thresh.lever<- (3*(dim(my.datf.train)[2]-1))/dim(my.datf.train)[1] # leverage thresh
-    hat.problems<- data.frame(hat.fit[hat.fit>thresh.lever]) # points with high leverage
-    
-    write.table(paste("Leverage Threshold: ", thresh.lever), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-    write.table("Points with leverage > threshold: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-    write.table(hat.problems, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F)
-    
-    # Cook's distance ?
+    mat.Traind.pls<- t(Traind.pls) %*%(Traind.pls) 
+    det.Traind.pls<- det(mat.Traind.pls)
 
+    if(det.Traind.pls!=0){
+     Hat.train = diag(Traind.pls %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Traind.pls))
+     Hat.test  = diag(Testd.pls  %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Testd.pls))  
+     
+     # Leverage / Hat values
+     hat.fit <- Hat.test          # hat values
+     hat.fit.df <- as.data.frame(hat.fit)    # hat data frame
+     hat.mean <- mean(hat.fit)               # mean hat values
+     hat.fit.df$warn <- ifelse(hat.fit.df[, 'hat.fit']>3*hat.mean, 'x3',ifelse(hat.fit.df[, 'hat.fit']>2*hat.mean, 'x2', '-' ))
+     
+     write.table("Leverage output: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+     write.table(paste("Mean of hat values: ", hat.mean), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+     write.table("Leverage / Hat values with warnings (X3 & X2 = values 3 & 2 times than hat mean): ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+     write.table(hat.fit.df, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F) # write hat values and the levels X3, X2 (of hat mean)
+     
+     #THRESHOLD values: 3m/n, where m is the number of parameters, and n number of observations
+     thresh.lever<- (3*(dim(my.datf.train)[2]-1))/dim(my.datf.train)[1] # leverage thresh
+     hat.problems<- data.frame(hat.fit[hat.fit>thresh.lever]) # points with high leverage
+     
+     write.table(paste("Leverage Threshold: ", thresh.lever), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+     write.table("Points with leverage > threshold: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+     write.table(hat.problems, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F)
+    
+     # Cook's distance ?
+    }
     # Influence ?
     
     # PDF plots
@@ -1043,11 +1057,12 @@ LASSOreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") 
     abline(h = 0, lty = 2)
     
     # Leverage plots
-    plot(hat.fit, type = "h",
-         main="Leverage for Fitted Model",
-         xlab="Index", ylab="Hat")
-    abline(h = thresh.lever, lty = 2, col="red") # leverage thresh
-    
+    if(det.Traind.pls!=0){
+     plot(hat.fit, type = "h",
+          main="Leverage for Fitted Model",
+          xlab="Index", ylab="Hat")
+     abline(h = thresh.lever, lty = 2, col="red") # leverage thresh
+    }
     dev.off()
     # --------------------------------------------------------------
   }
@@ -1214,29 +1229,35 @@ RBF_DDAreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile=""
     predVals.pls.ad <- pred.ts
     Traind.pls= as.matrix(my.datf.train)
     Testd.pls = as.matrix(my.datf.test)
-    Hat.train = diag(Traind.pls %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Traind.pls))
-    Hat.test  = diag(Testd.pls  %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Testd.pls))  
-    
-    # Leverage / Hat values
-    hat.fit <- Hat.test          # hat values
-    hat.fit.df <- as.data.frame(hat.fit)    # hat data frame
-    hat.mean <- mean(hat.fit)               # mean hat values
-    hat.fit.df$warn <- ifelse(hat.fit.df[, 'hat.fit']>3*hat.mean, 'x3',ifelse(hat.fit.df[, 'hat.fit']>2*hat.mean, 'x2', '-' ))
-    
-    write.table("Leverage output: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-    write.table(paste("Mean of hat values: ", hat.mean), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-    write.table("Leverage / Hat values with warnings (X3 & X2 = values 3 & 2 times than hat mean): ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-    write.table(hat.fit.df, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F) # write hat values and the levels X3, X2 (of hat mean)
-    
-    #THRESHOLD values: 3m/n, where m is the number of parameters, and n number of observations
-    thresh.lever<- (3*(dim(my.datf.train)[2]-1))/dim(my.datf.train)[1] # leverage thresh
-    hat.problems<- data.frame(hat.fit[hat.fit>thresh.lever]) # points with high leverage
-    
-    write.table(paste("Leverage Threshold: ", thresh.lever), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-    write.table("Points with leverage > threshold: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-    write.table(hat.problems, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F)
-    
-    # Cook's distance ?
+    mat.Traind.pls<- t(Traind.pls) %*%(Traind.pls) 
+    det.Traind.pls<- det(mat.Traind.pls)
+
+    if(det.Traind.pls!=0){
+  
+     Hat.train = diag(Traind.pls %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Traind.pls))
+     Hat.test  = diag(Testd.pls  %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Testd.pls))  
+     
+     # Leverage / Hat values
+     hat.fit <- Hat.test          # hat values
+     hat.fit.df <- as.data.frame(hat.fit)    # hat data frame
+     hat.mean <- mean(hat.fit)               # mean hat values
+     hat.fit.df$warn <- ifelse(hat.fit.df[, 'hat.fit']>3*hat.mean, 'x3',ifelse(hat.fit.df[, 'hat.fit']>2*hat.mean, 'x2', '-' ))
+     
+     write.table("Leverage output: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+     write.table(paste("Mean of hat values: ", hat.mean), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+     write.table("Leverage / Hat values with warnings (X3 & X2 = values 3 & 2 times than hat mean): ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+     write.table(hat.fit.df, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F) # write hat values and the levels X3, X2 (of hat mean)
+     
+     #THRESHOLD values: 3m/n, where m is the number of parameters, and n number of observations
+     thresh.lever<- (3*(dim(my.datf.train)[2]-1))/dim(my.datf.train)[1] # leverage thresh
+     hat.problems<- data.frame(hat.fit[hat.fit>thresh.lever]) # points with high leverage
+     
+     write.table(paste("Leverage Threshold: ", thresh.lever), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+     write.table("Points with leverage > threshold: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+     write.table(hat.problems, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F)
+     
+     # Cook's distance ?
+    }
 
     # Influence ?
     
@@ -1254,11 +1275,12 @@ RBF_DDAreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile=""
     abline(h = 0, lty = 2)
     
     # Leverage plots
-    plot(hat.fit, type = "h",
-         main="Leverage for Fitted Model",
-         xlab="Index", ylab="Hat")
-    abline(h = thresh.lever, lty = 2, col="red") # leverage thresh
-    
+    if(det.Traind.pls!=0){
+     plot(hat.fit, type = "h",
+          main="Leverage for Fitted Model",
+          xlab="Index", ylab="Hat")
+     abline(h = thresh.lever, lty = 2, col="red") # leverage thresh
+    }
     dev.off()
     # --------------------------------------------------------------
   } 
@@ -1430,29 +1452,34 @@ SVRMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="",cs
     predVals.pls.ad <- pred.ts
     Traind.pls= as.matrix(my.datf.train)
     Testd.pls = as.matrix(my.datf.test)
-    Hat.train = diag(Traind.pls %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Traind.pls))
-    Hat.test  = diag(Testd.pls  %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Testd.pls))  
-    
-    # Leverage / Hat values
-    hat.fit <- Hat.test          # hat values
-    hat.fit.df <- as.data.frame(hat.fit)    # hat data frame
-    hat.mean <- mean(hat.fit)               # mean hat values
-    hat.fit.df$warn <- ifelse(hat.fit.df[, 'hat.fit']>3*hat.mean, 'x3',ifelse(hat.fit.df[, 'hat.fit']>2*hat.mean, 'x2', '-' ))
-    
-    write.table("Leverage output: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-    write.table(paste("Mean of hat values: ", hat.mean), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-    write.table("Leverage / Hat values with warnings (X3 & X2 = values 3 & 2 times than hat mean): ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-    write.table(hat.fit.df, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F) # write hat values and the levels X3, X2 (of hat mean)
-    
-    #THRESHOLD values: 3m/n, where m is the number of parameters, and n number of observations
-    thresh.lever<- (3*(dim(my.datf.train)[2]-1))/dim(my.datf.train)[1] # leverage thresh
-    hat.problems<- data.frame(hat.fit[hat.fit>thresh.lever]) # points with high leverage
-    
-    write.table(paste("Leverage Threshold: ", thresh.lever), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-    write.table("Points with leverage > threshold: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-    write.table(hat.problems, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F)
-    
-    # Cook's distance ?
+    mat.Traind.pls<- t(Traind.pls) %*%(Traind.pls) 
+    det.Traind.pls<- det(mat.Traind.pls)
+
+    if(det.Traind.pls!=0){
+     Hat.train = diag(Traind.pls %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Traind.pls))
+     Hat.test  = diag(Testd.pls  %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Testd.pls))  
+     
+     # Leverage / Hat values
+     hat.fit <- Hat.test          # hat values
+     hat.fit.df <- as.data.frame(hat.fit)    # hat data frame
+     hat.mean <- mean(hat.fit)               # mean hat values
+     hat.fit.df$warn <- ifelse(hat.fit.df[, 'hat.fit']>3*hat.mean, 'x3',ifelse(hat.fit.df[, 'hat.fit']>2*hat.mean, 'x2', '-' ))
+     
+     write.table("Leverage output: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+     write.table(paste("Mean of hat values: ", hat.mean), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+     write.table("Leverage / Hat values with warnings (X3 & X2 = values 3 & 2 times than hat mean): ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+     write.table(hat.fit.df, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F) # write hat values and the levels X3, X2 (of hat mean)
+     
+     #THRESHOLD values: 3m/n, where m is the number of parameters, and n number of observations
+     thresh.lever<- (3*(dim(my.datf.train)[2]-1))/dim(my.datf.train)[1] # leverage thresh
+     hat.problems<- data.frame(hat.fit[hat.fit>thresh.lever]) # points with high leverage
+     
+     write.table(paste("Leverage Threshold: ", thresh.lever), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+     write.table("Points with leverage > threshold: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+     write.table(hat.problems, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F)
+     
+     # Cook's distance ?
+    }
 
     # Influence ?
     
@@ -1470,11 +1497,13 @@ SVRMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="",cs
     abline(h = 0, lty = 2)
     
     # Leverage plots
-    plot(hat.fit, type = "h",
-         main="Leverage for Fitted Model",
-         xlab="Index", ylab="Hat")
-    abline(h = thresh.lever, lty = 2, col="red") # leverage thresh
-    
+    if(det.Traind.pls!=0){
+     plot(hat.fit, type = "h",
+          main="Leverage for Fitted Model",
+          xlab="Index", ylab="Hat")
+     abline(h = thresh.lever, lty = 2, col="red") # leverage thresh
+    }
+
     dev.off()
     # --------------------------------------------------------------
   }
@@ -1645,30 +1674,34 @@ NNreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="",noCo
     predVals.pls.ad <- pred.ts
     Traind.pls= as.matrix(my.datf.train)
     Testd.pls = as.matrix(my.datf.test)
-    Hat.train = diag(Traind.pls %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Traind.pls))
-    Hat.test  = diag(Testd.pls  %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Testd.pls))  
-    
-    # Leverage / Hat values
-    hat.fit <- Hat.test          # hat values
-    hat.fit.df <- as.data.frame(hat.fit)    # hat data frame
-    hat.mean <- mean(hat.fit)               # mean hat values
-    hat.fit.df$warn <- ifelse(hat.fit.df[, 'hat.fit']>3*hat.mean, 'x3',ifelse(hat.fit.df[, 'hat.fit']>2*hat.mean, 'x2', '-' ))
-    
-    write.table("Leverage output: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-    write.table(paste("Mean of hat values: ", hat.mean), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-    write.table("Leverage / Hat values with warnings (X3 & X2 = values 3 & 2 times than hat mean): ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-    write.table(hat.fit.df, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F) # write hat values and the levels X3, X2 (of hat mean)
-    
-    #THRESHOLD values: 3m/n, where m is the number of parameters, and n number of observations
-    thresh.lever<- (3*(dim(my.datf.train)[2]-1))/dim(my.datf.train)[1] # leverage thresh
-    hat.problems<- data.frame(hat.fit[hat.fit>thresh.lever]) # points with high leverage
-    
-    write.table(paste("Leverage Threshold: ", thresh.lever), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-    write.table("Points with leverage > threshold: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-    write.table(hat.problems, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F)
-    
-    # Cook's distance ?
+    mat.Traind.pls<- t(Traind.pls) %*%(Traind.pls) 
+    det.Traind.pls<- det(mat.Traind.pls)
 
+    if(det.Traind.pls!=0){
+     Hat.train = diag(Traind.pls %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Traind.pls))
+     Hat.test  = diag(Testd.pls  %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Testd.pls))  
+     
+     # Leverage / Hat values
+     hat.fit <- Hat.test          # hat values
+     hat.fit.df <- as.data.frame(hat.fit)    # hat data frame
+     hat.mean <- mean(hat.fit)               # mean hat values
+     hat.fit.df$warn <- ifelse(hat.fit.df[, 'hat.fit']>3*hat.mean, 'x3',ifelse(hat.fit.df[, 'hat.fit']>2*hat.mean, 'x2', '-' ))
+     
+     write.table("Leverage output: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+     write.table(paste("Mean of hat values: ", hat.mean), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+     write.table("Leverage / Hat values with warnings (X3 & X2 = values 3 & 2 times than hat mean): ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+     write.table(hat.fit.df, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F) # write hat values and the levels X3, X2 (of hat mean)
+     
+     #THRESHOLD values: 3m/n, where m is the number of parameters, and n number of observations
+     thresh.lever<- (3*(dim(my.datf.train)[2]-1))/dim(my.datf.train)[1] # leverage thresh
+     hat.problems<- data.frame(hat.fit[hat.fit>thresh.lever]) # points with high leverage
+     
+     write.table(paste("Leverage Threshold: ", thresh.lever), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+     write.table("Points with leverage > threshold: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+     write.table(hat.problems, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F)
+     
+     # Cook's distance ?
+    }
     # Influence ?
     
     # PDF plots
@@ -1685,11 +1718,13 @@ NNreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="",noCo
     abline(h = 0, lty = 2)
     
     # Leverage plots
-    plot(hat.fit, type = "h",
-         main="Leverage for Fitted Model",
-         xlab="Index", ylab="Hat")
-    abline(h = thresh.lever, lty = 2, col="red") # leverage thresh
-    
+    if(det.Traind.pls!=0){
+     plot(hat.fit, type = "h",
+          main="Leverage for Fitted Model",
+          xlab="Index", ylab="Hat")
+     abline(h = thresh.lever, lty = 2, col="red") # leverage thresh
+    }
+
     dev.off()
     # --------------------------------------------------------------
   }
@@ -1725,7 +1760,7 @@ PLSregWSel <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile=""
                 method = 'pls',
                 rfeControl = ctrlw, trControl=ctrl, sizes=subsetsx, importance=T,
                 metric = 'RMSE',
-                tuneGrid=expand.grid(.ncomp=c(1:5)))
+                tuneGrid=expand.grid(.ncomp=c(1:floor((dim(my.datf.train)[2]-1)/5))))#ncomp=c(1:5)
   
   #------------------------------
   # Training RESULTS
@@ -2162,30 +2197,34 @@ RFreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="",noCo
     predVals.pls.ad <- pred.ts
     Traind.pls= as.matrix(my.datf.train)
     Testd.pls = as.matrix(my.datf.test)
-    Hat.train = diag(Traind.pls %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Traind.pls))
-    Hat.test  = diag(Testd.pls  %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Testd.pls))  
-    
-    # Leverage / Hat values
-    hat.fit <- Hat.test          # hat values
-    hat.fit.df <- as.data.frame(hat.fit)    # hat data frame
-    hat.mean <- mean(hat.fit)               # mean hat values
-    hat.fit.df$warn <- ifelse(hat.fit.df[, 'hat.fit']>3*hat.mean, 'x3',ifelse(hat.fit.df[, 'hat.fit']>2*hat.mean, 'x2', '-' ))
-    
-    write.table("Leverage output: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-    write.table(paste("Mean of hat values: ", hat.mean), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-    write.table("Leverage / Hat values with warnings (X3 & X2 = values 3 & 2 times than hat mean): ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-    write.table(hat.fit.df, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F) # write hat values and the levels X3, X2 (of hat mean)
-    
-    #THRESHOLD values: 3m/n, where m is the number of parameters, and n number of observations
-    thresh.lever<- (3*(dim(my.datf.train)[2]-1))/dim(my.datf.train)[1] # leverage thresh
-    hat.problems<- data.frame(hat.fit[hat.fit>thresh.lever]) # points with high leverage
-    
-    write.table(paste("Leverage Threshold: ", thresh.lever), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-    write.table("Points with leverage > threshold: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-    write.table(hat.problems, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F)
-    
-    # PDF with 12 plots
-    # --------------------------------------------------------------
+    mat.Traind.pls<- t(Traind.pls) %*%(Traind.pls) 
+    det.Traind.pls<- det(mat.Traind.pls)
+
+    if(det.Traind.pls!=0){
+     Hat.train = diag(Traind.pls %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Traind.pls))
+     Hat.test  = diag(Testd.pls  %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Testd.pls))  
+     
+     # Leverage / Hat values
+     hat.fit <- Hat.test          # hat values
+     hat.fit.df <- as.data.frame(hat.fit)    # hat data frame
+     hat.mean <- mean(hat.fit)               # mean hat values
+     hat.fit.df$warn <- ifelse(hat.fit.df[, 'hat.fit']>3*hat.mean, 'x3',ifelse(hat.fit.df[, 'hat.fit']>2*hat.mean, 'x2', '-' ))
+     
+     write.table("Leverage output: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+     write.table(paste("Mean of hat values: ", hat.mean), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+     write.table("Leverage / Hat values with warnings (X3 & X2 = values 3 & 2 times than hat mean): ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+     write.table(hat.fit.df, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F) # write hat values and the levels X3, X2 (of hat mean)
+     
+     #THRESHOLD values: 3m/n, where m is the number of parameters, and n number of observations
+     thresh.lever<- (3*(dim(my.datf.train)[2]-1))/dim(my.datf.train)[1] # leverage thresh
+     hat.problems<- data.frame(hat.fit[hat.fit>thresh.lever]) # points with high leverage
+     
+     write.table(paste("Leverage Threshold: ", thresh.lever), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+     write.table("Points with leverage > threshold: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+     write.table(hat.problems, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F)
+    } 
+     # PDF with 12 plots
+     # --------------------------------------------------------------
     pdf(file=paste(outFile,".",sCV,".","split",iSplit,".pdf",sep=""))
     # par(mfrow = c(3, 4)) # all plots into one page!
     
@@ -2200,11 +2239,12 @@ RFreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="",noCo
     abline(h = 0, lty = 2)
     
     # Leverage plots - plot 5
-    plot(hat.fit, type = "h",
-         main="Leverage for Fitted Model",
-         xlab="Index", ylab="Hat")
-    abline(h = thresh.lever, lty = 2, col="red") # leverage thresh
-    
+    if(det.Traind.pls!=0){
+     plot(hat.fit, type = "h",
+          main="Leverage for Fitted Model",
+          xlab="Index", ylab="Hat")
+     abline(h = thresh.lever, lty = 2, col="red") # leverage thresh
+    }
     # plot(FeatImp, top = components,main="Feature Importance") # ERROR !
     dev.off()
     # --------------------------------------------------------------
@@ -2387,28 +2427,32 @@ SVMRFEreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="",
     predVals.pls.ad <- pred.ts
     Traind.pls= as.matrix(my.datf.train)
     Testd.pls = as.matrix(my.datf.test)
-    Hat.train = diag(Traind.pls %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Traind.pls))
-    Hat.test  = diag(Testd.pls  %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Testd.pls))  
-    
-    # Leverage / Hat values
-    hat.fit <- Hat.test          # hat values
-    hat.fit.df <- as.data.frame(hat.fit)    # hat data frame
-    hat.mean <- mean(hat.fit)               # mean hat values
-    hat.fit.df$warn <- ifelse(hat.fit.df[, 'hat.fit']>3*hat.mean, 'x3',ifelse(hat.fit.df[, 'hat.fit']>2*hat.mean, 'x2', '-' ))
-    
-    write.table("Leverage output: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-    write.table(paste("Mean of hat values: ", hat.mean), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-    write.table("Leverage / Hat values with warnings (X3 & X2 = values 3 & 2 times than hat mean): ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-    write.table(hat.fit.df, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F) # write hat values and the levels X3, X2 (of hat mean)
-    
-    #THRESHOLD values: 3m/n, where m is the number of parameters, and n number of observations
-    thresh.lever<- (3*(dim(my.datf.train)[2]-1))/dim(my.datf.train)[1] # leverage thresh
-    hat.problems<- data.frame(hat.fit[hat.fit>thresh.lever]) # points with high leverage
-    
-    write.table(paste("Leverage Threshold: ", thresh.lever), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-    write.table("Points with leverage > threshold: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-    write.table(hat.problems, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F)
-    
+    mat.Traind.pls<- t(Traind.pls) %*%(Traind.pls) 
+    det.Traind.pls<- det(mat.Traind.pls)
+
+    if(det.Traind.pls!=0){
+     Hat.train = diag(Traind.pls %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Traind.pls))
+     Hat.test  = diag(Testd.pls  %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Testd.pls))  
+     
+     # Leverage / Hat values
+     hat.fit <- Hat.test          # hat values
+     hat.fit.df <- as.data.frame(hat.fit)    # hat data frame
+     hat.mean <- mean(hat.fit)               # mean hat values
+     hat.fit.df$warn <- ifelse(hat.fit.df[, 'hat.fit']>3*hat.mean, 'x3',ifelse(hat.fit.df[, 'hat.fit']>2*hat.mean, 'x2', '-' ))
+     
+     write.table("Leverage output: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+     write.table(paste("Mean of hat values: ", hat.mean), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+     write.table("Leverage / Hat values with warnings (X3 & X2 = values 3 & 2 times than hat mean): ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+     write.table(hat.fit.df, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F) # write hat values and the levels X3, X2 (of hat mean)
+     
+     #THRESHOLD values: 3m/n, where m is the number of parameters, and n number of observations
+     thresh.lever<- (3*(dim(my.datf.train)[2]-1))/dim(my.datf.train)[1] # leverage thresh
+     hat.problems<- data.frame(hat.fit[hat.fit>thresh.lever]) # points with high leverage
+     
+     write.table(paste("Leverage Threshold: ", thresh.lever), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+     write.table("Points with leverage > threshold: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+     write.table(hat.problems, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F)
+    } 
     # PDF with 12 plots
     # --------------------------------------------------------------
     pdf(file=paste(outFile,".",sCV,".","split",iSplit,".pdf",sep=""))
@@ -2427,11 +2471,12 @@ SVMRFEreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="",
     abline(h = 0, lty = 2)
     
     # Leverage plots - plot 5
-    plot(hat.fit, type = "h",
-         main="Leverage for Fitted Model",
-         xlab="Index", ylab="Hat")
-    abline(h = thresh.lever, lty = 2, col="red") # leverage thresh
-    
+    if(det.Traind.pls!=0){ 
+     plot(hat.fit, type = "h",
+          main="Leverage for Fitted Model",
+          xlab="Index", ylab="Hat")
+     abline(h = thresh.lever, lty = 2, col="red") # leverage thresh
+    }
     # plot(FeatImp, top = components,main="Feature Importance") # ERROR !
     dev.off()
     # --------------------------------------------------------------
@@ -2574,30 +2619,34 @@ ENETreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
     predVals.pls.ad <- pred.ts
     Traind.pls= as.matrix(my.datf.train)
     Testd.pls = as.matrix(my.datf.test)
-    Hat.train = diag(Traind.pls %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Traind.pls))
-    Hat.test  = diag(Testd.pls  %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Testd.pls))  
-    
-    # Leverage / Hat values
-    hat.fit <- Hat.test          # hat values
-    hat.fit.df <- as.data.frame(hat.fit)    # hat data frame
-    hat.mean <- mean(hat.fit)               # mean hat values
-    hat.fit.df$warn <- ifelse(hat.fit.df[, 'hat.fit']>3*hat.mean, 'x3',ifelse(hat.fit.df[, 'hat.fit']>2*hat.mean, 'x2', '-' ))
-    
-    write.table("Leverage output: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-    write.table(paste("Mean of hat values: ", hat.mean), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-    write.table("Leverage / Hat values with warnings (X3 & X2 = values 3 & 2 times than hat mean): ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-    write.table(hat.fit.df, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F) # write hat values and the levels X3, X2 (of hat mean)
-    
-    #THRESHOLD values: 3m/n, where m is the number of parameters, and n number of observations
-    thresh.lever<- (3*(dim(my.datf.train)[2]-1))/dim(my.datf.train)[1] # leverage thresh
-    hat.problems<- data.frame(hat.fit[hat.fit>thresh.lever]) # points with high leverage
-    
-    write.table(paste("Leverage Threshold: ", thresh.lever), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-    write.table("Points with leverage > threshold: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-    write.table(hat.problems, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F)
-    
-    # Cook's distance ?
+    mat.Traind.pls<- t(Traind.pls) %*%(Traind.pls) 
+    det.Traind.pls<- det(mat.Traind.pls)
 
+    if(det.Traind.pls!=0){
+     Hat.train = diag(Traind.pls %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Traind.pls))
+     Hat.test  = diag(Testd.pls  %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Testd.pls))  
+     
+     # Leverage / Hat values
+     hat.fit <- Hat.test          # hat values
+     hat.fit.df <- as.data.frame(hat.fit)    # hat data frame
+     hat.mean <- mean(hat.fit)               # mean hat values
+     hat.fit.df$warn <- ifelse(hat.fit.df[, 'hat.fit']>3*hat.mean, 'x3',ifelse(hat.fit.df[, 'hat.fit']>2*hat.mean, 'x2', '-' ))
+     
+     write.table("Leverage output: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+     write.table(paste("Mean of hat values: ", hat.mean), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+     write.table("Leverage / Hat values with warnings (X3 & X2 = values 3 & 2 times than hat mean): ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+     write.table(hat.fit.df, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F) # write hat values and the levels X3, X2 (of hat mean)
+     
+     #THRESHOLD values: 3m/n, where m is the number of parameters, and n number of observations
+     thresh.lever<- (3*(dim(my.datf.train)[2]-1))/dim(my.datf.train)[1] # leverage thresh
+     hat.problems<- data.frame(hat.fit[hat.fit>thresh.lever]) # points with high leverage
+     
+     write.table(paste("Leverage Threshold: ", thresh.lever), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+     write.table("Points with leverage > threshold: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+     write.table(hat.problems, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F)
+     
+     # Cook's distance ?
+    }
     # Influence ?
     
     # PDF plots
@@ -2614,10 +2663,12 @@ ENETreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
     abline(h = 0, lty = 2)
     
     # Leverage plots
-    plot(hat.fit, type = "h",
-         main="Leverage for Fitted Model",
-         xlab="Index", ylab="Hat")
-    abline(h = thresh.lever, lty = 2, col="red") # leverage thresh
+    if(det.Traind.pls!=0){
+     plot(hat.fit, type = "h",
+          main="Leverage for Fitted Model",
+          xlab="Index", ylab="Hat")
+     abline(h = thresh.lever, lty = 2, col="red") # leverage thresh
+    }
     dev.off()
     # --------------------------------------------------------------
   }
@@ -3073,9 +3124,9 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
   }
   
   # Check data has at least 5 columns for meaningful analysis
-  if(dim(ds)[2] < 5){
+  if(dim(ds)[2] < 5 || dim(ds)[1] < 3){
   print(c(dim(ds)))
-  stop("Your corrected dataset has less then 5 columns. Try repeating analysis without filtering options.")
+  stop(paste("Your corrected data set has dimensions:", paste(as.character(dim(ds)),collapse=', '),". Try repeating analysis without filtering options.",sep=''))
   }
   
   #=========================================================================================================
