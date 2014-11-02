@@ -1927,7 +1927,7 @@ Yrandom<- function(dss,trainFrac,best.reg,best.R2.ts,noYrand,ResBestF,rfe_SVM_pa
       my.stats.reg  <- SVMRFEreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF,rfe_SVM_param_c,rfe_SVM_param_eps,noCores)$stat.values # run NNet for each CV and regr method
     } 
     if (best.reg=="glmnet") {  
-      my.stats.reg  <- ENETreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF,noCores)$stat.values # run NNet for each CV and regr method
+      my.stats.reg  <- ENETreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF)$stat.values # run NNet for each CV and regr method
     }  
     if (best.reg=="rfRFE") {  
       my.stats.reg  <- RFRFEreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF,noCores)$stat.values # run NNet for each CV and regr method
@@ -3763,7 +3763,7 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
     my.stats.reg  <- SVMRFEreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF,rfe_SVM_param_c,rfe_SVM_param_eps,noCores)$stat.values # run NNet for each CV and regr method
   } 
   if (best.reg=="glmnet") {  
-    my.stats.reg  <- ENETreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF,noCores)$stat.values # run ENET for each CV and regr method
+    my.stats.reg  <- ENETreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF)$stat.values # run ENET for each CV and regr method
   }
   if (best.reg=="rfRFE") {  
     my.stats.reg  <- RFRFEreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF,noCores)$stat.values # run RF RFE for each CV and regr method
