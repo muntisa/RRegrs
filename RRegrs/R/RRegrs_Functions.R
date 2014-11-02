@@ -1070,7 +1070,7 @@ LASSOreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") 
 }
 #----------------------------------------------------------------------------------------------------------------------
 
-RBF_DDAreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="",noCores=1) {
+RBF_DDAreg <- function(my.datf.train,my.datf.test,sCV,negThrStep=0.5,iSplit=1,fDet=F,outFile="",noCores=1) {
   #============================================================
   # 8.5. RBF network with the DDA algorithm regression (caret)
   #============================================================
@@ -1120,7 +1120,7 @@ RBF_DDAreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile=""
   
   rbf.fit<- train(net.c~.,data=my.datf.train,
                   method='rbfDDA',trControl=ctrl,
-                  tuneGrid=expand.grid(.negativeThreshold=seq(0,1,0.1)))
+                  tuneGrid=expand.grid(.negativeThreshold=seq(0,1,negThrStep)))
   
   #------------------------------
   # Training RESULTS
@@ -1875,7 +1875,7 @@ PLSregWSel <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile=""
 }
 #----------------------------------------------------------------------------------------------------------------------
 
-Yrandom<- function(dss,trainFrac,best.reg,best.R2.ts,noYrand,ResBestF,rfe_SVM_param_c,rfe_SVM_param_eps,noCores=1){
+Yrandom<- function(dss,trainFrac,best.reg,best.R2.ts,noYrand,ResBestF,rfe_SVM_param_c,rfe_SVM_param_eps,negThrStep,noCores=1){
   #================================================
   # Y-randomization for the best model (Step 12)
   #================================================
@@ -1912,7 +1912,7 @@ Yrandom<- function(dss,trainFrac,best.reg,best.R2.ts,noYrand,ResBestF,rfe_SVM_pa
       my.stats.reg  <- LASSOreg(ds.train,ds.test,"repeatedcv",i,F,ResBestF)$stat.values # run SVRM Radial for each CV and regr method
     }
     if (best.reg=="rbfDDA") {  
-      my.stats.reg  <- RBF_DDAreg(ds.train,ds.test,"repeatedcv",i,F,ResBestF,noCores)$stat.values # run SVRM Radial for each CV and regr method
+      my.stats.reg  <- RBF_DDAreg(ds.train,ds.test,"repeatedcv",negThrStep,i,F,ResBestF,noCores)$stat.values # run SVRM Radial for each CV and regr method
     }
     if (best.reg=="svmRadial") {  
       my.stats.reg  <- SVRMreg(ds.train,ds.test,"repeatedcv",i,F,ResBestF,rfe_SVM_param_c,noCores)$stat.values # run SVRM Radial for each CV and regr method
@@ -1933,30 +1933,35 @@ Yrandom<- function(dss,trainFrac,best.reg,best.R2.ts,noYrand,ResBestF,rfe_SVM_pa
       my.stats.reg  <- RFRFEreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF,noCores)$stat.values # run NNet for each CV and regr method
     } 
 
-    # ?? ENET ??   
-   
-    Yrand.R2.ts <- c(Yrand.R2.ts,my.stats.reg$R2.ts) # adding test R2 value Y randomization 
+    Yrand.R2.ts <- c(Yrand.R2.ts,my.stats.reg$R2.ts) # adding test R2 value Y randomization
   }
   
-  # get histogram for differences between best R2 and the values for each Y randomization
-  R2diffs          <- abs(Yrand.R2.ts - best.R2.ts) # absolute differences between R2 values (best model vs Y randomized results)
-  R2diffsPerBestR2 <- R2diffs/best.R2.ts            # the same difference in percents
+  R2diffsPerBestR2 <- NULL
+
+  if (is.na(my.stats.reg$R2.ts)) { # check for NA values 
+    cat("       --> Y-Randomization error due to NA values!\n")
+    write("Y-Randomization error due to NA values!", file=ResBestF,append=T)
+    }
+  else{
+    # get histogram for differences between best R2 and the values for each Y randomization
+    R2diffs          <- abs(Yrand.R2.ts - best.R2.ts) # absolute differences between R2 values (best model vs Y randomized results)
+    R2diffsPerBestR2 <- abs(R2diffs/best.R2.ts)            # the same difference in percents
   
-  pdf(file=paste(ResBestF,".Yrand.Hist.pdf",sep=""))    # save histogram if ratio diffs R2 into PDF for Y random
-  Yrand.hist  <- hist(R2diffsPerBestR2)         # draw histogram of the ratio diffs/Best R2 for Y random
-  dev.off()
+    pdf(file=paste(ResBestF,".Yrand.Hist.pdf",sep=""))    # save histogram if ratio diffs R2 into PDF for Y random
+    Yrand.hist  <- hist(R2diffsPerBestR2)         # draw histogram of the ratio diffs/Best R2 for Y random
+    dev.off()
   
-  write.table("Y randomization test: ",file=ResBestF,append=T,sep=",",col.names=F,row.names=F,quote=F)
-  write.table("=====================", file=ResBestF,append=T,sep=",",col.names=F,row.names=F,quote=F)
-  write.table("Diffs R2 (Best Model - Y rand):",file=ResBestF,append=T,sep=",",col.names=F,row.names=F,quote=F)
-  AppendList2CSv(R2diffs, ResBestF)
-  write.table("Summary Difs:",file=ResBestF,append=T,sep=",",col.names=F,row.names=F,quote=F)
-  AppendList2CSv(summary(R2diffs), ResBestF)
-  write.table("Ratio Diffs R2 / Best R2 (Best Model - Y rand):",file=ResBestF,append=T,sep=",",col.names=F,row.names=F,quote=F)
-  AppendList2CSv(R2diffsPerBestR2, ResBestF)
-  write.table("Summary Difs %:",file=ResBestF,append=T,sep=",",col.names=F,row.names=F,quote=F)
-  AppendList2CSv(summary(R2diffsPerBestR2),ResBestF)
-  
+    write.table("Y randomization test: ",file=ResBestF,append=T,sep=",",col.names=F,row.names=F,quote=F)
+    write.table("=====================", file=ResBestF,append=T,sep=",",col.names=F,row.names=F,quote=F)
+    write.table("Diffs R2 (Best Model - Y rand):",file=ResBestF,append=T,sep=",",col.names=F,row.names=F,quote=F)
+    AppendList2CSv(R2diffs, ResBestF)
+    write.table("Summary Difs:",file=ResBestF,append=T,sep=",",col.names=F,row.names=F,quote=F)
+    AppendList2CSv(summary(R2diffs), ResBestF)
+    write.table("Ratio Diffs R2 / Best R2 (Best Model - Y rand):",file=ResBestF,append=T,sep=",",col.names=F,row.names=F,quote=F)
+    AppendList2CSv(R2diffsPerBestR2, ResBestF)
+    write.table("Summary Difs %:",file=ResBestF,append=T,sep=",",col.names=F,row.names=F,quote=F)
+    AppendList2CSv(summary(R2diffsPerBestR2),ResBestF)
+  }
   return(R2diffsPerBestR2) # return the ratio of diffs with the best R2 from the same 
 }
 
@@ -2930,7 +2935,7 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
   CVtypes="repeatedcv;LOOCV",NoNAValFile="ds.NoNA.csv",
   No0NearVarFile="ds.No0Var.csv",ScaledFile="ds.scaled.csv",NoCorrFile="ds.scaled.NoCorrs.csv",
   lmFile="LM.details.csv",glmFile="GLM.details.csv",plsFile="PLS.details.csv",
-  lassoFile="Lasso.details.csv",rbfDDAFile="RBF_DDA.details.csv",svrmFile="SVMRadial.details.csv",
+  lassoFile="Lasso.details.csv",rbfDDAFile="RBF_DDA.details.csv",negThrStep=0.5,svrmFile="SVMRadial.details.csv",
   nnFile="NN.details.csv",rfFile="RF.details.csv",svmrfeFile="SVMRFE.details.csv",
   enetFile="ENET.details.csv") { # input = file with all parameters
   # Minimal use:
@@ -2968,6 +2973,9 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="fPLS",Parameter.Value=fPLS,Description="If run PLS (Step 8.3)"))
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="fLASSO",Parameter.Value=fLASSO,Description="If run LASSO (Step 8.4)"))
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="fRBFdda",Parameter.Value=fRBFdda,Description="If run RBF DDA (Step 8.5)"))
+  
+  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="negThrStep",Parameter.Value=negThrStep,Description="Negative Threshold step parameter for RBF DDA (Step 8.5)"))
+
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="fSVRM",Parameter.Value=fSVRM,Description="If run svmRadial.RMSE (Step 8.6)"))
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="fNN",Parameter.Value=fNN,Description="If run Neural Networks (Step 8.8)"))
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="fRF",Parameter.Value=fRF,Description="If run Random Forest  (Step 8.9)"))
@@ -3021,6 +3029,8 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
 
   rfe_SVM_param_c   = strsplit(as.character(RFE_SVM_C),";")[[1]] # values of C for SVM RFE
   rfe_SVM_param_eps = strsplit(as.character(RFE_SVM_epsilon),";")[[1]] # values of epsilon for SVM RFE
+  # negThrStep
+
   
   # ----------------------------------------------------------------------------------------
   trainFrac   = as.numeric(as.character(trainFrac))   # the fraction of training set from the entire dataset; trainFrac = the rest of dataset, the test set
@@ -3198,7 +3208,7 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
     library(parallel)
     noCoresSys=detectCores()
     if (noCores==0){ cat("       -> CPU Cores = ",noCoresSys,"(only complex methods)\n") }
-    else{ cat("       -> CPU Cores = ",noCores,"(only complex methods)\n") }
+    else{ cat("                  -> CPU Cores = ",noCores,   "(only complex methods)\n") }
 
     # --------------------------------------------
     # 8.1. Basic LM : default
@@ -3375,7 +3385,7 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
         for (cv in 1:length(CVtypes2)) {
           cat("    -->",CVtypes2[cv],"\n")
           ptmRBF_DDA <- proc.time()
-          rbfDDA.model <- RBF_DDAreg(ds.train,ds.test,CVtypes2[cv],i,fDet,outFile.rbfDDA,noCores) # run rbfDDA for each CV and regr method
+          rbfDDA.model <- RBF_DDAreg(ds.train,ds.test,CVtypes2[cv],negThrStep,i,fDet,outFile.rbfDDA,noCores) # run rbfDDA for each CV and regr method
           print(proc.time() - ptmRBF_DDA) # print running time
 
           my.stats.rbfDDA <- rbfDDA.model$stat.values
@@ -3692,19 +3702,19 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
   # From the best ones (+/- 0.05 of adjR2), chose the one with less variables, after that the one with min RMSE!!!
   
   best.dt  <- dt.mean.ord[1] # the best model (adjR2.ts) should be the first value in the descendent ordered results
+
   # best.reg <- paste(best.dt$RegrMeth,collapse="") # best regrression method
   
   # New conditions
   # +/- 0.05 adjR2ts --> min(RMSE)
   best.adjR2.ts <- as.numeric(data.frame(best.dt)[,8]) # best adjR2.ts avgs
   
-  
   # best model with adjR2.ts +/- 0.05 and min of RMSE for Avgs
   #best.dt  <- dt.mean.ord[adjR2.ts.Avg %between% c(best.adjR2.ts-0.05,best.adjR2.ts+0.05)][RMSE.ts.Avg == min(RMSE.ts.Avg)]
   best.dt  <- dt.mean.ord[adjR2.ts.Avg %between% c(best.adjR2.ts-0.05,best.adjR2.ts+0.05)][which.min(RMSE.ts.Avg)]
   best.reg <- paste(best.dt$RegrMeth,collapse="") # best regrression method
   cat("    -> Method:",best.reg,"\n")
-  
+
   # best model non-averaged ? no. of features
   # -----------------------------------------------
   # best.method <- dt.res[CVtype == "repeatedcv"][RegrMeth == best.reg] # best modes corresponding with the avg best values
@@ -3738,7 +3748,7 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
     my.stats.reg  <- LASSOreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF)$stat.values # run LASSO for each CV and regr method
   }
   if (best.reg=="rbfDDA") {  
-    my.stats.reg  <- RBF_DDAreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF,noCores)$stat.values # run rbfDDA for each CV and regr method
+    my.stats.reg  <- RBF_DDAreg(ds.train,ds.test,"repeatedcv",negThrStep,i,T,ResBestF,noCores)$stat.values # run rbfDDA for each CV and regr method
   }
   if (best.reg=="svmRadial") {  
     my.stats.reg  <- SVRMreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF,rfe_SVM_param_c,noCores)$stat.values # run SVRM Radial for each CV and regr method
@@ -3765,7 +3775,7 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
   # 12. Test best model with test dataset + Y randomization
   #--------------------------------------------------------------------------------------
   # ratios Yrand R2 - Best model R2 / Best model R2
-  R2Diff.Yrand <- Yrandom(ds,trainFrac,best.reg,my.stats.reg$R2.ts,noYrand,ResBestF,rfe_SVM_param_c,rfe_SVM_param_eps,noCores) # mean value of ratio (deatails are printed to output file)
+  R2Diff.Yrand <- Yrandom(ds,trainFrac,best.reg,my.stats.reg$R2.ts,noYrand,ResBestF,rfe_SVM_param_c,rfe_SVM_param_eps,negThrStep,noCores) # mean value of ratio (deatails are printed to output file)
   
   # Assessment of Applicability Domain (plot leverage) was included as details in each regression function
   
