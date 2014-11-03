@@ -20,7 +20,7 @@ fDet=F,outFile="")}
 \details{
 RMSE is the summary metric used to select the optimal model.
 
-The tuning parameter examined is the model's number of components, which is set to a sequence of integers from 1 to 10 or the number of columns in the dataset reduced by 1 (whichever higher).
+The tuning parameter examined is the model's number of components, which is set to a sequence of integers from 1 to one fifth of the number of features in the training data set.
 
 To control the computational nuances of the train function, trainControl is used; number of folds or resampling iterations is set to 10, and the number of completed set of folds is set to 10 (for repeated k-fold cross-validation).
     
