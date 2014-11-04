@@ -7,7 +7,7 @@
   RBF_DDAreg fits radial basis functions models using Dynamic Decay Adjustment and returns resampling based performance measure using the train function by caret package. 
 }
 \usage{
-  RBF_DDAreg(my.datf.train,my.datf.test,sCV,negThrStep=0.5,iSplit=1,fDet=F,outFile="",noCores=1)}
+  RBF_DDAreg(my.datf.train,my.datf.test,sCV,negThrStep=0.5,iSplit=1,fDet=F,outFile="")}
 \arguments{
   \item{my.datf.train}{the training data set; an object where samples are in rows and features are in columns. The first column should be a numeric or factor vector containing the outcome for each sample.}
   \item{my.datf.test}{the test data set.}
@@ -16,7 +16,6 @@
   \item{iSplit1}{a number indicating from which splitting of the data, the above train and test sets are derived. The default value is 1.}
   \item{fDet}{a logical value for saving model statistics; the default value is FALSE. See below for details.}
   \item{outFile}{a string specifying the output file (could include path) for details (fDet=TRUE).}
-  \item{noCores}{number of cores for parallel calculation; 0 = all available cores, 1 = no parallel (default), n>1 = specific number of CPU cores.}
   }
               \details{
               RMSE is the summary metric used to select the optimal model.

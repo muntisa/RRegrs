@@ -7,8 +7,7 @@ Fitting Partial Least Squares Predictive Models over Different Tuning Parameters
 PLSreg fits partial least squares regression models based on mvr function by pls package, and returns a resampling based performance measure using the train function by caret package. 
 }
 \usage{
-PLSreg(my.datf.train,my.datf.test,sCV,iSplit1,
-fDet=F,outFile="")}
+PLSreg(my.datf.train,my.datf.test,sCV,iSplit1,fDet=F,outFile="")}
 \arguments{
  \item{my.datf.train}{the training data set; an object where samples are in rows and features are in columns. The first column should be a numeric or factor vector containing the outcome for each sample.}
  \item{my.datf.test}{the test data set.}

@@ -9,7 +9,7 @@ SVMRFEreg fits RFE SVM regression models and returns resampling based performanc
 }
 \usage{
 SVMRFEreg(my.datf.train,my.datf.test,sCV,iSplit1,
-        fDet=F,outFile="",cs=c(1,5,15,50),eps=c(0.01,0.1,0.3),noCores=1)
+        fDet=F,outFile="",cs=c(1,5,15,50),eps=c(0.01,0.1,0.3))
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -21,7 +21,6 @@ SVMRFEreg(my.datf.train,my.datf.test,sCV,iSplit1,
   \item{outFile}{A string specifying the output file (could include path) for details (fDet=TRUE).}
   \item{cs}{A numeric vector specifying the possible values of the cost function for the SVM mimization.}
   \item{eps}{A numeric vector specifying the possible values epsilon function eps-svr insensitive-loss function (more details in kernlab package)}
-  \item{noCores}{number of cores for parallel calculation; 0 = all available cores, 1 = no parallel (default), n>1 = specific number of CPU cores.}
   }
         \details{
               RMSE is the summary metric used to select the optimal model.
@@ -63,7 +62,7 @@ SVMRFEreg(my.datf.train,my.datf.test,sCV,iSplit1,
                          
                          outSVMRFE<- 'SVMRFEoutput.csv'
                          
-                         SVMRFE.fit <- SVMRFEreg(ds.train,ds.test,CVtypes[1],iSplit=1,fDet=F,outFile=outSVMRFE,noCores=0) # using all available cores
+                         SVMRFE.fit <- SVMRFEreg(ds.train,ds.test,CVtypes[1],iSplit=1,fDet=F,outFile=outSVMRFE)
                          }
                          }
                          \author{

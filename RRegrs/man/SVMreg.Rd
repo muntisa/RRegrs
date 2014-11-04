@@ -8,7 +8,7 @@ Fitting Support Vector Machines Regression Models over Different Tuning Paramete
 SVMreg fits SVM regression models and returns resampling based performance measure using the train function by caret package. 
 }
 \usage{
-SVRMreg(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="",cs=c(1,5,10,15,20),noCores=1)
+SVRMreg(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="",cs=c(1,5,10,15,20))
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -19,7 +19,6 @@ SVRMreg(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="",cs=c(1,5,10,15
   \item{fDet}{A logical value for saving model statistics; the default value is FALSE. See below for details.}
   \item{outFile}{A string specifying the output file (could include path) for details (fDet=TRUE).}
   \item{cs}{A numeric vector specifying the possible values of the cost function for the SVM mimization.}
-  \item{noCores}{number of cores for parallel calculation; 0 = all available cores, 1 = no parallel (default), n>1 = specific number of CPU cores.}
   }
         \details{
               RMSE is the summary metric used to select the optimal model.
@@ -61,7 +60,7 @@ SVRMreg(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="",cs=c(1,5,10,15
                          
   outSVM<- 'SVMoutput.csv'
                          
-  SVM.fit <- SVMreg(ds.train,ds.test,CVtypes[1],iSplit=1,fDet=F,outFile=outSVM,noCores=1) # using all available cores
+  SVM.fit <- SVMreg(ds.train,ds.test,CVtypes[1],iSplit=1,fDet=F,outFile=outSVM)
    }
   }
  \author{Georgia Tsiliki, Cristian R. Munteanu, Jose A. Seoane}

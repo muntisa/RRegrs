@@ -8,7 +8,7 @@ NNreg fits single-hidden-layer neural network models based on nnet function by n
 }
 \usage{
 NNreg(my.datf.train,my.datf.test,sCV,iSplit1,
-fDet=F,outFile="",noCores=1)}
+fDet=F,outFile="")}
 \arguments{
  \item{my.datf.train}{the training data set; an object where samples are in rows and features are in columns. The first column should be a numeric or factor vector containing the outcome for each sample.}
  \item{my.datf.test}{the test data set.}
@@ -16,7 +16,6 @@ fDet=F,outFile="",noCores=1)}
  \item{iSplit1}{a number indicating from which splitting of the data, the above train and test sets are derived. The default value is 1.}
  \item{fDet}{A logical value for saving model' statistics; the defualt value is FALSE. See below for details.}
  \item{outFile}{A string specifying the output file (could include path) for details (fDet=TRUE).}
- \item{noCores}{number of cores for parallel calculation; 0 = all available cores, 1 = no parallel (default), n>1 = specific number of CPU cores.}
 }
 \details{
 RMSE is the summary metric used to select the optimal model.
@@ -59,7 +58,7 @@ CVtypes <- c('repeatedcv','LOOCV')
 
 outNN<- 'NNoutput.csv'
 
-NN.fit <- NNreg(ds.train,ds.test,CVtypes[1],iSplit=1,fDet=F,outFile=outNN,noCores=4) # using 4 CPU cores
+NN.fit <- NNreg(ds.train,ds.test,CVtypes[1],iSplit=1,fDet=F,outFile=outNN)
 }
 }
 \author{

@@ -9,7 +9,7 @@ RFRFEreg fits RFE RF regression models and returns resampling based performance 
 }
 \usage{
 RFRFEreg(my.datf.train,my.datf.test,sCV,iSplit1,
-        fDet=F,outFile="",noCores=1)
+        fDet=F,outFile="")
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -19,7 +19,6 @@ RFRFEreg(my.datf.train,my.datf.test,sCV,iSplit1,
   \item{iSplit1}{a number indicating from which splitting of the data, the above train and test sets are derived. The default value is 1.}
   \item{fDet}{A logical value for saving model statistics; the default value is FALSE. See below for details.}
   \item{outFile}{A string specifying the output file (could include path) for details (fDet=TRUE).}
-  \item{noCores}{number of cores for parallel calculation; 0 = all available cores, 1 = no parallel (default), n>1 = specific number of CPU cores.}
   }
         \details{
               RMSE is the summary metric used to select the optimal model.
@@ -61,7 +60,7 @@ RFRFEreg(my.datf.train,my.datf.test,sCV,iSplit1,
                          
                          outLM<- 'RFRFEoutput.csv'
                          
-                         RFRFE.fit <- RFRFEreg(ds.train,ds.test,CVtypes[1],iSplit=1,fDet=F,outFile=outLM,noCores=2) # using 2 CPU cores
+                         RFRFE.fit <- RFRFEreg(ds.train,ds.test,CVtypes[1],iSplit=1,fDet=F,outFile=outLM)
                          }
                          }
                          \author{

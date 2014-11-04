@@ -8,7 +8,7 @@
 }
 \usage{
   ENETreg(my.datf.train,my.datf.test,sCV,iSplit1,
-        fDet=F,outFile="",noCores=1)}
+        fDet=F,outFile="")}
 \arguments{
   \item{my.datf.train}{the training data set; an object where samples are in rows and features are in columns. The first column should be a numeric or factor vector containing the outcome for each sample.}
   \item{my.datf.test}{the test data set.}
@@ -16,7 +16,6 @@
   \item{iSplit1}{a number indicating from which splitting of the data, the above train and test sets are derived. The default value is 1.}
   \item{fDet}{A logical value for saving model statistics; the default value is FALSE. See below for details.}
   \item{outFile}{A string specifying the output file (could include path) for details (fDet=TRUE).}
-  \item{noCores}{number of cores for parallel calculation; 0 = all available cores, 1 = no parallel (default), n>1 = specific number of CPU cores.}
   }
               \details{
               RMSE is the summary metric used to select the optimal model.
@@ -58,7 +57,7 @@
                          
                          outENET<- 'ENEToutput.csv'
                          
-                         ENET.fit <- ENETreg(ds.train,ds.test,CVtypes[1],iSplit=1,fDet=F,outFile=outENET,noCores=3)
+                         ENET.fit <- ENETreg(ds.train,ds.test,CVtypes[1],iSplit=1,fDet=F,outFile=outENET)
                          }
                          }
                          \author{
