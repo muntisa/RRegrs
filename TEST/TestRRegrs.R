@@ -28,6 +28,6 @@ source("../RRegrs/R/RRegrs_Functions.R")
 
 # noCores = CPU cores: 0 = all CPU cores, 1 = no parallel, >1 = specific cores
 
-RRegrsResults = RRegrs(DataFileName="ds.House.csv",noCores=2,iSplitTimes=2,noYrand=2,
-                       fLM="T",fGLM="T",fPLS="T",fLASSO="T",fRBFdda="F",
-                       fSVRM="F",fNN="F",fRF="F",fSVMRFE="F",fENET="F") # Run RRegrs without some methods
+RRegrsResults = RRegrs(DataFileName="ds.House.csv",noCores=2,iSplitTimes=2,noYrand=2,fFeatureSel="T",
+                       fLM="T",fGLM="T",fPLS="T",fLASSO="T",fRBFdda="T",
+                       fSVRM="T",fNN="T",fRF="T",fSVMRFE="T",fENET="T") # Run RRegrs without some methods

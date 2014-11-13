@@ -3186,24 +3186,24 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
       } 
       else    # if there is a need for previous feature selection ->> use wrapper functions
       {                     
-        cat("-> PLS Wrapper Feature Selection ...\n")
-        # For each type of CV do all the statistics
-        # -----------------------------------------------------
-        for (cv in 1:length(CVtypes)) {
-          cat("    -->",CVtypes[cv],"\n")
-          ptmPLSw <- proc.time()
-          pls.model <- PLSregWSel(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.PLS) # run PLSw for each CV and regr method
-          print(proc.time() - ptmPLSw) # print running time
+        #cat("-> PLS Wrapper Feature Selection ...\n")
+        ## For each type of CV do all the statistics
+        ## -----------------------------------------------------
+        #for (cv in 1:length(CVtypes)) {
+        #  cat("    -->",CVtypes[cv],"\n")
+        #  ptmPLSw <- proc.time()
+        #  pls.model <- PLSregWSel(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.PLS) # run PLSw for each CV and regr method
+        #  print(proc.time() - ptmPLSw) # print running time
 
-          my.stats.PLS <- pls.model$stat.values
-          my.model.PLS <- pls.model$model
+        #  my.stats.PLS <- pls.model$stat.values
+        #  my.model.PLS <- pls.model$model
 
-          #-------------------------------------------------------
-          # Add output from PLSw to the list of results
-          #-------------------------------------------------------
-          # List of results for each splitting, CV type & regression method
-          dfRes = mapply(c, my.stats.PLS, dfRes, SIMPLIFY=F)
-        } # end CV types 
+        #  #-------------------------------------------------------
+        #  # Add output from PLSw to the list of results
+        #  #-------------------------------------------------------
+        #  # List of results for each splitting, CV type & regression method
+        #  dfRes = mapply(c, my.stats.PLS, dfRes, SIMPLIFY=F)
+        #} # end CV types 
       }
     } # end PLS with wrapper
     
@@ -3214,6 +3214,7 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
       cat("-> Lasso ...\n")
       outFile.LASSO <- file.path(PathDataSet,lassoFile)   # the same folder as the input is used for the output
 
+     if (fFeatureSel==F) {
       # For each type of CV do all the statistics
       # -----------------------------------------------------
       for (cv in 1:length(CVtypes2)) {
@@ -3235,7 +3236,8 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
         names(dfMod[[cv]])[mod.ind[cv]] <- names1[1]
         mod.ind[cv] <- mod.ind[cv] +1 # update mod.ind indicator variable
       } # end CV types
-    } # end Lasso
+    }
+   } # end Lasso
 
     # ----------------------------------------------------------------
     # 8.5. RBF network with the DDA algorithm regression (caret)
@@ -3412,7 +3414,7 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
       cat("-> SVM-RFE : Support Vector Machines Recursive Feature Elimination ...\n")
       outFile.SVMRFE <- file.path(PathDataSet,svmrfeFile)   # the same folder as the input is used for the output
       
-      if (fFeatureSel==F) {    # if there is no need of feature selection ->> use normal functions
+      if (fFeatureSel==T) {    # if there is no need of feature selection ->> use normal functions
         # For each type of CV do all the statistics
         # -----------------------------------------------------
         for (cv in 1:length(CVtypes2)) {
