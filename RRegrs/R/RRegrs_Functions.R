@@ -3079,10 +3079,10 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
     # 8.1. Basic LM : default
     # --------------------------------------------
     if (fLM==T) {   # if LM was selected, run the method
-      cat("-> LM : Linear Multi-regression ...\n")
       outFile.LM <- file.path(PathDataSet,lmFile)   # the same folder as the input is used for the output
       
       if (fFeatureSel==F) {    # if there is no need of feature selection ->> use normal functions
+		cat("-> LM : Linear Multi-regression ...\n")
         
         # For each type of CV do all the statistics
         # -----------------------------------------------------
@@ -3118,11 +3118,11 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
     # (8.2) GLM based on AIC regression - Generalized Linear Model with Stepwise Feature Selection
     # -----------------------------------------------------------------------------------------
     if (fGLM==T) {   # if GLM was selected, run the method
-      cat("-> GLM : Generalized Linear Model stepwise - based on AIC ...\n")
       outFile.GLM <- file.path(PathDataSet,glmFile)   # the same folder as the input is used for the output
       
       if (fFeatureSel==F) {    # if there is no need of feature selection ->> use normal functions
-        # For each type of CV do all the statistics
+        cat("-> GLM : Generalized Linear Model stepwise - based on AIC ...\n")
+		# For each type of CV do all the statistics
         # -----------------------------------------------------
         for (cv in 1:length(CVtypes)) {
           cat("    -->",CVtypes[cv],"\n")
@@ -3211,10 +3211,10 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
     # 8.4. LASSO regression
     # --------------------------------------------
     if (fLASSO==T) {   # if LASSO was selected, run the method
-      cat("-> Lasso ...\n")
       outFile.LASSO <- file.path(PathDataSet,lassoFile)   # the same folder as the input is used for the output
 
      if (fFeatureSel==F) {
+	  cat("-> Lasso ...\n")
       # For each type of CV do all the statistics
       # -----------------------------------------------------
       for (cv in 1:length(CVtypes2)) {
@@ -3243,10 +3243,10 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
     # 8.5. RBF network with the DDA algorithm regression (caret)
     # ----------------------------------------------------------------
     if (fRBFdda==T) {   # if RBF-DDA was selected, run the method
-      cat("-> RBF-DDA : Radial Basis Functions - Dynamic Decay Adjustment ...\n")
       outFile.rbfDDA <- file.path(PathDataSet,rbfDDAFile)   # the same folder as the input is used for the output
       
       if (fFeatureSel==F) {    # if there is no need of feature selection ->> use normal functions
+		cat("-> RBF-DDA : Radial Basis Functions - Dynamic Decay Adjustment ...\n")
         # For each type of CV do all the statistics
         # -----------------------------------------------------
         for (cv in 1:length(CVtypes2)) {
@@ -3280,10 +3280,10 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
     # 8.6. SVM radial regression
     # --------------------------------------------
     if (fSVRM==T) {   # if SVM Radial was selected, run the method
-      cat("-> SVM radial : Support vector machine using radial functions ...\n")
       outFile.SVRM <- file.path(PathDataSet,svrmFile)   # the same folder as the input is used for the output
       
       if (fFeatureSel==F) {    # if there is no need of feature selection ->> use normal functions
+		cat("-> SVM radial : Support vector machine using radial functions ...\n")
         # For each type of CV do all the statistics
         # -----------------------------------------------------
         for (cv in 1:length(CVtypes)) {
@@ -3321,10 +3321,10 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
     # 8.8. Neural Networks Regression
     # --------------------------------------------
     if (fNN==T) {   # if NNet was selected, run the method
-      cat("-> NN : Neural Networks ...\n")
       outFile.NN <- file.path(PathDataSet,nnFile)   # the same folder as the input is used for the output
       
       if (fFeatureSel==F) {    # if there is no need of feature selection ->> use normal functions
+		cat("-> NN : Neural Networks ...\n")
         # For each type of CV do all the statistics
         # -----------------------------------------------------
         for (cv in 1:length(CVtypes)) {
@@ -3358,11 +3358,11 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
     # 8.9. Random Forest Regression (RF)
     # --------------------------------------------
     if (fRF==T) {   # if RF was selected, run the method
-      cat("-> RF : Random Forest ...\n")
       outFile.RF <- file.path(PathDataSet,rfFile)   # the same folder as the input is used for the output
       
       if (fFeatureSel==F) {    # if there is no need of feature selection ->> use normal functions
-        # For each type of CV do all the statistics
+        cat("-> RF : Random Forest ...\n")
+		# For each type of CV do all the statistics
         # -----------------------------------------------------
         for (cv in 1:length(CVtypes2)) {
           cat("    -->",CVtypes2[cv],"\n")
@@ -3411,11 +3411,11 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
     # 8.10. SVM RFE
     # --------------------------------------------
     if (fSVMRFE==T) {   # if SVM-RFE was selected, run the method
-      cat("-> SVM-RFE : Support Vector Machines Recursive Feature Elimination ...\n")
       outFile.SVMRFE <- file.path(PathDataSet,svmrfeFile)   # the same folder as the input is used for the output
       
       if (fFeatureSel==T) {    # if there is no need of feature selection ->> use normal functions
-        # For each type of CV do all the statistics
+        cat("-> SVM-RFE : Support Vector Machines Recursive Feature Elimination ...\n")
+		# For each type of CV do all the statistics
         # -----------------------------------------------------
         for (cv in 1:length(CVtypes2)) {
           cat("    -->",CVtypes2[cv],"\n")
@@ -3448,12 +3448,11 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
     # 8.11. Elastic Net regression
     # --------------------------------------------
     if (fenet==T) {   # if ENET was selected, run the method
-     
-      cat("-> ENET : Elastic Nets ...\n")
       outFile.ENET <- file.path(PathDataSet,enetFile)   # the same folder as the input is used for the output
       
       if (fFeatureSel==F) {    # if there is no need of feature selection ->> use normal functions
-        # For each type of CV do all the statistics
+        cat("-> ENET : Elastic Nets ...\n")
+		# For each type of CV do all the statistics
         # -----------------------------------------------------
         for (cv in 1:length(CVtypes)) {
           cat("    -->",CVtypes[cv],"\n")
