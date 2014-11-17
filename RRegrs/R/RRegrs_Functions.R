@@ -3070,7 +3070,7 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
       # parallel for windows:
       # ------------------------------------------
       if (Sys.info()[['sysname']]=="Windows"){
-       cl<-makeCluster(noCores) 
+       cl<-makeCluster(noCores,outfile="") 
         registerDoSNOW(cl)
       }   
     }
@@ -3627,7 +3627,7 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
     # parallel for windows:
     # ------------------------------------------
     if (Sys.info()[['sysname']]=="Windows"){
-     cl<-makeCluster(noCores) 
+     cl<-makeCluster(noCores,outfile="") 
       registerDoSNOW(cl)
     }   
   }
