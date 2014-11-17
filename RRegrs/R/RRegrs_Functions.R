@@ -2358,7 +2358,7 @@ RFRFEreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") 
   # Train the model using only training set
   set.seed(iSplit)
   
-  input = as.matrix(my.datf.train[,2:13])
+  input = as.matrix(my.datf.train[,2:ncol(my.datf.train)])
   rferf.fit = rfe(input,net.c,sizes = sizes,rfeControl=rfeCtr,prob.model =F,trControl=ctrl ,allowParallel=T, tuneGrid=expand.grid(.mtry=c(floor(sqrt(ncol(input))),ncol(input))), metric='RMSE')
   
   #------------------------------
