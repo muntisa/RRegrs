@@ -1830,16 +1830,16 @@ Yrandom<- function(dss,trainFrac,best.reg,best.R2.ts,noYrand,ResBestF,rfe_SVM_pa
       my.stats.reg  <- NNreg(ds.train,ds.test,"repeatedcv",i,F,ResBestF)$stat.values # run NNet for each CV and regr method
     } 
     if (best.reg=="rf") {  
-      my.stats.reg  <- RFreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF)$stat.values # run NNet for each CV and regr method
+      my.stats.reg  <- RFreg(ds.train,ds.test,"repeatedcv",i,F,ResBestF)$stat.values # run NNet for each CV and regr method
     } 
     if (best.reg=="svmRFE") {  
-      my.stats.reg  <- SVMRFEreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF,rfe_SVM_param_c,rfe_SVM_param_eps)$stat.values # run NNet for each CV and regr method
+      my.stats.reg  <- SVMRFEreg(ds.train,ds.test,"repeatedcv",i,F,ResBestF,rfe_SVM_param_c,rfe_SVM_param_eps)$stat.values # run NNet for each CV and regr method
     } 
     if (best.reg=="glmnet") {  
-      my.stats.reg  <- ENETreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF)$stat.values # run NNet for each CV and regr method
+      my.stats.reg  <- ENETreg(ds.train,ds.test,"repeatedcv",i,F,ResBestF)$stat.values # run NNet for each CV and regr method
     }  
     if (best.reg=="rfRFE") {  
-      my.stats.reg  <- RFRFEreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF)$stat.values # run NNet for each CV and regr method
+      my.stats.reg  <- RFRFEreg(ds.train,ds.test,"repeatedcv",i,F,ResBestF)$stat.values # run NNet for each CV and regr method
     } 
 
     Yrand.R2.ts <- c(Yrand.R2.ts,my.stats.reg$R2.ts) # adding test R2 value Y randomization
@@ -2748,15 +2748,15 @@ ENETreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
 
 RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=1,
   ResAvgs="RRegsResAvgs.csv",ResBySplits="RRegrsResAllSplits.csv",ResBest="RRegrsResBest.csv",
-  fDet="T",fFilters="F",fScaling="T",fRemNear0Var="T",fRemCorr="T",fFeatureSel="F",
-  fLM="T",fGLM="T",fPLS="T",fLASSO="T",fRBFdda="T",fSVRM="T",fNN="T",fRF="T",fSVMRFE="T",fENET="T",
+  fDet="T",fFilters="F",fScaling="T",fRemNear0Var="T",fRemCorr="T",
+  fLM="T",fGLM="T",fPLS="T",fLASSO="T",fRBFdda="T",fSVRM="T",fNN="T",fRF="T",fRFRFE="T",fSVMRFE="T",fENET="T",
   RFE_SVM_C="1;5;10;15;20",RFE_SVM_epsilon="0.01;0.1;0.3",
   cutoff=0.9,iScaling=1,iScalCol=1,trainFrac=0.75,iSplitTimes=10,noYrand=100,
   CVtypes="repeatedcv;LOOCV",NoNAValFile="ds.NoNA.csv",
   No0NearVarFile="ds.No0Var.csv",ScaledFile="ds.scaled.csv",NoCorrFile="ds.scaled.NoCorrs.csv",
   lmFile="LM.details.csv",glmFile="GLM.details.csv",plsFile="PLS.details.csv",
   lassoFile="Lasso.details.csv",rbfDDAFile="RBF_DDA.details.csv",negThrStep=0.5,svrmFile="SVMRadial.details.csv",
-  nnFile="NN.details.csv",rfFile="RF.details.csv",svmrfeFile="SVMRFE.details.csv",
+  nnFile="NN.details.csv",rfFile="RF.details.csv",rfrfeFile="RFRFE.details.csv",svmrfeFile="SVMRFE.details.csv",
   enetFile="ENET.details.csv") { # input = file with all parameters
   # Minimal use:
   # RRegrs()                              # all default params
@@ -2813,22 +2813,23 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="fScaling",Parameter.Value=fScaling,Description="If Scalling dataset (Step 3)"))
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="fRemNear0Var",Parameter.Value=fRemNear0Var,Description="If run Removal of near zero variance columns (Step 4)"))
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="fRemCorr",Parameter.Value=fRemCorr,Description="If run Removal of correlated columns (Step 5)"))
-  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="fFeatureSel",Parameter.Value=fFeatureSel,Description="If run wrapper methods for feature selection (Step 7)"))
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="fLM",Parameter.Value=fLM,Description="If run LM (Step 8.1)"))
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="fGLM",Parameter.Value=fGLM,Description="If run GLM (Step 8.2)"))
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="fPLS",Parameter.Value=fPLS,Description="If run PLS (Step 8.3)"))
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="fLASSO",Parameter.Value=fLASSO,Description="If run LASSO (Step 8.4)"))
-  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="fRBFdda",Parameter.Value=fRBFdda,Description="If run RBF DDA (Step 8.5)"))
+  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="fENET",Parameter.Value=fENET,Description="If run ENET  (Step 8.5)"))
+  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="fRBFdda",Parameter.Value=fRBFdda,Description="If run RBF DDA (Step 8.6)"))
   
-  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="negThrStep",Parameter.Value=negThrStep,Description="Negative Threshold step parameter for RBF DDA (Step 8.5)"))
+  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="negThrStep",Parameter.Value=negThrStep,Description="Negative Threshold step parameter for RBF DDA (Step 8.6)"))
 
-  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="fSVRM",Parameter.Value=fSVRM,Description="If run svmRadial.RMSE (Step 8.6)"))
+  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="fSVRM",Parameter.Value=fSVRM,Description="If run svmRadial.RMSE (Step 8.7)"))
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="fNN",Parameter.Value=fNN,Description="If run Neural Networks (Step 8.8)"))
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="fRF",Parameter.Value=fRF,Description="If run Random Forest  (Step 8.9)"))
-  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="fSVMRFE",Parameter.Value=fSVMRFE,Description="If run Random Forest  (Step 8.10)"))
+  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="fRFRFE",Parameter.Value=fRFRFE,Description="If run Random Forest RFE  (Step 8.10)"))
+  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="fSVMRFE",Parameter.Value=fSVMRFE,Description="If run Random Forest  (Step 8.11)"))
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="RFE_SVM_C",Parameter.Value=RFE_SVM_C,Description="Values of C for SVM RFE"))
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="RFE_SVM_epsilon",Parameter.Value=RFE_SVM_epsilon,Description="Values of epsilon for SVM RFE"))
-  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="fENET",Parameter.Value=fENET,Description="If run ENET  (Step 8.11)"))
+  
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="cutoff",Parameter.Value=cutoff,Description="Cutoff for correlated features (default = 0.9)"))
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="iScaling",Parameter.Value=iScaling,Description="Type of scalling: 1 = normalization; 2 = standardization; 3 = other; any other: no scaling"))
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="iScalCol",Parameter.Value=iScalCol,Description="Scalling columns: 1 = including dependent variable; 2: only all the features"))
@@ -2848,7 +2849,8 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="svrmFile",Parameter.Value=svrmFile,Description="SVM Radial output file with details"))
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="nnFile",Parameter.Value=nnFile,Description="NN output file with details"))
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="rfFile",Parameter.Value=rfFile,Description="RF output"))
-  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="svmrfeFile",Parameter.Value=svmrfeFile,Description="SVMRFE output"))
+  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="rfrfeFile",Parameter.Value=rfrfeFile,Description="RF-RFE output"))
+  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="svmrfeFile",Parameter.Value=svmrfeFile,Description="SVM-RFE output"))
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="enetFile",Parameter.Value=enetFile,Description="ENET output"))
 
   write.csv(Params.df,file=ParamFile,row.names=F,quote=F) # write parameters to a CSV in the working folder
@@ -2859,20 +2861,20 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
   fScaling     = as.logical(fScaling)     # flag for dataset Scaling                       (3)
   fRemNear0Var = as.logical(fRemNear0Var) # flag for Removal of near zero variance columns (4)
   fRemCorr     = as.logical(fRemCorr)     # flag for Removal of correlated columns         (5)
-  fFeatureSel  = as.logical(fFeatureSel)  # flag for wrapper methods for feature selection (7)
   
   #cutoff       = as.numeric(as.character(cutoff))  # cut off for correlated features
   fLM          = as.logical(fLM)     # flag to run LM            (8.1)
   fGLM         = as.logical(fGLM)    # flag to run GLM           (8.2)
   fPLS         = as.logical(fPLS)    # flag to run PLS           (8.3)
   fLASSO       = as.logical(fLASSO)  # flag to run LASSO         (8.4)
-  fRBFdda      = as.logical(fRBFdda) # flat to run RBF DDA       (8.5)
-  fSVRM        = as.logical(fSVRM)   # flat to run svmRadial     (8.6)
+  fenet        = as.logical(fENET)   # flag to run ElasticNet    (8.5)
+  fRBFdda      = as.logical(fRBFdda) # flat to run RBF DDA       (8.6)
+  fSVRM        = as.logical(fSVRM)   # flat to run svmRadial     (8.7)
   fNN          = as.logical(fNN)     # flat to run NN            (8.8)
   fRF          = as.logical(fRF)     # flag to run RandomForest  (8.9)
-  fSVMRFE      = as.logical(fSVMRFE) # flag to run SVM RFE       (8.10)
-  fenet        = as.logical(fENET)   # flag to run ElasticNet    (8.11)
-
+  fRFRFE       = as.logical(fRFRFE)  # flag to run RF-RFE        (8.10)
+  fSVMRFE      = as.logical(fSVMRFE) # flag to run SVM RFE       (8.11)
+  
   rfe_SVM_param_c   = strsplit(as.character(RFE_SVM_C),";")[[1]] # values of C for SVM RFE
   rfe_SVM_param_eps = strsplit(as.character(RFE_SVM_epsilon),";")[[1]] # values of epsilon for SVM RFE
   # negThrStep
@@ -2925,9 +2927,7 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
   # 2.2 Custom filter (percentage threshold)
   # 2.3 Processing of missing values - use of preProcess();
   #     caret employs knnImpute algorithm to impute values from a neighborhood of k
-  #if (fFilters==T) {
-    # cat("-> [2] Filtering dataset ... \n")
-  #}
+  # TO BE IMPLEMENTED
 
   # -----------------------------------------------------------------------
   # (2) Remove NA values
@@ -2986,7 +2986,7 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
   }
 
   # print no of CPU cores used for calculation
-  #noCoresSys=as.numeric(Sys.getenv('NUMBER_OF_PROCESSORS')) # automatically detected no. of CPU cores
+  # noCoresSys=as.numeric(Sys.getenv('NUMBER_OF_PROCESSORS')) # automatically detected no. of CPU cores
   library(parallel)
   noCoresSys=detectCores()
   if (noCores==0){ cat("       -> CPU Cores = ",noCoresSys,"(only complex methods)\n") }
@@ -3034,23 +3034,10 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
     ds.train<- dsList$train
     ds.test <- dsList$test
     
-    # Training data set info - to be added later!
-    # ------------------------------------------------------------------------
-    #nCases     <- dim(ds)[1]                     # number of total cases
-    #nCases.tr  <- dim(ds.train)[1]               # number of training cases
-    #nFeatures  <- dim(ds.train)[2] - 1           # number of input features (it could be different with the fitted model features!)
-    #FeatureList<- paste(names(ds.train)[2:nFeatures], collapse="+") # list of input feature names, from second name, first name is the output variable
-    #OutVar     <- names(ds.train)[1]             # name of predicted variable (dependent variable)
-    
     # -----------------------------------------------------------------------
     # (7) Feature selection
     # -----------------------------------------------------------------------
-    # Two types of regression funtions:
-    # -> without wrapper methods (no feature selection excepts the built-in feature selection: Lasso, PLS)
-    # -> with wrapper methods (all the functions without built-in feature selection)
-    # ===>>>> if fFeatureSel = T, the wrapper versions will be used
-    
-    # Note: additional feature selection could be implemented in the future
+    # TO BE IMPLEMENTED
     
     # -----------------------------------------------------------------------
     # (8) REGRESSION METHODS
@@ -3080,38 +3067,31 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
     # --------------------------------------------
     if (fLM==T) {   # if LM was selected, run the method
       outFile.LM <- file.path(PathDataSet,lmFile)   # the same folder as the input is used for the output
+      cat("-> LM : Linear Multi-regression ...\n")
       
-      if (fFeatureSel==F) {    # if there is no need of feature selection ->> use normal functions
-		cat("-> LM : Linear Multi-regression ...\n")
+      # For each type of CV do all the statistics
+      # -----------------------------------------------------
+      for (cv in 1:length(CVtypes)) { # there is no CV but it will be implemented in the future!!!
+        cat("    -->",CVtypes[cv],"\n")
+        ptmLM <- proc.time()
+        lm.model <- LMreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.LM) # run GLM for each CV and regr method
+        print(proc.time() - ptmLM) # print running time
         
-        # For each type of CV do all the statistics
-        # -----------------------------------------------------
-        for (cv in 1:length(CVtypes)) { # there is no CV but it will be implemented in the future!!!
-          cat("    -->",CVtypes[cv],"\n")
-          ptmLM <- proc.time()
-          lm.model <- LMreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.LM) # run GLM for each CV and regr method
-          print(proc.time() - ptmLM) # print running time
-
-          my.stats.LM <- lm.model$stat.values # stat values
-          my.model.LM <- lm.model$model # model 
-          
-          #-------------------------------------------------------
-          # Add output from GLM to the list of results
-          #-------------------------------------------------------
-          # List of results for each splitting, CV type & regression method
-          dfRes = mapply(c, my.stats.LM, dfRes, SIMPLIFY=F)
-          
-          # List of models for each splitting, CV type & regression method
-          names1 <- strsplit(deparse(quote(my.model.LM)),'my.model.')[[1]][2]
-          dfMod[[cv]]$names1 <- my.model.LM  
-          names(dfMod[[cv]])[mod.ind[cv]] <- names1[1]
-          mod.ind[cv] <- mod.ind[cv] +1 # update mod.ind indicator variable
-        } # end CV types
-      } 
-      else    # if there is a need for previous feature selection ->> use wrapper functions
-      {                     
-        # run LM with wrapper method (TO BE IMPLEMENTED!)
-      }
+        my.stats.LM <- lm.model$stat.values # stat values
+        my.model.LM <- lm.model$model # model 
+        
+        #-------------------------------------------------------
+        # Add output from GLM to the list of results
+        #-------------------------------------------------------
+        # List of results for each splitting, CV type & regression method
+        dfRes = mapply(c, my.stats.LM, dfRes, SIMPLIFY=F)
+        
+        # List of models for each splitting, CV type & regression method
+        names1 <- strsplit(deparse(quote(my.model.LM)),'my.model.')[[1]][2]
+        dfMod[[cv]]$names1 <- my.model.LM  
+        names(dfMod[[cv]])[mod.ind[cv]] <- names1[1]
+        mod.ind[cv] <- mod.ind[cv] +1 # update mod.ind indicator variable
+      } # end CV types
     } # end LM
     
     # -----------------------------------------------------------------------------------------
@@ -3120,202 +3100,205 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
     if (fGLM==T) {   # if GLM was selected, run the method
       outFile.GLM <- file.path(PathDataSet,glmFile)   # the same folder as the input is used for the output
       
-      if (fFeatureSel==F) {    # if there is no need of feature selection ->> use normal functions
-        cat("-> GLM : Generalized Linear Model stepwise - based on AIC ...\n")
-		# For each type of CV do all the statistics
-        # -----------------------------------------------------
-        for (cv in 1:length(CVtypes)) {
-          cat("    -->",CVtypes[cv],"\n")
-          ptmGLM <- proc.time()
-          glm.model  <- GLMreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.GLM) # run GLM for each CV and regr method
-          print(proc.time() - ptmGLM) # print running time
-
-          my.stats.GLM <- glm.model$stat.values # stat values
-          my.model.GLM <- glm.model$model # model
-	        #my.stats.split <- c(my.stats.dsInfo,my.stats.GLM) # merge the ds info with statistics results for each Cv & reg method
-          
-          #-------------------------------------------------------
-          # Add output from GLM to the list of results
-          #-------------------------------------------------------
-          # List of results for each splitting, CV type & regression method
-          dfRes = mapply(c, my.stats.GLM, dfRes, SIMPLIFY=F)
-          
-          # List of models for each splitting, CV type & regression method
-          names1 <- strsplit(deparse(quote(my.model.GLM)),'my.model.')[[1]][2]
-          dfMod[[cv]]$names1 <- my.model.GLM  
-          names(dfMod[[cv]])[mod.ind[cv]] <- names1[1]
-          mod.ind[cv] <- mod.ind[cv] +1 # update mod.ind indicator variable
-        } # end CV types
-      } 
-      else    # if there is a need for previous feature selection ->> use wrapper functions
-      {                     
-        # run GLM with wrapper method (TO BE IMPLEMENTED!)
-      }
+      cat("-> GLM : Generalized Linear Model stepwise - based on AIC ...\n")
+		  # For each type of CV do all the statistics
+		  # -----------------------------------------------------
+		  for (cv in 1:length(CVtypes)) {
+		    cat("    -->",CVtypes[cv],"\n")
+		    ptmGLM <- proc.time()
+		    glm.model  <- GLMreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.GLM) # run GLM for each CV and regr method
+		    print(proc.time() - ptmGLM) # print running time
+		    
+		    my.stats.GLM <- glm.model$stat.values # stat values
+		    my.model.GLM <- glm.model$model # model
+		    #my.stats.split <- c(my.stats.dsInfo,my.stats.GLM) # merge the ds info with statistics results for each Cv & reg method
+		    
+		    #-------------------------------------------------------
+		    # Add output from GLM to the list of results
+		    #-------------------------------------------------------
+		    # List of results for each splitting, CV type & regression method
+		    dfRes = mapply(c, my.stats.GLM, dfRes, SIMPLIFY=F)
+		    
+		    # List of models for each splitting, CV type & regression method
+		    names1 <- strsplit(deparse(quote(my.model.GLM)),'my.model.')[[1]][2]
+		    dfMod[[cv]]$names1 <- my.model.GLM  
+		    names(dfMod[[cv]])[mod.ind[cv]] <- names1[1]
+		    mod.ind[cv] <- mod.ind[cv] +1 # update mod.ind indicator variable
+		  } # end CV types  
     } # end GLM
     
     # --------------------------------------------
     # 8.3. PLS
     # --------------------------------------------
     if (fPLS==T) {   # if PLS was selected, run the method
-      outFile.PLS <- file.path(PathDataSet,plsFile)   # the same folder as the input is used for the output
+		outFile.PLS <- file.path(PathDataSet,plsFile)   # the same folder as the input is used for the output
       
-      if (fFeatureSel==F) {    # if there is no need of feature selection ->> use normal functions
-        cat("-> PLS : Partial Least Squares Regression ...\n")
-        # For each type of CV do all the statistics
-        # -----------------------------------------------------
-        for (cv in 1:length(CVtypes)) {
-          cat("    -->",CVtypes[cv],"\n")
-          ptmPLS <- proc.time()
-          pls.model <- PLSreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.PLS) # run PLS for each CV and regr method
-          print(proc.time() - ptmPLS) # print running time
-
-          my.stats.PLS <- pls.model$stat.values
-          my.model.PLS <- pls.model$model
-          #-------------------------------------------------------
-          # Add output from PLS to the list of results
-          #-------------------------------------------------------
-          # List of results for each splitting, CV type & regression method
-          dfRes = mapply(c, my.stats.PLS, dfRes, SIMPLIFY=F)
-          
-          # List of models for each splitting, CV type & regression method
-          names1 <- strsplit(deparse(quote(my.model.PLS)),'my.model.')[[1]][2]
-          dfMod[[cv]]$names1 <- my.model.PLS  
-          names(dfMod[[cv]])[mod.ind[cv]] <- names1[1]
-          mod.ind[cv] <- mod.ind[cv] +1 # update mod.ind indicator variable
-        } # end CV types
-      } 
-      else    # if there is a need for previous feature selection ->> use wrapper functions
-      {                     
-        #cat("-> PLS Wrapper Feature Selection ...\n")
-        ## For each type of CV do all the statistics
-        ## -----------------------------------------------------
-        #for (cv in 1:length(CVtypes)) {
-        #  cat("    -->",CVtypes[cv],"\n")
-        #  ptmPLSw <- proc.time()
-        #  pls.model <- PLSregWSel(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.PLS) # run PLSw for each CV and regr method
-        #  print(proc.time() - ptmPLSw) # print running time
-
-        #  my.stats.PLS <- pls.model$stat.values
-        #  my.model.PLS <- pls.model$model
-
-        #  #-------------------------------------------------------
-        #  # Add output from PLSw to the list of results
-        #  #-------------------------------------------------------
-        #  # List of results for each splitting, CV type & regression method
-        #  dfRes = mapply(c, my.stats.PLS, dfRes, SIMPLIFY=F)
-        #} # end CV types 
-      }
-    } # end PLS with wrapper
+		cat("-> PLS : Partial Least Squares Regression ...\n")
+		# For each type of CV do all the statistics
+		# -----------------------------------------------------
+		for (cv in 1:length(CVtypes)) {
+			cat("    -->",CVtypes[cv],"\n")
+			ptmPLS <- proc.time()
+			pls.model <- PLSreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.PLS) # run PLS for each CV and regr method
+			print(proc.time() - ptmPLS) # print running time
+        
+			my.stats.PLS <- pls.model$stat.values
+			my.model.PLS <- pls.model$model
+			#-------------------------------------------------------
+			# Add output from PLS to the list of results
+			#-------------------------------------------------------
+			# List of results for each splitting, CV type & regression method
+			dfRes = mapply(c, my.stats.PLS, dfRes, SIMPLIFY=F)
+        
+			# List of models for each splitting, CV type & regression method
+			names1 <- strsplit(deparse(quote(my.model.PLS)),'my.model.')[[1]][2]
+			dfMod[[cv]]$names1 <- my.model.PLS  
+			names(dfMod[[cv]])[mod.ind[cv]] <- names1[1]
+			mod.ind[cv] <- mod.ind[cv] +1 # update mod.ind indicator variable
+		} # end CV types
+    } # end PLS
+    
+    #cat("-> PLS Wrapper Feature Selection ...\n")
+    ## For each type of CV do all the statistics
+    ## -----------------------------------------------------
+    #for (cv in 1:length(CVtypes)) {
+    #  cat("    -->",CVtypes[cv],"\n")
+    #  ptmPLSw <- proc.time()
+    #  pls.model <- PLSregWSel(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.PLS) # run PLSw for each CV and regr method
+    #  print(proc.time() - ptmPLSw) # print running time
+    
+    #  my.stats.PLS <- pls.model$stat.values
+    #  my.model.PLS <- pls.model$model
+    
+    #  #-------------------------------------------------------
+    #  # Add output from PLSw to the list of results
+    #  #-------------------------------------------------------
+    #  # List of results for each splitting, CV type & regression method
+    #  dfRes = mapply(c, my.stats.PLS, dfRes, SIMPLIFY=F)
+    #} # end CV types 
     
     # --------------------------------------------
     # 8.4. LASSO regression
     # --------------------------------------------
     if (fLASSO==T) {   # if LASSO was selected, run the method
-      outFile.LASSO <- file.path(PathDataSet,lassoFile)   # the same folder as the input is used for the output
+		outFile.LASSO <- file.path(PathDataSet,lassoFile)   # the same folder as the input is used for the output
+      
+		cat("-> Lasso ...\n")
+		# For each type of CV do all the statistics
+		# -----------------------------------------------------
+		for (cv in 1:length(CVtypes2)) {
+			cat("    -->",CVtypes2[cv],"\n")
+			ptmLASSO <- proc.time()
+			lasso.model <- LASSOreg(ds.train,ds.test,CVtypes2[cv],i,fDet,outFile.LASSO) # run LASSO for each CV and regr method
+			print(proc.time() - ptmLASSO) # print running time
 
-     if (fFeatureSel==F) {
-	  cat("-> Lasso ...\n")
-      # For each type of CV do all the statistics
-      # -----------------------------------------------------
-      for (cv in 1:length(CVtypes2)) {
-        cat("    -->",CVtypes2[cv],"\n")
-        ptmLASSO <- proc.time()
-        lasso.model <- LASSOreg(ds.train,ds.test,CVtypes2[cv],i,fDet,outFile.LASSO) # run LASSO for each CV and regr method
-        print(proc.time() - ptmLASSO) # print running time
-
-        my.stats.LASSO <- lasso.model$stat.values
-        my.model.LASSO <- lasso.model$model
-        #-------------------------------------------------------
-        # Add output from Lasso to the list of results
-        #-------------------------------------------------------
-        # List of results for each splitting, CV type & regression method
-        dfRes = mapply(c, my.stats.LASSO, dfRes, SIMPLIFY=F)
-        # List of models for each splitting, CV type & regression method
-        names1 <- strsplit(deparse(quote(my.model.LASSO)),'my.model.')[[1]][2]
-        dfMod[[cv]]$names1 <- my.model.LASSO  
-        names(dfMod[[cv]])[mod.ind[cv]] <- names1[1]
-        mod.ind[cv] <- mod.ind[cv] +1 # update mod.ind indicator variable
-      } # end CV types
-    }
-   } # end Lasso
+			my.stats.LASSO <- lasso.model$stat.values
+			my.model.LASSO <- lasso.model$model
+			#-------------------------------------------------------
+			# Add output from Lasso to the list of results
+			#-------------------------------------------------------
+			# List of results for each splitting, CV type & regression method
+			dfRes = mapply(c, my.stats.LASSO, dfRes, SIMPLIFY=F)
+			# List of models for each splitting, CV type & regression method
+			names1 <- strsplit(deparse(quote(my.model.LASSO)),'my.model.')[[1]][2]
+			dfMod[[cv]]$names1 <- my.model.LASSO  
+			names(dfMod[[cv]])[mod.ind[cv]] <- names1[1]
+			mod.ind[cv] <- mod.ind[cv] +1 # update mod.ind indicator variable
+		} # end CV types
+    } # end Lasso
+    
+    # --------------------------------------------
+    # 8.5. Elastic Net regression
+    # --------------------------------------------
+    if (fenet==T) {   # if ENET was selected, run the method
+		outFile.ENET <- file.path(PathDataSet,enetFile)   # the same folder as the input is used for the output
+      
+		cat("-> ENET : Elastic Nets ...\n")
+		# For each type of CV do all the statistics
+		# -----------------------------------------------------
+		for (cv in 1:length(CVtypes)) {
+			cat("    -->",CVtypes[cv],"\n")
+			ptmENET <- proc.time()
+			enet.model <- ENETreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.ENET) # run elastic net for each CV and regr method
+			print(proc.time() - ptmENET) # print running time
+        
+			my.stats.ENET <- enet.model$stat.values
+			my.model.ENET <- enet.model$model 
+        
+			#-------------------------------------------------------
+			# Add output from ENET to the list of results
+			#-------------------------------------------------------
+			# List of results for each splitting, CV type & regression method
+			dfRes = mapply(c, my.stats.ENET, dfRes, SIMPLIFY=F)
+			# List of models for each splitting, CV type & regression method
+			names1 <- strsplit(deparse(quote(my.model.ENET)),'my.model.')[[1]][2]
+			dfMod[[cv]]$names1 <- my.model.ENET  
+			names(dfMod[[cv]])[mod.ind[cv]] <- names1[1]
+			mod.ind[cv] <- mod.ind[cv] +1 # update mod.ind indicator variable
+		} # end CV types  
+    } # end enet
 
     # ----------------------------------------------------------------
-    # 8.5. RBF network with the DDA algorithm regression (caret)
+    # 8.6. RBF network with the DDA algorithm regression (caret)
     # ----------------------------------------------------------------
     if (fRBFdda==T) {   # if RBF-DDA was selected, run the method
-      outFile.rbfDDA <- file.path(PathDataSet,rbfDDAFile)   # the same folder as the input is used for the output
-      
-      if (fFeatureSel==F) {    # if there is no need of feature selection ->> use normal functions
+		outFile.rbfDDA <- file.path(PathDataSet,rbfDDAFile)   # the same folder as the input is used for the output
+		  
 		cat("-> RBF-DDA : Radial Basis Functions - Dynamic Decay Adjustment ...\n")
-        # For each type of CV do all the statistics
-        # -----------------------------------------------------
-        for (cv in 1:length(CVtypes2)) {
-          cat("    -->",CVtypes2[cv],"\n")
-          ptmRBF_DDA <- proc.time()
-          rbfDDA.model <- RBF_DDAreg(ds.train,ds.test,CVtypes2[cv],negThrStep,i,fDet,outFile.rbfDDA) # run rbfDDA for each CV and regr method
-          print(proc.time() - ptmRBF_DDA) # print running time
-
-          my.stats.rbfDDA <- rbfDDA.model$stat.values
-          my.model.rbfDDA <- rbfDDA.model$model 
-          #-------------------------------------------------------
-          # Add output from RBF-DDA to the list of results
-          #-------------------------------------------------------
-          # List of results for each splitting, CV type & regression method
-          dfRes = mapply(c, my.stats.rbfDDA, dfRes, SIMPLIFY=F)
-          
-          # List of models for each splitting, CV type & regression method
-          names1 <- strsplit(deparse(quote(my.model.rbfDDA)),'my.model.')[[1]][2]
-          dfMod[[cv]]$names1 <- my.model.rbfDDA  
-          names(dfMod[[cv]])[mod.ind[cv]] <- names1[1]
-          mod.ind[cv] <- mod.ind[cv] +1 # update mod.ind indicator variable
-        } # end CV types
-      } 
-      else    # if there is a need for previous feature selection ->> use wrapper functions
-      {                     
-        # run rbfDDA with wrapper method (TO BE IMPLEMENTED!)
-      }
+		# For each type of CV do all the statistics
+		# -----------------------------------------------------
+		for (cv in 1:length(CVtypes2)) {
+		    cat("    -->",CVtypes2[cv],"\n")
+		    ptmRBF_DDA <- proc.time()
+		    rbfDDA.model <- RBF_DDAreg(ds.train,ds.test,CVtypes2[cv],negThrStep,i,fDet,outFile.rbfDDA) # run rbfDDA for each CV and regr method
+		    print(proc.time() - ptmRBF_DDA) # print running time
+		    
+		    my.stats.rbfDDA <- rbfDDA.model$stat.values
+		    my.model.rbfDDA <- rbfDDA.model$model 
+		    #-------------------------------------------------------
+		    # Add output from RBF-DDA to the list of results
+		    #-------------------------------------------------------
+		    # List of results for each splitting, CV type & regression method
+		    dfRes = mapply(c, my.stats.rbfDDA, dfRes, SIMPLIFY=F)
+		    
+		    # List of models for each splitting, CV type & regression method
+		    names1 <- strsplit(deparse(quote(my.model.rbfDDA)),'my.model.')[[1]][2]
+		    dfMod[[cv]]$names1 <- my.model.rbfDDA  
+		    names(dfMod[[cv]])[mod.ind[cv]] <- names1[1]
+		    mod.ind[cv] <- mod.ind[cv] +1 # update mod.ind indicator variable
+		} # end CV types
     } # end rbfDDA
     
     # --------------------------------------------
-    # 8.6. SVM radial regression
+    # 8.7. SVM radial regression
     # --------------------------------------------
     if (fSVRM==T) {   # if SVM Radial was selected, run the method
-      outFile.SVRM <- file.path(PathDataSet,svrmFile)   # the same folder as the input is used for the output
+		outFile.SVRM <- file.path(PathDataSet,svrmFile)   # the same folder as the input is used for the output
       
-      if (fFeatureSel==F) {    # if there is no need of feature selection ->> use normal functions
 		cat("-> SVM radial : Support vector machine using radial functions ...\n")
-        # For each type of CV do all the statistics
-        # -----------------------------------------------------
-        for (cv in 1:length(CVtypes)) {
-          cat("    -->",CVtypes[cv],"\n")
-          ptmSVRM <- proc.time()
-          SVRM.model <- SVRMreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.SVRM,rfe_SVM_param_c) # run SVRM Radial for each CV and regr method
-          print(proc.time() - ptmSVRM) # print running time
-
-          my.stats.SVRM <- SVRM.model$stat.values
-          my.model.SVRM <- SVRM.model$model 
-          
-          #-------------------------------------------------------
-          # Add output from SVM Radial to the list of results
-          #-------------------------------------------------------
-          # List of results for each splitting, CV type & regression method
-          dfRes = mapply(c, my.stats.SVRM, dfRes, SIMPLIFY=F)
-          # List of models for each splitting, CV type & regression method
-          names1 <- strsplit(deparse(quote(my.model.SVRM)),'my.model.')[[1]][2]
-          dfMod[[cv]]$names1 <- my.model.SVRM  
-          names(dfMod[[cv]])[mod.ind[cv]] <- names1[1]
-          mod.ind[cv] <- mod.ind[cv] +1 # update mod.ind indicator variable
-        } # end CV types
-      } 
-      else    # if there is a need for previous feature selection ->> use wrapper functions
-      {                     
-        # run SVRM with wrapper method (TO BE IMPLEMENTED!)
-      }
+		# For each type of CV do all the statistics
+		# -----------------------------------------------------
+		for (cv in 1:length(CVtypes)) {
+		    cat("    -->",CVtypes[cv],"\n")
+		    ptmSVRM <- proc.time()
+		    SVRM.model <- SVRMreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.SVRM,rfe_SVM_param_c) # run SVRM Radial for each CV and regr method
+		    print(proc.time() - ptmSVRM) # print running time
+		    
+		    my.stats.SVRM <- SVRM.model$stat.values
+		    my.model.SVRM <- SVRM.model$model 
+		    
+		    #-------------------------------------------------------
+		    # Add output from SVM Radial to the list of results
+		    #-------------------------------------------------------
+		    # List of results for each splitting, CV type & regression method
+		    dfRes = mapply(c, my.stats.SVRM, dfRes, SIMPLIFY=F)
+		    # List of models for each splitting, CV type & regression method
+		    names1 <- strsplit(deparse(quote(my.model.SVRM)),'my.model.')[[1]][2]
+		    dfMod[[cv]]$names1 <- my.model.SVRM  
+		    names(dfMod[[cv]])[mod.ind[cv]] <- names1[1]
+		    mod.ind[cv] <- mod.ind[cv] +1 # update mod.ind indicator variable
+		} # end CV types
     } # end SVRM
-    
-    # --------------------------------------------
-    # 8.7. SVM linear - to be implemented
-    # --------------------------------------------
     
     # --------------------------------------------
     # 8.8. Neural Networks Regression
@@ -3323,163 +3306,123 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
     if (fNN==T) {   # if NNet was selected, run the method
       outFile.NN <- file.path(PathDataSet,nnFile)   # the same folder as the input is used for the output
       
-      if (fFeatureSel==F) {    # if there is no need of feature selection ->> use normal functions
-		cat("-> NN : Neural Networks ...\n")
-        # For each type of CV do all the statistics
-        # -----------------------------------------------------
-        for (cv in 1:length(CVtypes)) {
-          cat("    -->",CVtypes[cv],"\n")
-          ptmNN <- proc.time()
-          nn.model <- NNreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.NN) # run NNet for each CV and regr method
-          print(proc.time() - ptmNN) # print running time
-
-          my.stats.NN <- nn.model$stat.values
-          my.model.NN <- nn.model$model
-          
-          #-------------------------------------------------------
-          # Add output from NNet to the list of results
-          #-------------------------------------------------------
-          # List of results for each splitting, CV type & regression method
-          dfRes = mapply(c, my.stats.NN, dfRes, SIMPLIFY=F)
-          # List of models for each splitting, CV type & regression method
-          names1 <- strsplit(deparse(quote(my.model.NN)),'my.model.')[[1]][2]
-          dfMod[[cv]]$names1 <- my.model.NN  
-          names(dfMod[[cv]])[mod.ind[cv]] <- names1[1]
-          mod.ind[cv] <- mod.ind[cv] +1 # update mod.ind indicator variable
-        } # end CV types
-      } 
-      else    # if there is a need for previous feature selection ->> use wrapper functions
-      {                     
-        # run NNet with wrapper method (TO BE IMPLEMENTED!)
-      } 
+		 cat("-> NN : Neural Networks ...\n")
+		 # For each type of CV do all the statistics
+		 # -----------------------------------------------------
+		 for (cv in 1:length(CVtypes)) {
+			cat("    -->",CVtypes[cv],"\n")
+		    ptmNN <- proc.time()
+		    nn.model <- NNreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.NN) # run NNet for each CV and regr method
+		    print(proc.time() - ptmNN) # print running time
+		    
+		    my.stats.NN <- nn.model$stat.values
+		    my.model.NN <- nn.model$model
+		    
+		    #-------------------------------------------------------
+		    # Add output from NNet to the list of results
+		    #-------------------------------------------------------
+		    # List of results for each splitting, CV type & regression method
+		    dfRes = mapply(c, my.stats.NN, dfRes, SIMPLIFY=F)
+		    # List of models for each splitting, CV type & regression method
+		    names1 <- strsplit(deparse(quote(my.model.NN)),'my.model.')[[1]][2]
+		    dfMod[[cv]]$names1 <- my.model.NN  
+		    names(dfMod[[cv]])[mod.ind[cv]] <- names1[1]
+		    mod.ind[cv] <- mod.ind[cv] +1 # update mod.ind indicator variable
+		} # end CV types  
     } # end NNet
     
     # --------------------------------------------
     # 8.9. Random Forest Regression (RF)
     # --------------------------------------------
     if (fRF==T) {   # if RF was selected, run the method
-      outFile.RF <- file.path(PathDataSet,rfFile)   # the same folder as the input is used for the output
-      
-      if (fFeatureSel==F) {    # if there is no need of feature selection ->> use normal functions
-        cat("-> RF : Random Forest ...\n")
+		outFile.RF <- file.path(PathDataSet,rfFile)   # the same folder as the input is used for the output
+		cat("-> RF : Random Forest ...\n")
 		# For each type of CV do all the statistics
-        # -----------------------------------------------------
-        for (cv in 1:length(CVtypes2)) {
-          cat("    -->",CVtypes2[cv],"\n")
-          ptmRF <- proc.time()
-          rf.model <- RFreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.RF) # run RF for each CV and regr method
-          print(proc.time() - ptmRF) # print running time
-
-          my.stats.RF <- rf.model$stat.values
-          my.model.RF <- rf.model$model
-          
-          #-------------------------------------------------------
-          # Add output from RF to the list of results
-          #-------------------------------------------------------
-          # List of results for each splitting, CV type & regression method
-          dfRes = mapply(c, my.stats.RF, dfRes, SIMPLIFY=F)
-          # List of models for each splitting, CV type & regression method
-          names1 <- strsplit(deparse(quote(my.model.RF)),'my.model.')[[1]][2]
-          dfMod[[cv]]$names1 <- my.model.RF  
-          names(dfMod[[cv]])[mod.ind[cv]] <- names1[1]
-          mod.ind[cv] <- mod.ind[cv] +1 # update mod.ind indicator variable
-        } # end CV types
-      } 
-      else    # if there is a need for previous feature selection ->> use wrapper functions
-      {                     
-        cat("-> RF-RFE wrapper : Random Forest-Recursive Feature Elimination ...\n")
-        # For each type of CV do all the statistics
-        # -----------------------------------------------------
-        for (cv in 1:length(CVtypes2)) {
-          cat("    -->",CVtypes2[cv],"\n")
-          ptmRFRFE <- proc.time()
-          rf.model <- RFRFEreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.RF) # run RF for each CV and regr method
-          print(proc.time() - ptmRFRFE) # print running time
-
-          my.stats.RF <- rf.model$stat.values
-          my.model.RF <- rf.model$model
-          #-------------------------------------------------------
-          # Add output from NNet to the list of results
-          #-------------------------------------------------------
-          # List of results for each splitting, CV type & regression method
-          dfRes = mapply(c, my.stats.RF, dfRes, SIMPLIFY=F)
-        } # end CV types
-      }
-    } # end RF
+		# -----------------------------------------------------
+		for (cv in 1:length(CVtypes2)) {
+			cat("    -->",CVtypes2[cv],"\n")
+			ptmRF <- proc.time()
+			rf.model <- RFreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.RF) # run RF for each CV and regr method
+			print(proc.time() - ptmRF) # print running time
+		   
+			my.stats.RF <- rf.model$stat.values
+			my.model.RF <- rf.model$model
+		  
+			#-------------------------------------------------------
+			# Add output from RF to the list of results
+			#-------------------------------------------------------
+			# List of results for each splitting, CV type & regression method
+			dfRes = mapply(c, my.stats.RF, dfRes, SIMPLIFY=F)
+			# List of models for each splitting, CV type & regression method
+			names1 <- strsplit(deparse(quote(my.model.RF)),'my.model.')[[1]][2]
+			dfMod[[cv]]$names1 <- my.model.RF  
+			names(dfMod[[cv]])[mod.ind[cv]] <- names1[1]
+			mod.ind[cv] <- mod.ind[cv] +1 # update mod.ind indicator variable
+		} # end CV types
+	}
+      
+	# --------------------------------------------
+	# 8.10. RF-RFE: Random Forest Regression Recursive Feature Elimination
+	# --------------------------------------------
+	if (fRFRFE==T) {   # if RF-RFE was selected, run the method
+		outFile.RFRFE <- file.path(PathDataSet,rfrfeFile)   # the same folder as the input is used for the output
+      
+		cat("-> RF-RFE: Random Forest-Recursive Feature Elimination ...\n")
+		# For each type of CV do all the statistics
+		# -----------------------------------------------------
+		for (cv in 1:length(CVtypes2)) {
+			cat("    -->",CVtypes2[cv],"\n")
+			ptmRFRFE <- proc.time()
+			rfrfe.model <- RFRFEreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.RFRFE) # run RF for each CV and regr method
+			print(proc.time() - ptmRFRFE) # print running time
+        
+			my.stats.RFRFE <- rfrfe.model$stat.values
+			my.model.RFRFE <- rfrfe.model$model
+			
+			#-------------------------------------------------------
+			# Add output from RF to the list of results
+			#-------------------------------------------------------
+			# List of results for each splitting, CV type & regression method
+			dfRes = mapply(c, my.stats.RFRFE, dfRes, SIMPLIFY=F)
+			# List of models for each splitting, CV type & regression method
+			names1 <- strsplit(deparse(quote(my.model.RFRFE)),'my.model.')[[1]][2]
+			dfMod[[cv]]$names1 <- my.model.RFRFE  
+			names(dfMod[[cv]])[mod.ind[cv]] <- names1[1]
+			mod.ind[cv] <- mod.ind[cv] +1 # update mod.ind indicator variable
+		} # end CV types
+    } # end RF-REF
 
     # --------------------------------------------
-    # 8.10. SVM RFE
+    # 8.11. SVM-RFE
     # --------------------------------------------
     if (fSVMRFE==T) {   # if SVM-RFE was selected, run the method
-      outFile.SVMRFE <- file.path(PathDataSet,svmrfeFile)   # the same folder as the input is used for the output
+		outFile.SVMRFE <- file.path(PathDataSet,svmrfeFile)   # the same folder as the input is used for the output
       
-      if (fFeatureSel==T) {    # if there is no need of feature selection ->> use normal functions
-        cat("-> SVM-RFE : Support Vector Machines Recursive Feature Elimination ...\n")
+		cat("-> SVM-RFE : Support Vector Machines Recursive Feature Elimination ...\n")
 		# For each type of CV do all the statistics
-        # -----------------------------------------------------
-        for (cv in 1:length(CVtypes2)) {
-          cat("    -->",CVtypes2[cv],"\n")
-          ptmSVMRFE <- proc.time()
-          svmrfe.model <- SVMRFEreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.SVMRFE,rfe_SVM_param_c,rfe_SVM_param_eps) # run SVM RFEet for each CV and regr method
-          print(proc.time() - ptmSVMRFE) # print running time
-
-          my.stats.SVMRFE <- svmrfe.model$stat.values
-          my.model.SVMRFE <- svmrfe.model$model 
-          
-          #-------------------------------------------------------
-          # Add output from SVM RFE to the list of results
-          #-------------------------------------------------------
-          # List of results for each splitting, CV type & regression method
-          dfRes = mapply(c, my.stats.SVMRFE, dfRes, SIMPLIFY=F)
-          # List of models for each splitting, CV type & regression method
-          names1 <- strsplit(deparse(quote(my.model.SVMRFE)),'my.model.')[[1]][2]
-          dfMod[[cv]]$names1 <- my.model.SVMRFE  
-          names(dfMod[[cv]])[mod.ind[cv]] <- names1[1]
-          mod.ind[cv] <- mod.ind[cv] +1 # update mod.ind indicator variable
-        } # end CV types
-      } 
-      else    # if there is a need for previous feature selection ->> use wrapper functions
-      {                     
-        # run SVM-RFE with wrapper method (TO BE IMPLEMENTED!)
-      }
+		# -----------------------------------------------------
+		for (cv in 1:length(CVtypes2)) {
+		    cat("    -->",CVtypes2[cv],"\n")
+		    ptmSVMRFE <- proc.time()
+		    svmrfe.model <- SVMRFEreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.SVMRFE,rfe_SVM_param_c,rfe_SVM_param_eps) # run SVM RFEet for each CV and regr method
+		    print(proc.time() - ptmSVMRFE) # print running time
+		    
+		    my.stats.SVMRFE <- svmrfe.model$stat.values
+		    my.model.SVMRFE <- svmrfe.model$model 
+		    
+		    #-------------------------------------------------------
+		    # Add output from SVM RFE to the list of results
+		    #-------------------------------------------------------
+		    # List of results for each splitting, CV type & regression method
+		    dfRes = mapply(c, my.stats.SVMRFE, dfRes, SIMPLIFY=F)
+		    # List of models for each splitting, CV type & regression method
+		    names1 <- strsplit(deparse(quote(my.model.SVMRFE)),'my.model.')[[1]][2]
+		    dfMod[[cv]]$names1 <- my.model.SVMRFE  
+		    names(dfMod[[cv]])[mod.ind[cv]] <- names1[1]
+		    mod.ind[cv] <- mod.ind[cv] +1 # update mod.ind indicator variable
+		  } # end CV types  
     } # end SVM RFE
     
-    # --------------------------------------------
-    # 8.11. Elastic Net regression
-    # --------------------------------------------
-    if (fenet==T) {   # if ENET was selected, run the method
-      outFile.ENET <- file.path(PathDataSet,enetFile)   # the same folder as the input is used for the output
-      
-      if (fFeatureSel==F) {    # if there is no need of feature selection ->> use normal functions
-        cat("-> ENET : Elastic Nets ...\n")
-		# For each type of CV do all the statistics
-        # -----------------------------------------------------
-        for (cv in 1:length(CVtypes)) {
-          cat("    -->",CVtypes[cv],"\n")
-          ptmENET <- proc.time()
-          enet.model <- ENETreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.ENET) # run elastic net for each CV and regr method
-          print(proc.time() - ptmENET) # print running time
-
-          my.stats.ENET <- enet.model$stat.values
-          my.model.ENET <- enet.model$model 
-          
-          #-------------------------------------------------------
-          # Add output from ENET to the list of results
-          #-------------------------------------------------------
-          # List of results for each splitting, CV type & regression method
-          dfRes = mapply(c, my.stats.ENET, dfRes, SIMPLIFY=F)
-          # List of models for each splitting, CV type & regression method
-          names1 <- strsplit(deparse(quote(my.model.ENET)),'my.model.')[[1]][2]
-          dfMod[[cv]]$names1 <- my.model.ENET  
-          names(dfMod[[cv]])[mod.ind[cv]] <- names1[1]
-          mod.ind[cv] <- mod.ind[cv] +1 # update mod.ind indicator variable
-        } # end CV types
-      } 
-      else    # if there is a need for previous feature selection ->> use wrapper functions
-      {                     
-        # run enet with wrapper method (TO BE IMPLEMENTED!)
-      } 
-    } # end enet
     
     # Kill parallel server
     # ------------------------
@@ -3501,17 +3444,18 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
     # -----------------------------------------------------------------------
 
     for(cv in 1:length(CVtypes)){
-	   dfMod.n<- dfMod[[cv]]# keep only models with the same number of resamples
-	   dfMod.ind<- unlist(lapply(dfMod[[cv]],findResamps.funct))
-	   dfMod.ind.d<- which(duplicated(dfMod.ind)=='TRUE')[1]
-	   dfMod.in<- which(dfMod.ind!=dfMod.ind[dfMod.ind.d])
-	   dfMod.flag<- 0 # flag to indicate that dfMod consists of models with different resamples  
-	   if(is.na(dfMod.ind.d)!= TRUE){if(length(dfMod.in)!=0){dfMod.n<- dfMod.n[-dfMod.in]}}
-	   else{dfMod.flag<- 1}
+      dfMod.n<- dfMod[[cv]]# keep only models with the same number of resamples
+      dfMod.ind<- unlist(lapply(dfMod[[cv]],findResamps.funct))
+      dfMod.ind.d<- which(duplicated(dfMod.ind)=='TRUE')[1]
+      dfMod.in<- which(dfMod.ind!=dfMod.ind[dfMod.ind.d])
+      dfMod.flag<- 0 # flag to indicate that dfMod consists of models with different resamples  
+      
+      if(is.na(dfMod.ind.d)!= TRUE){if(length(dfMod.in)!=0){dfMod.n<- dfMod.n[-dfMod.in]}}
+      else{dfMod.flag<- 1}
+      
       if(CVtypes[cv]!='LOOCV' && length(dfMod.n)>=2 && dfMod.flag!=1){ 
+        cat("-> Comparisons plots for multiple regression methods ...\n")
 
-    cat("-> Comparisons plots for multiple regression methods ...\n")
-          
         resamps <- resamples(dfMod.n)#,modelNames=names(dfMod[[cv]]))  
         # calculate their differences in terms of R2 and RMSE values
         difValues <- diff(resamps)
@@ -3665,8 +3609,6 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
   if (best.reg=="rfRFE") {  
     my.stats.reg  <- RFRFEreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF)$stat.values # run RF RFE for each CV and regr method
   }
-
-  # ?? elastic net ???
 
   #--------------------------------------------------------------------------------------
   # 12. Test best model with test dataset + Y randomization
