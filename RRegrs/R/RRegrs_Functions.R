@@ -710,11 +710,14 @@ PLSreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
   
   # Train the model using only training set
   set.seed(iSplit)
-  
+  floor.param<- floor((dim(my.datf.train)[2]-1)/5)
+  if(floor.param<1){floor.param <- 1}  
+
   pls.fit<- train(net.c~.,data=my.datf.train,
                   method = 'pls', tuneLength = 10, trControl = ctrl,
                   metric = 'RMSE',
-                  tuneGrid=expand.grid(.ncomp=c(1:floor((dim(my.datf.train)[2]-1)/5))))
+                  tuneGrid=expand.grid(.ncomp=c(1:floor.param)))
+
   #------------------------------
   # Training RESULTS
   #------------------------------
@@ -1664,12 +1667,13 @@ PLSregWSel <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile=""
   
   # Train the model using only training set
   set.seed(iSplit)
-  
+  floor.param<- floor((dim(my.datf.train)[2]-1)/5)
+  if(floor.param<1){floor.param <- 1}   
   pls.fit<- rfe(net.c~.,data=my.datf.train, 
                 method = 'pls',
                 rfeControl = ctrlw, trControl=ctrl, sizes=subsetsx, importance=T,
                 metric = 'RMSE',
-                tuneGrid=expand.grid(.ncomp=c(1:floor((dim(my.datf.train)[2]-1)/5))))#ncomp=c(1:5)
+                tuneGrid=expand.grid(.ncomp=c(1:floor.param)))#ncomp=c(1:5)
   
   #------------------------------
   # Training RESULTS
