@@ -19,7 +19,7 @@ PLSreg(my.datf.train,my.datf.test,sCV,iSplit1,fDet=F,outFile="")}
 \details{
 RMSE is the summary metric used to select the optimal model.
 
-The tuning parameter examined is the model's number of components, which is set to a sequence of integers from 1 to one fifth of the number of features in the training data set.
+The tuning parameter examined is the model's number of components, which is set to a sequence of integers from 1 to one fifth of the number of features in the training data set. (If the later is smaller than 1, tuning parameter is set to 1.)
 
 To control the computational nuances of the train function, trainControl is used; number of folds or resampling iterations is set to 10, and the number of completed set of folds is set to 10 (for repeated k-fold cross-validation).
     
