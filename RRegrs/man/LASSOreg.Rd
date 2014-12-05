@@ -20,7 +20,7 @@ fDet=F,outFile="")}
 \details{
 RMSE is the summary metric used to select the optimal model.
 
-The tunning  parameter of the model is the fraction, namely the L1 norm of the coefficient vector, and is set to vary in a sequence of 10 values between zero and one.
+The tunning  parameter of the model is the fraction, which refers to the ratio of the L1 norm of the coefficient vector, relative to the norm at the full LS solution. Fraction is set to vary in a sequence of 10 values between zero and one.
  
 To control the computational nuances of the train function, trainControl is used; number of folds or resampling iterations is set to 10, and the number of completed set of folds is set to 10 (for repeated k-fold cross-validation).
     
