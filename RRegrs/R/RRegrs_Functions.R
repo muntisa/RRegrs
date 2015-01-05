@@ -3446,7 +3446,8 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
     # -----------------------------------------------------------------------
     # (8.final) Produce comparison plots amongst models 
     # -----------------------------------------------------------------------
-
+dummy1<- 0
+if(dummy1==1){
     for(cv in 1:length(CVtypes)){
       dfMod.n<- dfMod[[cv]]# keep only models with the same number of resamples
       dfMod.ind<- unlist(lapply(dfMod[[cv]],findResamps.funct))
@@ -3480,7 +3481,7 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
         dev.off()
       }
     }
-    
+}    
   } # END SPLITTING
   
   #------------------------------------------------------------------------------
