@@ -33,3 +33,9 @@ fLM="T",fGLM="F",fPLS="T",fLASSO="F",fRBFdda="F",fSVRM="F",fNN="F",fRF="F",fRFRF
 fSVMRFE="F",fENET="F")
 
 
+#RRegrsResults = RRegrs(DataFileName="ds.gajewicz.csv",noCores=2,iSplitTimes=2,noYrand=2,
+#fRemNear0Var="F",fRemCorr="F",iScaling=2,
+#fLM="T",fGLM="F",fPLS="F",fLASSO="F",fRBFdda="F",fSVRM="F",fNN="F",fRF="F",fRFRFE="T",
+#fSVMRFE="F",fENET="F")
+
+

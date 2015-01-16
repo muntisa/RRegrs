@@ -2473,6 +2473,11 @@ RFRFEreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") 
     predVals.pls.ad <- pred.ts
     Traind.pls= as.matrix(my.datf.train)
     Testd.pls = as.matrix(my.datf.test)
+    mat.Traind.pls<- t(Traind.pls) %*%(Traind.pls) 
+    det.Traind.pls<- det(mat.Traind.pls)
+
+    if(det.Traind.pls!=0){
+
     Hat.train = diag(Traind.pls %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Traind.pls))
     Hat.test  = diag(Testd.pls  %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Testd.pls))  
     
@@ -2494,6 +2499,7 @@ RFRFEreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") 
     write.table(paste("Leverage Threshold: ", thresh.lever), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
     write.table("Points with leverage > threshold: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
     write.table(hat.problems, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F)
+    }
     
     # PDF with 12 plots
     # --------------------------------------------------------------
@@ -2512,10 +2518,12 @@ RFRFEreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") 
     abline(h = 0, lty = 2)
     
     # Leverage plots - plot 5
+    if(det.Traind.pls!=0){
     plot(hat.fit, type = "h",
          main="Leverage for Fitted Model",
          xlab="Index", ylab="Hat")
     abline(h = thresh.lever, lty = 2, col="red") # leverage thresh
+    }
     # plot(FeatImp, top = components,main="Feature Importance") # ERROR !
     dev.off()
     # --------------------------------------------------------------
