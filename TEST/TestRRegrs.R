@@ -28,8 +28,8 @@ source("../RRegrs/R/RRegrs_Functions.R")
 
 # noCores = CPU cores: 0 = all CPU cores, 1 = no parallel, >1 = specific cores
 
-RRegrsResults = RRegrs(DataFileName="ds.abalone.csv",noCores=2,iSplitTimes=2,noYrand=2,
-fLM="F",fGLM="F",fPLS="T",fLASSO="F",fRBFdda="F",fSVRM="F",fNN="F",fRF="F",fRFRFE="F",
+RRegrsResults = RRegrs(DataFileName="ds.MachineCPU.csv",noCores=2,iSplitTimes=2,noYrand=2,
+fLM="T",fGLM="F",fPLS="T",fLASSO="F",fRBFdda="F",fSVRM="F",fNN="F",fRF="F",fRFRFE="F",
 fSVMRFE="F",fENET="F")
 
 
