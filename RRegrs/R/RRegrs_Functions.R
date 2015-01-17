@@ -1073,191 +1073,191 @@ LASSOreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") 
 }
 #----------------------------------------------------------------------------------------------------------------------
 
-RBF_DDAreg <- function(my.datf.train,my.datf.test,sCV,negThrStep=0.5,iSplit=1,fDet=F,outFile="") {
-  #============================================================
-  # 8.5. RBF network with the DDA algorithm regression (caret)
-  #============================================================
-  
-  library(caret)
-  
-  net.c = my.datf.train[,1] # dependent variable is the first column in Training set
-  RegrMethod <- "rbfDDA" # type of regression
-  
-  # Define the CV conditions
-  ctrl<- trainControl(method=sCV,number=10,repeats=10,
-                      summaryFunction=defaultSummary)
-  
-  # Train the model using only training set
-  set.seed(iSplit)
-  
-  rbf.fit<- train(net.c~.,data=my.datf.train,
-                  method='rbfDDA',trControl=ctrl,
-                  tuneGrid=expand.grid(.negativeThreshold=seq(0,1,negThrStep)))
-  
-  #------------------------------
-  # Training RESULTS
-  #------------------------------
-  RMSE.tr  <- rbf.fit$results[,2]
-  R2.tr    <- rbf.fit$results[,3]
-  if (sCV == "repeatedcv"){ # if 10-fold CV
-    RMSEsd.tr <- rbf.fit$results[,4]
-    R2sd.tr   <- rbf.fit$results[,5]
-  }
-  if (sCV == "LOOCV"){ # if LOOCV
-    RMSEsd.tr <- 0 # formulas will be added later!
-    R2sd.tr   <- 0 # formulas will be added later!
-  }
-  
-  #------------------------------------------------
-  # RMSE & R^2, for train/test respectively
-  #------------------------------------------------
-  lm.train.res <- getTrainPerf(rbf.fit)
-  lm.test.res  <- postResample(predict(rbf.fit,my.datf.test),my.datf.test[,1])
-  
-  #------------------------------------------------
-  # Adj R2, Pearson correlation
-  #------------------------------------------------
-  pred.tr     <- predict(rbf.fit,my.datf.train) # predicted Y
-  pred.ts     <- predict(rbf.fit,my.datf.test)  # predicted Y
-  noFeats.fit <- length(predictors(rbf.fit))    # no. of features from the fitted model
-  Feats.fit   <- paste(predictors(rbf.fit),collapse="+") # string with the features included in the fitted model
-  
-  ds.full     <- rbind(my.datf.train,my.datf.test)
-  pred.both   <- predict(rbf.fit,ds.full)       # predicted Y
-  adjR2.tr    <- r2.adj.funct(my.datf.train[,1],pred.tr,noFeats.fit)
-  adjR2.ts    <- r2.adj.funct(my.datf.test[,1],pred.ts,noFeats.fit)
-  corP.ts     <- cor(my.datf.test[,1],pred.ts)
-  
-  adjR2.both  <- r2.adj.funct(ds.full[,1],pred.both,noFeats.fit)
-  RMSE.both   <- rmse.funct(ds.full[,1],pred.both)
-  r2.both     <- r2.funct(ds.full[,1],pred.both)
-  
-  # Generate the output list with statistics for each cross-validation type
-  # --------------------------------------------------------------------
-  my.stats <- list("RegrMeth"     = RegrMethod,
-                   "Split No"     = as.numeric(iSplit),     # from function param
-                   "CVtype"       = sCV,                    # from function param
-                   "NoModelFeats" = as.numeric(noFeats.fit),
-                   "ModelFeats"   = Feats.fit,
-                   "adjR2.tr"  = as.numeric(adjR2.tr),
-                   
-                   "RMSE.tr"   = as.numeric(min(RMSE.tr)),  # these 4 lines correspond to the min of RMSE.tr !!!
-                   "R2.tr"     = as.numeric(R2.tr[which.min(RMSE.tr)]),  
-                   "RMSEsd.tr" = as.numeric(RMSEsd.tr[which.min(RMSE.tr)]),
-                   "R2sd.tr"   = as.numeric(R2sd.tr[which.min(RMSE.tr)]),
-                   
-                   "adjR2.ts"= as.numeric(adjR2.ts),
-                   "RMSE.ts" = as.numeric((lm.test.res["RMSE"][[1]])),
-                   "R2.ts"   = as.numeric((lm.test.res["Rsquared"][[1]])),
-                   "corP.ts" = as.numeric(corP.ts),
-                   "adjR2.both" = as.numeric(adjR2.both),
-                   "RMSE.both"  = as.numeric(RMSE.both),
-                   "R2.both"    = as.numeric(r2.both))
-  #---------------------------------------------------------------------
-  # Write to file DETAILS for GLM for each cross-validation method
-  #---------------------------------------------------------------------
-  if (fDet==T) {   # if flag for details if true, print details about any resut
-    write("RRegr package | eNanoMapper", file=outFile,append=T)
-    write.table(paste("Regression method: ", RegrMethod), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-    write.table(paste("Split no.: ", iSplit),             file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-    write.table(paste("CV type: ", sCV),  file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-    write.table("Training Set Summary: ", file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-    write.table(summary(my.datf.train), file=outFile,append=T,sep=",",col.names=T,quote=F)
-    write.table("Test Set Summary: ",   file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-    write.table(summary(my.datf.test),  file=outFile,append=T,sep=",",col.names=T,quote=F)   
-    
-    
-    write.table("Predictors: ",      file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-    write.table(predictors(rbf.fit), file=outFile,append=T,sep=",",col.names=T,quote=F)
-    
-    write.table("Trainig Results: ",      file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-    write.table(predictors(lm.train.res), file=outFile,append=T,sep=",",col.names=T,quote=F)
-    write.table("Test Results: ",        file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-    write.table(predictors(lm.test.res), file=outFile,append=T,sep=",",col.names=T,quote=F)
-    
-    write.table("Full Statistics: ", file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-    write.table(my.stats, file=outFile,append=T,sep=",",col.names=T,row.names=F,quote=F)
-    
-    # Variable Importance (max top 20)
-    FeatImp <- varImp(rbf.fit, scale = F)
-    components = length(FeatImp)  # default plot all feature importance
-    if (length(FeatImp)>20){     # if the number of features is greater than 20, use only 20
-      components = 20
-    }
-    # Append feature importance to output details
-    AppendList2CSv(FeatImp,outFile)
-    
-    fitModel <- rbf.fit$finalModel
-    
-    # =============================================================================
-    # Assessment of Applicability Domain (plot leverage)
-    # =============================================================================
-    
-    # Residuals
-    resids <- residuals(fitModel) # residuals
-    write.table("Residuals of the fitted model: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-    write.table(data.frame(resids), file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F) # write residuals
-    
-    predVals.pls.ad <- pred.ts
-    Traind.pls= as.matrix(my.datf.train)
-    Testd.pls = as.matrix(my.datf.test)
-    mat.Traind.pls<- t(Traind.pls) %*%(Traind.pls) 
-    det.Traind.pls<- det(mat.Traind.pls)
-
-    if(det.Traind.pls!=0){
-  
-     Hat.train = diag(Traind.pls %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Traind.pls))
-     Hat.test  = diag(Testd.pls  %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Testd.pls))  
-     
-     # Leverage / Hat values
-     hat.fit <- Hat.test          # hat values
-     hat.fit.df <- as.data.frame(hat.fit)    # hat data frame
-     hat.mean <- mean(hat.fit)               # mean hat values
-     hat.fit.df$warn <- ifelse(hat.fit.df[, 'hat.fit']>3*hat.mean, 'x3',ifelse(hat.fit.df[, 'hat.fit']>2*hat.mean, 'x2', '-' ))
-     
-     write.table("Leverage output: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-     write.table(paste("Mean of hat values: ", hat.mean), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-     write.table("Leverage / Hat values with warnings (X3 & X2 = values 3 & 2 times than hat mean): ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-     write.table(hat.fit.df, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F) # write hat values and the levels X3, X2 (of hat mean)
-     
-     #THRESHOLD values: 3m/n, where m is the number of parameters, and n number of observations
-     thresh.lever<- (3*(dim(my.datf.train)[2]-1))/dim(my.datf.train)[1] # leverage thresh
-     hat.problems<- data.frame(hat.fit[hat.fit>thresh.lever]) # points with high leverage
-     
-     write.table(paste("Leverage Threshold: ", thresh.lever), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-     write.table("Points with leverage > threshold: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-     write.table(hat.problems, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F)
-     
-     # Cook's distance ?
-    }
-
-    # Influence ?
-    
-    # PDF plots
-    # --------------------------------------------------------------
-    pdf(file=paste(outFile,".",sCV,".","split",iSplit,".pdf",sep=""))
-    plot(my.datf.train[,1],pred.tr,xlab="Yobs", ylab="Ypred", type="b", main="Train Yobs-Ypred")
-    plot(my.datf.test[,1], pred.ts,xlab="Yobs", ylab="Ypred", type="b", main="Test Yobs-Ypred")
-    dotchart(as.matrix(FeatImp$importance),main="Feature Importance")
-    
-    # Fitted vs Residuals
-    plot(fitted(fitModel),residuals(fitModel),
-         main="Fitted vs. Residuals for Fitted Model",
-         xlab="Fitted", ylab="Residuals")
-    abline(h = 0, lty = 2)
-    
-    # Leverage plots
-    if(det.Traind.pls!=0){
-     plot(hat.fit, type = "h",
-          main="Leverage for Fitted Model",
-          xlab="Index", ylab="Hat")
-     abline(h = thresh.lever, lty = 2, col="red") # leverage thresh
-    }
-    dev.off()
-    # --------------------------------------------------------------
-  }
-  return(list(stat.values=my.stats, model=rbf.fit))  # return a list with statistics and the full model
-}
+# RBF_DDAreg <- function(my.datf.train,my.datf.test,sCV,negThrStep=0.5,iSplit=1,fDet=F,outFile="") {
+#   #============================================================
+#   # 8.5. RBF network with the DDA algorithm regression (caret)
+#   #============================================================
+#   
+#   library(caret)
+#   
+#   net.c = my.datf.train[,1] # dependent variable is the first column in Training set
+#   RegrMethod <- "rbfDDA" # type of regression
+#   
+#   # Define the CV conditions
+#   ctrl<- trainControl(method=sCV,number=10,repeats=10,
+#                       summaryFunction=defaultSummary)
+#   
+#   # Train the model using only training set
+#   set.seed(iSplit)
+#   
+#   rbf.fit<- train(net.c~.,data=my.datf.train,
+#                   method='rbfDDA',trControl=ctrl,
+#                   tuneGrid=expand.grid(.negativeThreshold=seq(0,1,negThrStep)))
+#   
+#   #------------------------------
+#   # Training RESULTS
+#   #------------------------------
+#   RMSE.tr  <- rbf.fit$results[,2]
+#   R2.tr    <- rbf.fit$results[,3]
+#   if (sCV == "repeatedcv"){ # if 10-fold CV
+#     RMSEsd.tr <- rbf.fit$results[,4]
+#     R2sd.tr   <- rbf.fit$results[,5]
+#   }
+#   if (sCV == "LOOCV"){ # if LOOCV
+#     RMSEsd.tr <- 0 # formulas will be added later!
+#     R2sd.tr   <- 0 # formulas will be added later!
+#   }
+#   
+#   #------------------------------------------------
+#   # RMSE & R^2, for train/test respectively
+#   #------------------------------------------------
+#   lm.train.res <- getTrainPerf(rbf.fit)
+#   lm.test.res  <- postResample(predict(rbf.fit,my.datf.test),my.datf.test[,1])
+#   
+#   #------------------------------------------------
+#   # Adj R2, Pearson correlation
+#   #------------------------------------------------
+#   pred.tr     <- predict(rbf.fit,my.datf.train) # predicted Y
+#   pred.ts     <- predict(rbf.fit,my.datf.test)  # predicted Y
+#   noFeats.fit <- length(predictors(rbf.fit))    # no. of features from the fitted model
+#   Feats.fit   <- paste(predictors(rbf.fit),collapse="+") # string with the features included in the fitted model
+#   
+#   ds.full     <- rbind(my.datf.train,my.datf.test)
+#   pred.both   <- predict(rbf.fit,ds.full)       # predicted Y
+#   adjR2.tr    <- r2.adj.funct(my.datf.train[,1],pred.tr,noFeats.fit)
+#   adjR2.ts    <- r2.adj.funct(my.datf.test[,1],pred.ts,noFeats.fit)
+#   corP.ts     <- cor(my.datf.test[,1],pred.ts)
+#   
+#   adjR2.both  <- r2.adj.funct(ds.full[,1],pred.both,noFeats.fit)
+#   RMSE.both   <- rmse.funct(ds.full[,1],pred.both)
+#   r2.both     <- r2.funct(ds.full[,1],pred.both)
+#   
+#   # Generate the output list with statistics for each cross-validation type
+#   # --------------------------------------------------------------------
+#   my.stats <- list("RegrMeth"     = RegrMethod,
+#                    "Split No"     = as.numeric(iSplit),     # from function param
+#                    "CVtype"       = sCV,                    # from function param
+#                    "NoModelFeats" = as.numeric(noFeats.fit),
+#                    "ModelFeats"   = Feats.fit,
+#                    "adjR2.tr"  = as.numeric(adjR2.tr),
+#                    
+#                    "RMSE.tr"   = as.numeric(min(RMSE.tr)),  # these 4 lines correspond to the min of RMSE.tr !!!
+#                    "R2.tr"     = as.numeric(R2.tr[which.min(RMSE.tr)]),  
+#                    "RMSEsd.tr" = as.numeric(RMSEsd.tr[which.min(RMSE.tr)]),
+#                    "R2sd.tr"   = as.numeric(R2sd.tr[which.min(RMSE.tr)]),
+#                    
+#                    "adjR2.ts"= as.numeric(adjR2.ts),
+#                    "RMSE.ts" = as.numeric((lm.test.res["RMSE"][[1]])),
+#                    "R2.ts"   = as.numeric((lm.test.res["Rsquared"][[1]])),
+#                    "corP.ts" = as.numeric(corP.ts),
+#                    "adjR2.both" = as.numeric(adjR2.both),
+#                    "RMSE.both"  = as.numeric(RMSE.both),
+#                    "R2.both"    = as.numeric(r2.both))
+#   #---------------------------------------------------------------------
+#   # Write to file DETAILS for GLM for each cross-validation method
+#   #---------------------------------------------------------------------
+#   if (fDet==T) {   # if flag for details if true, print details about any resut
+#     write("RRegr package | eNanoMapper", file=outFile,append=T)
+#     write.table(paste("Regression method: ", RegrMethod), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+#     write.table(paste("Split no.: ", iSplit),             file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+#     write.table(paste("CV type: ", sCV),  file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+#     write.table("Training Set Summary: ", file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+#     write.table(summary(my.datf.train), file=outFile,append=T,sep=",",col.names=T,quote=F)
+#     write.table("Test Set Summary: ",   file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+#     write.table(summary(my.datf.test),  file=outFile,append=T,sep=",",col.names=T,quote=F)   
+#     
+#     
+#     write.table("Predictors: ",      file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+#     write.table(predictors(rbf.fit), file=outFile,append=T,sep=",",col.names=T,quote=F)
+#     
+#     write.table("Trainig Results: ",      file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+#     write.table(predictors(lm.train.res), file=outFile,append=T,sep=",",col.names=T,quote=F)
+#     write.table("Test Results: ",        file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+#     write.table(predictors(lm.test.res), file=outFile,append=T,sep=",",col.names=T,quote=F)
+#     
+#     write.table("Full Statistics: ", file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+#     write.table(my.stats, file=outFile,append=T,sep=",",col.names=T,row.names=F,quote=F)
+#     
+#     # Variable Importance (max top 20)
+#     FeatImp <- varImp(rbf.fit, scale = F)
+#     components = length(FeatImp)  # default plot all feature importance
+#     if (length(FeatImp)>20){     # if the number of features is greater than 20, use only 20
+#       components = 20
+#     }
+#     # Append feature importance to output details
+#     AppendList2CSv(FeatImp,outFile)
+#     
+#     fitModel <- rbf.fit$finalModel
+#     
+#     # =============================================================================
+#     # Assessment of Applicability Domain (plot leverage)
+#     # =============================================================================
+#     
+#     # Residuals
+#     resids <- residuals(fitModel) # residuals
+#     write.table("Residuals of the fitted model: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+#     write.table(data.frame(resids), file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F) # write residuals
+#     
+#     predVals.pls.ad <- pred.ts
+#     Traind.pls= as.matrix(my.datf.train)
+#     Testd.pls = as.matrix(my.datf.test)
+#     mat.Traind.pls<- t(Traind.pls) %*%(Traind.pls) 
+#     det.Traind.pls<- det(mat.Traind.pls)
+# 
+#     if(det.Traind.pls!=0){
+#   
+#      Hat.train = diag(Traind.pls %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Traind.pls))
+#      Hat.test  = diag(Testd.pls  %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Testd.pls))  
+#      
+#      # Leverage / Hat values
+#      hat.fit <- Hat.test          # hat values
+#      hat.fit.df <- as.data.frame(hat.fit)    # hat data frame
+#      hat.mean <- mean(hat.fit)               # mean hat values
+#      hat.fit.df$warn <- ifelse(hat.fit.df[, 'hat.fit']>3*hat.mean, 'x3',ifelse(hat.fit.df[, 'hat.fit']>2*hat.mean, 'x2', '-' ))
+#      
+#      write.table("Leverage output: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+#      write.table(paste("Mean of hat values: ", hat.mean), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+#      write.table("Leverage / Hat values with warnings (X3 & X2 = values 3 & 2 times than hat mean): ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+#      write.table(hat.fit.df, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F) # write hat values and the levels X3, X2 (of hat mean)
+#      
+#      #THRESHOLD values: 3m/n, where m is the number of parameters, and n number of observations
+#      thresh.lever<- (3*(dim(my.datf.train)[2]-1))/dim(my.datf.train)[1] # leverage thresh
+#      hat.problems<- data.frame(hat.fit[hat.fit>thresh.lever]) # points with high leverage
+#      
+#      write.table(paste("Leverage Threshold: ", thresh.lever), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+#      write.table("Points with leverage > threshold: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+#      write.table(hat.problems, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F)
+#      
+#      # Cook's distance ?
+#     }
+# 
+#     # Influence ?
+#     
+#     # PDF plots
+#     # --------------------------------------------------------------
+#     pdf(file=paste(outFile,".",sCV,".","split",iSplit,".pdf",sep=""))
+#     plot(my.datf.train[,1],pred.tr,xlab="Yobs", ylab="Ypred", type="b", main="Train Yobs-Ypred")
+#     plot(my.datf.test[,1], pred.ts,xlab="Yobs", ylab="Ypred", type="b", main="Test Yobs-Ypred")
+#     dotchart(as.matrix(FeatImp$importance),main="Feature Importance")
+#     
+#     # Fitted vs Residuals
+#     plot(fitted(fitModel),residuals(fitModel),
+#          main="Fitted vs. Residuals for Fitted Model",
+#          xlab="Fitted", ylab="Residuals")
+#     abline(h = 0, lty = 2)
+#     
+#     # Leverage plots
+#     if(det.Traind.pls!=0){
+#      plot(hat.fit, type = "h",
+#           main="Leverage for Fitted Model",
+#           xlab="Index", ylab="Hat")
+#      abline(h = thresh.lever, lty = 2, col="red") # leverage thresh
+#     }
+#     dev.off()
+#     # --------------------------------------------------------------
+#   }
+#   return(list(stat.values=my.stats, model=rbf.fit))  # return a list with statistics and the full model
+# }
 #----------------------------------------------------------------------------------------------------------------------
 
 SVRMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="",cs=c(1,5,10,15,20)) {
@@ -1788,13 +1788,14 @@ PLSregWSel <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile=""
 }
 #----------------------------------------------------------------------------------------------------------------------
 
-Yrandom<- function(dss,trainFrac,best.reg,best.R2.ts,noYrand,ResBestF,rfe_SVM_param_c,rfe_SVM_param_eps,negThrStep){
+Yrandom<- function(dss,trainFrac,best.reg,best.R2.ts,noYrand,ResBestF,rfe_SVM_param_c,rfe_SVM_param_eps){
   #================================================
   # Y-randomization for the best model (Step 12)
   #================================================
   #    - 1 splitting, 1 CV type, best method
   #    - best.R2.ts will be compared with Yrand.R2.ts
   #    - returns ratios DiffsR2/bestR2
+  #   (ex param for rbfDDa: negThrStep)
   # --------------------------------------------------
   
   cat("-> Best model Y-Randomization ...\n")
@@ -1824,9 +1825,6 @@ Yrandom<- function(dss,trainFrac,best.reg,best.R2.ts,noYrand,ResBestF,rfe_SVM_pa
     if (best.reg=="lasso.RMSE") {
       my.stats.reg  <- LASSOreg(ds.train,ds.test,"repeatedcv",i,F,ResBestF)$stat.values # run SVRM Radial for each CV and regr method
     }
-    if (best.reg=="rbfDDA") {  
-      my.stats.reg  <- RBF_DDAreg(ds.train,ds.test,"repeatedcv",negThrStep,i,F,ResBestF)$stat.values # run SVRM Radial for each CV and regr method
-    }
     if (best.reg=="svmRadial") {  
       my.stats.reg  <- SVRMreg(ds.train,ds.test,"repeatedcv",i,F,ResBestF,rfe_SVM_param_c)$stat.values # run SVRM Radial for each CV and regr method
     }
@@ -1845,6 +1843,10 @@ Yrandom<- function(dss,trainFrac,best.reg,best.R2.ts,noYrand,ResBestF,rfe_SVM_pa
     if (best.reg=="rfRFE") {  
       my.stats.reg  <- RFRFEreg(ds.train,ds.test,"repeatedcv",i,F,ResBestF)$stat.values # run NNet for each CV and regr method
     } 
+    
+    #     if (best.reg=="rbfDDA") {  
+    #       my.stats.reg  <- RBF_DDAreg(ds.train,ds.test,"repeatedcv",negThrStep,i,F,ResBestF)$stat.values # run SVRM Radial for each CV and regr method
+    #    }
 
     Yrand.R2.ts <- c(Yrand.R2.ts,my.stats.reg$R2.ts) # adding test R2 value Y randomization
   }
@@ -2761,15 +2763,18 @@ ENETreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
 RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=1,
   ResAvgs="RRegsResAvgs.csv",ResBySplits="RRegrsResAllSplits.csv",ResBest="RRegrsResBest.csv",
   fDet="T",fFilters="F",fScaling="T",fRemNear0Var="T",fRemCorr="T",
-  fLM="T",fGLM="T",fPLS="T",fLASSO="T",fRBFdda="T",fSVRM="T",fNN="T",fRF="T",fRFRFE="T",fSVMRFE="T",fENET="T",
+  fLM="T",fGLM="T",fPLS="T",fLASSO="T",fSVRM="T",fNN="T",fRF="T",fRFRFE="T",fSVMRFE="T",fENET="T",
   RFE_SVM_C="1;5;10;15;20",RFE_SVM_epsilon="0.01;0.1;0.3",
   cutoff=0.9,iScaling=1,iScalCol=1,trainFrac=0.75,iSplitTimes=10,noYrand=100,
   CVtypes="repeatedcv;LOOCV",NoNAValFile="ds.NoNA.csv",
   No0NearVarFile="ds.No0Var.csv",ScaledFile="ds.scaled.csv",NoCorrFile="ds.scaled.NoCorrs.csv",
   lmFile="LM.details.csv",glmFile="GLM.details.csv",plsFile="PLS.details.csv",
-  lassoFile="Lasso.details.csv",rbfDDAFile="RBF_DDA.details.csv",negThrStep=0.5,svrmFile="SVMRadial.details.csv",
+  lassoFile="Lasso.details.csv",svrmFile="SVMRadial.details.csv",
   nnFile="NN.details.csv",rfFile="RF.details.csv",rfrfeFile="RFRFE.details.csv",svmrfeFile="SVMRFE.details.csv",
   enetFile="ENET.details.csv") { # input = file with all parameters
+  
+  # fRBFdda="T", rbfDDAFile="RBF_DDA.details.csv",negThrStep=0.5
+  
   # Minimal use:
   # RRegrs()                              # all default params
   # RRegrs(DataFileName="MyDataSet.csv")
@@ -2830,9 +2835,8 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="fPLS",Parameter.Value=as.character(fPLS),Description="If run PLS (Step 8.3)"))
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="fLASSO",Parameter.Value=as.character(fLASSO),Description="If run LASSO (Step 8.4)"))
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="fENET",Parameter.Value=as.character(fENET),Description="If run ENET  (Step 8.5)"))
-  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="fRBFdda",Parameter.Value=as.character(fRBFdda),Description="If run RBF DDA (Step 8.6)"))
-  
-  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="negThrStep",Parameter.Value=as.character(negThrStep),Description="Negative Threshold step parameter for RBF DDA (Step 8.6)"))
+  # Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="fRBFdda",Parameter.Value=as.character(fRBFdda),Description="If run RBF DDA (Step 8.6)"))
+  # Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="negThrStep",Parameter.Value=as.character(negThrStep),Description="Negative Threshold step parameter for RBF DDA (Step 8.6)"))
 
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="fSVRM",Parameter.Value=as.character(fSVRM),Description="If run svmRadial.RMSE (Step 8.7)"))
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="fNN",Parameter.Value=as.character(fNN),Description="If run Neural Networks (Step 8.8)"))
@@ -2857,7 +2861,7 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="glmFile",Parameter.Value=as.character(glmFile),Description="GLM output file with details"))
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="plsFile",Parameter.Value=as.character(plsFile),Description="PLS output file with details"))
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="lassoFile",Parameter.Value=as.character(lassoFile),Description="Lasoo output file with details"))
-  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="rbfDDAFile",Parameter.Value=as.character(rbfDDAFile),Description="RBF DDA output file with details"))
+  #Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="rbfDDAFile",Parameter.Value=as.character(rbfDDAFile),Description="RBF DDA output file with details"))
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="svrmFile",Parameter.Value=as.character(svrmFile),Description="SVM Radial output file with details"))
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="nnFile",Parameter.Value=as.character(nnFile),Description="NN output file with details"))
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="rfFile",Parameter.Value=as.character(rfFile),Description="RF output"))
@@ -2880,7 +2884,7 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
   fPLS         = as.logical(fPLS)    # flag to run PLS           (8.3)
   fLASSO       = as.logical(fLASSO)  # flag to run LASSO         (8.4)
   fenet        = as.logical(fENET)   # flag to run ElasticNet    (8.5)
-  fRBFdda      = as.logical(fRBFdda) # flat to run RBF DDA       (8.6)
+  #fRBFdda      = as.logical(fRBFdda) # flat to run RBF DDA       (8.6)
   fSVRM        = as.logical(fSVRM)   # flat to run svmRadial     (8.7)
   fNN          = as.logical(fNN)     # flat to run NN            (8.8)
   fRF          = as.logical(fRF)     # flag to run RandomForest  (8.9)
@@ -3250,36 +3254,36 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
 		} # end CV types  
     } # end enet
 
-    # ----------------------------------------------------------------
-    # 8.6. RBF network with the DDA algorithm regression (caret)
-    # ----------------------------------------------------------------
-    if (fRBFdda==T) {   # if RBF-DDA was selected, run the method
-		outFile.rbfDDA <- file.path(PathDataSet,rbfDDAFile)   # the same folder as the input is used for the output
-		  
-		cat("-> RBF-DDA : Radial Basis Functions - Dynamic Decay Adjustment ...\n")
-		# For each type of CV do all the statistics
-		# -----------------------------------------------------
-		for (cv in 1:length(CVtypes2)) {
-		    cat("    -->",CVtypes2[cv],"\n")
-		    ptmRBF_DDA <- proc.time()
-		    rbfDDA.model <- RBF_DDAreg(ds.train,ds.test,CVtypes2[cv],negThrStep,i,fDet,outFile.rbfDDA) # run rbfDDA for each CV and regr method
-		    print(proc.time() - ptmRBF_DDA) # print running time
-		    
-		    my.stats.rbfDDA <- rbfDDA.model$stat.values
-		    my.model.rbfDDA <- rbfDDA.model$model 
-		    #-------------------------------------------------------
-		    # Add output from RBF-DDA to the list of results
-		    #-------------------------------------------------------
-		    # List of results for each splitting, CV type & regression method
-		    dfRes = mapply(c, my.stats.rbfDDA, dfRes, SIMPLIFY=F)
-		    
-		    # List of models for each splitting, CV type & regression method
-		    names1 <- strsplit(deparse(quote(my.model.rbfDDA)),'my.model.')[[1]][2]
-		    dfMod[[cv]]$names1 <- my.model.rbfDDA  
-		    names(dfMod[[cv]])[mod.ind[cv]] <- names1[1]
-		    mod.ind[cv] <- mod.ind[cv] +1 # update mod.ind indicator variable
-		} # end CV types
-    } # end rbfDDA
+#     # ----------------------------------------------------------------
+#     # 8.6. RBF network with the DDA algorithm regression (caret)
+#     # ----------------------------------------------------------------
+#     if (fRBFdda==T) {   # if RBF-DDA was selected, run the method
+# 		outFile.rbfDDA <- file.path(PathDataSet,rbfDDAFile)   # the same folder as the input is used for the output
+# 		  
+# 		cat("-> RBF-DDA : Radial Basis Functions - Dynamic Decay Adjustment ...\n")
+# 		# For each type of CV do all the statistics
+# 		# -----------------------------------------------------
+# 		for (cv in 1:length(CVtypes2)) {
+# 		    cat("    -->",CVtypes2[cv],"\n")
+# 		    ptmRBF_DDA <- proc.time()
+# 		    rbfDDA.model <- RBF_DDAreg(ds.train,ds.test,CVtypes2[cv],negThrStep,i,fDet,outFile.rbfDDA) # run rbfDDA for each CV and regr method
+# 		    print(proc.time() - ptmRBF_DDA) # print running time
+# 		    
+# 		    my.stats.rbfDDA <- rbfDDA.model$stat.values
+# 		    my.model.rbfDDA <- rbfDDA.model$model 
+# 		    #-------------------------------------------------------
+# 		    # Add output from RBF-DDA to the list of results
+# 		    #-------------------------------------------------------
+# 		    # List of results for each splitting, CV type & regression method
+# 		    dfRes = mapply(c, my.stats.rbfDDA, dfRes, SIMPLIFY=F)
+# 		    
+# 		    # List of models for each splitting, CV type & regression method
+# 		    names1 <- strsplit(deparse(quote(my.model.rbfDDA)),'my.model.')[[1]][2]
+# 		    dfMod[[cv]]$names1 <- my.model.rbfDDA  
+# 		    names(dfMod[[cv]])[mod.ind[cv]] <- names1[1]
+# 		    mod.ind[cv] <- mod.ind[cv] +1 # update mod.ind indicator variable
+# 		} # end CV types
+#     } # end rbfDDA
     
     # --------------------------------------------
     # 8.7. SVM radial regression
@@ -3600,9 +3604,6 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
   if (best.reg=="lasso.RMSE") {
     my.stats.reg  <- LASSOreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF)$stat.values # run LASSO for each CV and regr method
   }
-  if (best.reg=="rbfDDA") {  
-    my.stats.reg  <- RBF_DDAreg(ds.train,ds.test,"repeatedcv",negThrStep,i,T,ResBestF)$stat.values # run rbfDDA for each CV and regr method
-  }
   if (best.reg=="svmRadial") {  
     my.stats.reg  <- SVRMreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF,rfe_SVM_param_c)$stat.values # run SVRM Radial for each CV and regr method
   }
@@ -3622,12 +3623,18 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
     my.stats.reg  <- RFRFEreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF)$stat.values # run RF RFE for each CV and regr method
   }
 
+#   if (best.reg=="rbfDDA") {  
+#     my.stats.reg  <- RBF_DDAreg(ds.train,ds.test,"repeatedcv",negThrStep,i,T,ResBestF)$stat.values # run rbfDDA for each CV and regr method
+#  }
+
   #--------------------------------------------------------------------------------------
   # 12. Test best model with test dataset + Y randomization
   #--------------------------------------------------------------------------------------
   # ratios Yrand R2 - Best model R2 / Best model R2
-  R2Diff.Yrand <- Yrandom(ds,trainFrac,best.reg,my.stats.reg$R2.ts,noYrand,ResBestF,rfe_SVM_param_c,rfe_SVM_param_eps,negThrStep) # mean value of ratio (deatails are printed to output file)
+  R2Diff.Yrand <- Yrandom(ds,trainFrac,best.reg,my.stats.reg$R2.ts,noYrand,ResBestF,rfe_SVM_param_c,rfe_SVM_param_eps) # mean value of ratio (deatails are printed to output file)
   
+  # (ex param: negThrStep) 
+
   # Kill parallel server
   # ------------------------
   if (noCores!=1){
