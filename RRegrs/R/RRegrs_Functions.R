@@ -1288,11 +1288,11 @@ SVRMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="",cs
   #------------------------------
   # Training RESULTS
   #------------------------------
-  RMSE.tr  <- svmL.fit$results[,2]
-  R2.tr    <- svmL.fit$results[,3]
+  RMSE.tr  <- svmL.fit$results[,which(names(svmL.fit$results)=='RMSE')]#2]
+  R2.tr    <- svmL.fit$results[,which(names(svmL.fit$results)=='Rsquared')]#3]
   if (sCV == "repeatedcv"){ # if 10-fold CV
-    RMSEsd.tr <- svmL.fit$results[,4]
-    R2sd.tr   <- svmL.fit$results[,5]
+    RMSEsd.tr <- svmL.fit$results[,which(names(svmL.fit$results)=='RMSESD')]##4]
+    R2sd.tr   <- svmL.fit$results[,which(names(svmL.fit$results)=='RsquaredSD')]#5]
   }
   if (sCV == "LOOCV"){ # if LOOCV
     RMSEsd.tr <- 0 # formulas will be added later!
@@ -1481,11 +1481,11 @@ NNreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
   #------------------------------
   # Training RESULTS
   #------------------------------
-  RMSE.tr  <- nn.fit$results[,2]
-  R2.tr    <- nn.fit$results[,3]
+  RMSE.tr  <- nn.fit$results[,which(names(nn.fit$results)=='RMSE')]#2]
+  R2.tr    <- nn.fit$results[,which(names(nn.fit$results)=='Rsquared')]#3]
   if (sCV == "repeatedcv"){ # if 10-fold CV
-    RMSEsd.tr <- nn.fit$results[,4]
-    R2sd.tr   <- nn.fit$results[,5]
+    RMSEsd.tr <- nn.fit$results[,which(names(nn.fit$results)=='RMSESD')]#4]
+    R2sd.tr   <- nn.fit$results[,which(names(nn.fit$results)=='RsquaredSD')]#5]
   }
   if (sCV == "LOOCV"){ # if LOOCV
     RMSEsd.tr <- 0 # formulas will be added later!
