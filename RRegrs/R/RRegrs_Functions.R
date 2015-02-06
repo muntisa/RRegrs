@@ -3522,10 +3522,10 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
                           RMSEsd.tr.Avg=mean(RMSEsd.tr),R2sd.tr.Avg=mean(R2sd.tr),adjR2.ts.Avg=mean(adjR2.ts),
                           RMSE.ts.Avg=mean(RMSE.ts),R2.ts.Avg=mean(R2.ts),corP.ts.Avg=mean(corP.ts),
                           adjR2.both.Avg=mean(adjR2.both),RMSE.both.Avg=mean(RMSE.both),
-                          R2.both.Avg=mean(R2.both)),by="RegrMeth,CVtype"]
+                          R2.both.Avg=mean(R2.both),NoModelFeats.Avg=round(mean(NoModelFeats),1)),by="RegrMeth,CVtype"]
   
   dt.mean     <- dt.mean[dt.mean$CVtype=="repeatedcv",]   # keep only the 10CV results to be used to find the best model
-  dt.mean.ord <- dt.mean[order(-rank(adjR2.ts.Avg))]      # descendent order the averages by adjR2.ts.Avg
+  dt.mean.ord <- dt.mean[order(-rank(R2.ts.Avg))]#adjR2.ts.Avg))]      # descendent order the averages by adjR2.ts.Avg
   
   # Write averages descendent ordered by adjR2.ts.Avg
   #-------------------------------------------------------------------------------
@@ -3539,17 +3539,19 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
   # Add an algorithm to verifty similar adjR2 values
   # From the best ones (+/- 0.05 of adjR2), chose the one with less variables, after that the one with min RMSE!!!
   
-  best.dt  <- dt.mean.ord[1] # the best model (adjR2.ts) should be the first value in the descendent ordered results
+  best.dt  <- dt.mean.ord[1] # the best model (R2.ts) should be the first value in the descendent ordered results
 
   # best.reg <- paste(best.dt$RegrMeth,collapse="") # best regrression method
   
   # New conditions
   # +/- 0.05 adjR2ts --> min(RMSE)
-  best.adjR2.ts <- as.numeric(data.frame(best.dt)[,8]) # best adjR2.ts avgs
+  best.adjR2.ts <- as.numeric(data.frame(best.dt)[,10])#8]) # best R2.ts avgs
+
   
   # best model with adjR2.ts +/- 0.05 and min of RMSE for Avgs
   #best.dt  <- dt.mean.ord[adjR2.ts.Avg %between% c(best.adjR2.ts-0.05,best.adjR2.ts+0.05)][RMSE.ts.Avg == min(RMSE.ts.Avg)]
-  best.dt  <- dt.mean.ord[adjR2.ts.Avg %between% c(best.adjR2.ts-0.05,best.adjR2.ts+0.05)][which.min(RMSE.ts.Avg)]
+  #best.dt  <- dt.mean.ord[adjR2.ts.Avg %between% c(best.adjR2.ts-0.05,best.adjR2.ts+0.05)][which.min(RMSE.ts.Avg)]
+  best.dt  <- dt.mean.ord[R2.ts.Avg %between% c(best.adjR2.ts-0.05,best.adjR2.ts+0.05)][which.min(RMSE.ts.Avg)]
   best.reg <- paste(best.dt$RegrMeth,collapse="") # best regrression method
   cat("    -> Method:",best.reg,"\n")
 
