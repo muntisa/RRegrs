@@ -57,48 +57,41 @@ lmFile="LM.details.csv", glmFile="GLM.details.csv", plsFile="PLS.details.csv",la
  \item{svmrfeFile}{a character string naming the file where SVMRRFE model details will be stored. Default value is the "SVMRFE.details.csv" file.}
  \item{enetFile}{a character string naming the file where ENET model details will be stored. Default value is the "ENET.details.csv" file.}
 }
-\details{
-RMSE is the summary metric used to select the optimal model.
+\details{ RRegrs() function contains several sections: loading parameters and dataset, remove near zero variance features, scaling dataset, remove correlated features, dataset splitting, run the 10 regression methods, summary of statistics for all methods and splittings, averages for each method and cross-validation type for all splittings, automatic best model statistics, best model Y-randomization. Assessment of Applicability Domain was included in each method.
 
-To control the computational nuances of the train function, trainControl is used; number of folds or resampling iterations is set to 10, and the number of completed set of folds is set to 10 (for repeated k-fold cross-validation).
-    
-sCV can take the following values: boot, boot632, cv, repeatedcv, LOOCV, LGOCV (for repeated training/test splits), none (only fits one model to the entire training set), oob (only for random forest, bagged trees, bagged earth, bagged flexible discriminant analysis, or conditional tree forest models), "adaptive_cv", "adaptive_boot" or "adaptive_LGOCV".
+In order to use RRegrs function, it is needed to specify a minimum set of parameters (the others will get default values). All the parameters will be written into a CSV file (ex: Parameters.csv), in the same working folder where it should be present the input dataset file and the outputs files.The dataset needs to have CSV format, with the first column as the dependent variable. The input and output files will be placed into a working folder. The output files are CSV statistics files, PDF and PNG plots.
 
-If fDet=TRUE, the following output is produced: a CSV file with detailed statistics about the regression model (Regression method, splitting number, cross-validation type, Training set summary, Test set summary, Fitting summary, List of predictors, Training predictors, Test predictors, resampling statistics, features'importance, residuals of the fitted model, assessment of applicability domain (leverage analysis, Cook's distances, points influence)), 5-12 plots for fitting statistics as a PDF file for each splitting and cross-validation method (Training Yobs-Ypred, Test Yobs-Ypred, Feature Importance, Fitted vs. Residuals for Fitted Model, Leverage for Fitted Model, Cook's Distance for Fitted Model, 6 standard fitting plots using plot function with cutoff.Cook). 
+If details are needed (fDet=T), several output files are generated. A CSV file with detailed statistics about the regression model is returned(Regression method, splitting number, cross-validation type, Training set summary, Test set summary, Fitting summary, List of predictors, Training predictors, Test predictors, Full statistics, Feature importance, Residuals of the fitted model, Assessment of applicability domain / leverage analysis). If the determinant is not zero then the following are reported: mean of hat values, hat values with warnings (X3 and X2 for values 3 and 2 times than hat mean), leverage threshold, list of points with leverage greater than threshold, Cook's distance cutoff, Cook's distances, points influence. Also, 5-12 plots for fitting statistics as a PDF file for each splitting and cross-validation method are returned. Along with the above, plots for Training Yobs versus Ypred are generated, plots for Test Yobs versus Ypred, Feature Importance, Fitted vs. Residuals for Fitted Model, Leverage for Fitted Model, Cook's Distance for Fitted Model, 6 standard fitting plots using plot function with cutoff.Cook.
 
+The outputs can differ depending on the regression method used.
+
+After filtering the dataset for correlated variables, near-zero variance features and splitting the dataset into training and test sets, the user's selected regression methods will be executed for each splitting and cross-validation type. 
+
+Averaged statistics across all splittings, for each regression method and cross-validation type are calculated and used to chose the best regression model. Particularly, this is chosen based on the following criteria: from the best test R-squared (+/- 0.05), the model with minimum RMSE is the final one. For the best model, an additional CSV file is generated containing detailed statistics as well as PDF plots for important statistics.
+
+Please note that the Cross-validation types available are the resampling methods available from trainControl() and rfeControl() caret.
 }
 \value{
- A list is returned containing:
+RRegrs() returns a list with 3 items: the name of the best method, the statistics for the best model, the list with all the fitted models based on caret functions (including the best model).
 \item{stat.values}{model's statistics}
 \item{model}{the full stepwise-selected model, i.e. a list of class train}
 }
 \examples{
 \dontrun{
-fDet <- FALSE   
-iSeed <- i                 
+library(data.table)
+library(corrplot)
+source("../RRegrs/R/RRegrs_Functions.R")
 
-# the fraction of training set from the entire dataset;
-trainFrac <- 0.75
+#Run RRegrs with all default parameters
+# (use default dataset file and working folder,
+#  run all regression methods, without wrappers,
+#  10 splitings, 100 times Y-randomization,
+#  no parallel calculation = 1 CPU core)
 
-# dataset folder for input and output files
-PathDataSet <- 'DataResults' 
-
-# upload data set
-ds <- read.csv(ds.Housing,header=T)
-
-# split the data into training and test sets
-dsList  <- DsSplit(ds,trainFrac,fDet,PathDataSet,iSeed) 
-ds.train<- dsList$train
-ds.test <- dsList$test
-
-# types of cross-validation methods
-CVtypes <- c('repeatedcv','LOOCV')
-
-outGLM<- 'GLMoutput.csv'
-
-GLM.fit <- GLMreg(ds.train,ds.test,CVtypes[1],iSplit=1,fDet=F,outFile=outGLM)
+#Run RRegrs for a specific dataset file and the rest default #parameters
+RRegrsResults = RRegrs(DataFileName="MyDataSet.csv")
 }
 }
 \author{
-Georgia Tsiliki, Cristian R. Munteanu
+Georgia Tsiliki, Cristian R. Munteanu, Jose A. Seoane, Carlos Fernandez-Lozano
 }
