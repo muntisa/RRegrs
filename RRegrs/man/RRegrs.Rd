@@ -9,7 +9,7 @@ The current tool is a collection of regression tools from R that could be used t
 \usage{
 RRegrs(DataFileName="ds.House.csv",
 PathDataSet="DataResults", noCores=1, ResAvgs="RRegsResAvgs.csv", ResBySplits="RRegrsResAllSplits.csv", ResBest="RRegrsResBest.csv", fDet="T", fFilters="F", fScaling="T", fRemNear0Var="T", fRemCorr="T",fLM="T", fGLM="T", fPLS="T", fLASSO="T", fSVRM="T", fNN="T", fRF="T", fRFRFE="T", fSVMRFE="T", fENET="T", RFE_SVM_C="1;5;10;15;20", RFE_SVM_epsilon="0.01;0.1;0.3", cutoff=0.9, iScaling=1, iScalCol=1, trainFrac=0.75, iSplitTimes=10, noYrand=100, CVtypes="repeatedcv;LOOCV", NoNAValFile="ds.NoNA.csv",  No0NearVarFile="ds.No0Var.csv", ScaledFile="ds.scaled.csv", NoCorrFile="ds.scaled.NoCorrs.csv",
-lmFile="LM.details.csv", glmFile="GLM.details.csv", plsFile="PLS.details.csv",lassoFile="Lasso.details.csv", svrmFile="SVMRadial.details.csv", nnFile="NN.details.csv", rfFile="RF.details.csv", rfrfeFile="RFRFE.details.csv", svmrfeFile="SVMRFE.details.csv",enetFile="ENET.details.csv")
+lmFile="LM.details.csv", glmFile="GLM.details.csv", plsFile="PLS.details.csv",lassoFile="Lasso.details.csv", svrmFile="SVMRadial.details.csv", nnFile="NN.details.csv", rfFile="RF.details.csv", rfrfeFile="RFRFE.details.csv", svmrfeFile="SVMRFE.details.csv",enetFile="ENET.details.csv",fR2rule="T")
 }
 \arguments{
  \item{DataFileName}{ a character string naming the data set file; the data set should be an object where samples are in rows and features are in columns. The first column should be a numeric or factor vector containing the outcome for each sample. Default value is the "ds.House.csv" data.}
@@ -56,6 +56,7 @@ lmFile="LM.details.csv", glmFile="GLM.details.csv", plsFile="PLS.details.csv",la
  \item{rfrfeFile}{a character string naming the file where RFRFE model details will be stored. Default value is the "RFRFE.details.csv" file.}
  \item{svmrfeFile}{a character string naming the file where SVMRRFE model details will be stored. Default value is the "SVMRFE.details.csv" file.}
  \item{enetFile}{a character string naming the file where ENET model details will be stored. Default value is the "ENET.details.csv" file.}
+ \item{fR2rule}{logical. If R2 rule will be used to find the best regression model. Default value is the TRUE (R2 rule).}
 }
 \details{ RRegrs() function contains several sections: loading parameters and dataset, remove near zero variance features, scaling dataset, remove correlated features, dataset splitting, run the 10 regression methods, summary of statistics for all methods and splittings, averages for each method and cross-validation type for all splittings, automatic best model statistics, best model Y-randomization. Assessment of Applicability Domain was included in each method.
 
@@ -67,7 +68,7 @@ The outputs can differ depending on the regression method used.
 
 After filtering the dataset for correlated variables, near-zero variance features and splitting the dataset into training and test sets, the user's selected regression methods will be executed for each splitting and cross-validation type. 
 
-Averaged statistics across all splittings, for each regression method and cross-validation type are calculated and used to chose the best regression model. Particularly, this is chosen based on the following criteria: from the best test R-squared (+/- 0.05), the model with minimum RMSE is the final one. For the best model, an additional CSV file is generated containing detailed statistics as well as PDF plots for important statistics. Finally, the best model (last data split) is tested with Y-randomization runs (100 by default).  
+Averaged statistics across all splittings, for each regression method and cross-validation type are calculated and used to chose the best regression model. Particularly, this is chosen based on the following criteria: from the best test R-squared (+/- 0.05), the model with minimum RMSE is the final one. If fR2rule is FALSE, adjusted R2 values will be used to choose the best model. For the best model, an additional CSV file is generated containing detailed statistics as well as PDF plots for important statistics. Finally, the best model (last data split) is tested with Y-randomization runs (100 by default).  
 
 Please note that the Cross-validation types available are the resampling methods available from trainControl() and rfeControl() caret.
 }

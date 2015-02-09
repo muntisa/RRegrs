@@ -2771,7 +2771,7 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
   lmFile="LM.details.csv",glmFile="GLM.details.csv",plsFile="PLS.details.csv",
   lassoFile="Lasso.details.csv",svrmFile="SVMRadial.details.csv",
   nnFile="NN.details.csv",rfFile="RF.details.csv",rfrfeFile="RFRFE.details.csv",svmrfeFile="SVMRFE.details.csv",
-  enetFile="ENET.details.csv") { # input = file with all parameters
+  enetFile="ENET.details.csv",fR2rule="T") { # input = file with all parameters
   
   # fRBFdda="T", rbfDDAFile="RBF_DDA.details.csv",negThrStep=0.5
   
@@ -2821,36 +2821,36 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
   # define a data frame with all parameters of the current calculation
   Params.df=data.frame(RRegrs.Parameters="DataFileName",Parameter.Value=as.character(DataFileName),Description="Input dataset file (Step 1)") # data frame with used parameters
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="PathDataSet",Parameter.Value=as.character(PathDataSet),Description="Working folder for all input and output files"))
-  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="noCores",Parameter.Value=as.character(noCores),Description="No of CPU cores (0=all available, 1=no parallel, >1 = specific no. of cores)"))
-  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="ResAvgs",Parameter.Value=as.character(ResAvgs),Description="Output file averaged statistics (by splittings) for each regression method"))
+  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="noCores",Parameter.Value=as.character(noCores),Description="No of CPU cores (0=all available; 1=no parallel; >1 = specific no. of cores)"))
+  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="ResAvgs",Parameter.Value=as.character(ResAvgs),Description="Output file averaged statistics (by splits) for each regression method"))
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="ResBySplits",Parameter.Value=as.character(ResBySplits),Description="Output file statistics for each splitting and each regression method"))
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="ResBest",Parameter.Value=as.character(ResBest),Description="Output file statistics for the best model"))
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="fDet",Parameter.Value=as.character(fDet),Description="If calculate and print details for all the functions"))
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="fFilters",Parameter.Value=as.character(fFilters),Description="If run Filters (Step 2)"))
-  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="fScaling",Parameter.Value=as.character(fScaling),Description="If Scalling dataset (Step 3)"))
+  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="fScaling",Parameter.Value=as.character(fScaling),Description="If Scaling dataset (Step 3)"))
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="fRemNear0Var",Parameter.Value=as.character(fRemNear0Var),Description="If run Removal of near zero variance columns (Step 4)"))
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="fRemCorr",Parameter.Value=as.character(fRemCorr),Description="If run Removal of correlated columns (Step 5)"))
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="fLM",Parameter.Value=as.character(fLM),Description="If run LM (Step 8.1)"))
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="fGLM",Parameter.Value=as.character(fGLM),Description="If run GLM (Step 8.2)"))
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="fPLS",Parameter.Value=as.character(fPLS),Description="If run PLS (Step 8.3)"))
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="fLASSO",Parameter.Value=as.character(fLASSO),Description="If run LASSO (Step 8.4)"))
-  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="fENET",Parameter.Value=as.character(fENET),Description="If run ENET  (Step 8.5)"))
+  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="fENET",Parameter.Value=as.character(fENET),Description="If run ENET (Step 8.5)"))
   # Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="fRBFdda",Parameter.Value=as.character(fRBFdda),Description="If run RBF DDA (Step 8.6)"))
   # Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="negThrStep",Parameter.Value=as.character(negThrStep),Description="Negative Threshold step parameter for RBF DDA (Step 8.6)"))
 
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="fSVRM",Parameter.Value=as.character(fSVRM),Description="If run svmRadial.RMSE (Step 8.7)"))
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="fNN",Parameter.Value=as.character(fNN),Description="If run Neural Networks (Step 8.8)"))
-  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="fRF",Parameter.Value=as.character(fRF),Description="If run Random Forest  (Step 8.9)"))
-  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="fRFRFE",Parameter.Value=as.character(fRFRFE),Description="If run Random Forest RFE  (Step 8.10)"))
-  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="fSVMRFE",Parameter.Value=as.character(fSVMRFE),Description="If run Random Forest  (Step 8.11)"))
+  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="fRF",Parameter.Value=as.character(fRF),Description="If run Random Forest (Step 8.9)"))
+  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="fRFRFE",Parameter.Value=as.character(fRFRFE),Description="If run Random Forest RFE (Step 8.10)"))
+  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="fSVMRFE",Parameter.Value=as.character(fSVMRFE),Description="If run Random Forest (Step 8.11)"))
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="RFE_SVM_C",Parameter.Value=as.character(RFE_SVM_C),Description="Values of C for SVM RFE"))
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="RFE_SVM_epsilon",Parameter.Value=as.character(RFE_SVM_epsilon),Description="Values of epsilon for SVM RFE"))
   
-  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="cutoff",Parameter.Value=as.character(cutoff),Description="Cutoff for correlated features (default = 0.9)"))
-  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="iScaling",Parameter.Value=as.character(iScaling),Description="Type of scalling: 1 = normalization; 2 = standardization; 3 = other; any other: no scaling"))
-  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="iScalCol",Parameter.Value=as.character(iScalCol),Description="Scalling columns: 1 = including dependent variable; 2: only all the features"))
+  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="cutoff",Parameter.Value=as.character(cutoff),Description="Cut-off for correlated features (default = 0.9)"))
+  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="iScaling",Parameter.Value=as.character(iScaling),Description="Type of scaling: 1 = normalization; 2 = standardization; 3 = other; any other: no scaling"))
+  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="iScalCol",Parameter.Value=as.character(iScalCol),Description="Scaling columns: 1 = including dependent variable; 2: only all the features"))
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="trainFrac",Parameter.Value=as.character(trainFrac),Description="Fraction of training set from the entire dataset; the rest of dataset is the test set"))
-  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="iSplitTimes",Parameter.Value=as.character(iSplitTimes),Description="Number of splittings the dataset into train and test (default  = 10)"))
+  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="iSplitTimes",Parameter.Value=as.character(iSplitTimes),Description="Number of splitting the dataset into train and test (default  = 10)"))
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="noYrand",Parameter.Value=as.character(noYrand),Description="Number of Y-Randomization (default = 100)"))
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="CVtypes",Parameter.Value=as.character(CVtypes),Description="Cross-validation types: 10-CV (repeatedcv) and LOOCV"))
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="NoNAValFile",Parameter.Value=as.character(NoNAValFile),Description="Dataset without NA values (if fDet is True)"))
@@ -2860,7 +2860,7 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="lmFile",Parameter.Value=as.character(lmFile),Description="LM output file with details"))
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="glmFile",Parameter.Value=as.character(glmFile),Description="GLM output file with details"))
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="plsFile",Parameter.Value=as.character(plsFile),Description="PLS output file with details"))
-  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="lassoFile",Parameter.Value=as.character(lassoFile),Description="Lasoo output file with details"))
+  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="lassoFile",Parameter.Value=as.character(lassoFile),Description="Lasso output file with details"))
   #Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="rbfDDAFile",Parameter.Value=as.character(rbfDDAFile),Description="RBF DDA output file with details"))
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="svrmFile",Parameter.Value=as.character(svrmFile),Description="SVM Radial output file with details"))
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="nnFile",Parameter.Value=as.character(nnFile),Description="NN output file with details"))
@@ -2868,6 +2868,7 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="rfrfeFile",Parameter.Value=as.character(rfrfeFile),Description="RF-RFE output"))
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="svmrfeFile",Parameter.Value=as.character(svmrfeFile),Description="SVM-RFE output"))
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="enetFile",Parameter.Value=as.character(enetFile),Description="ENET output"))
+  Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="fR2rule",Parameter.Value=as.character(fR2rule),Description="Best model rule: R2 (default = T) or adjR2 (F)"))
 
   write.csv(Params.df,file=ParamFile,row.names=F,quote=F) # write parameters to a CSV in the working folder
 
@@ -2878,13 +2879,13 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
   fRemNear0Var = as.logical(fRemNear0Var) # flag for Removal of near zero variance columns (4)
   fRemCorr     = as.logical(fRemCorr)     # flag for Removal of correlated columns         (5)
   
-  #cutoff       = as.numeric(as.character(cutoff))  # cut off for correlated features
+  cutoff       = as.numeric(as.character(cutoff))  # cut off for correlated features
   fLM          = as.logical(fLM)     # flag to run LM            (8.1)
   fGLM         = as.logical(fGLM)    # flag to run GLM           (8.2)
   fPLS         = as.logical(fPLS)    # flag to run PLS           (8.3)
   fLASSO       = as.logical(fLASSO)  # flag to run LASSO         (8.4)
   fenet        = as.logical(fENET)   # flag to run ElasticNet    (8.5)
-  #fRBFdda      = as.logical(fRBFdda) # flat to run RBF DDA       (8.6)
+  #fRBFdda      = as.logical(fRBFdda) # flat to run RBF DDA      (8.6)
   fSVRM        = as.logical(fSVRM)   # flat to run svmRadial     (8.7)
   fNN          = as.logical(fNN)     # flat to run NN            (8.8)
   fRF          = as.logical(fRF)     # flag to run RandomForest  (8.9)
@@ -2895,7 +2896,7 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
   rfe_SVM_param_eps = strsplit(as.character(RFE_SVM_epsilon),";")[[1]] # values of epsilon for SVM RFE
   # negThrStep
 
-  
+  fR2rule = as.logical(fR2rule) # flag to decide order rule for the best model (True for R2 and False for adjR2, default = True)
   # ----------------------------------------------------------------------------------------
   trainFrac   = as.numeric(as.character(trainFrac))   # the fraction of training set from the entire dataset; trainFrac = the rest of dataset, the test set
  
@@ -3525,9 +3526,14 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
                           R2.both.Avg=mean(R2.both),NoModelFeats.Avg=round(mean(NoModelFeats),1)),by="RegrMeth,CVtype"]
   
   dt.mean     <- dt.mean[dt.mean$CVtype=="repeatedcv",]   # keep only the 10CV results to be used to find the best model
-  dt.mean.ord <- dt.mean[order(-rank(R2.ts.Avg))]#adjR2.ts.Avg))]      # descendent order the averages by adjR2.ts.Avg
   
-  # Write averages descendent ordered by adjR2.ts.Avg
+  if (fR2rule==T) { # R2 rule for the best model (default)
+	dt.mean.ord <- dt.mean[order(-rank(R2.ts.Avg))]     # descendent order the averages by R2.ts.Avg
+  } else { # adjR2 rule for the best model
+	dt.mean.ord <- dt.mean[order(-rank(adjR2.ts.Avg))]  # descendent order the averages by adjR2.ts.Avg
+  }
+  
+  # Write averages descendent ordered by R2.ts.Avg / adjR2.ts.Avg
   #-------------------------------------------------------------------------------
   write.csv(data.frame(dt.mean.ord), file = ResAvgsF)    # write statistics data frame into a CSV output file
   
@@ -3536,22 +3542,29 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
   #-------------------------------------------------------------------------------
   cat("-> Best model analysis ...\n")
   
-  # Add an algorithm to verifty similar adjR2 values
-  # From the best ones (+/- 0.05 of adjR2), chose the one with less variables, after that the one with min RMSE!!!
+  # Algorithm to verify similar R2 / adjR2 values
+  # -> from the best ones (+/- 0.05 of R2 / adjR2), chose the one with less variables, after that the one with min RMSE
   
-  best.dt  <- dt.mean.ord[1] # the best model (R2.ts) should be the first value in the descendent ordered results
+  best.dt  <- dt.mean.ord[1] # the best model (R2.ts / adjR2.ts) should be the first value in the descendent ordered results
 
-  # best.reg <- paste(best.dt$RegrMeth,collapse="") # best regrression method
+  # best.reg <- paste(best.dt$RegrMeth,collapse="") # best regression method
   
-  # New conditions
-  # +/- 0.05 adjR2ts --> min(RMSE)
-  best.adjR2.ts <- as.numeric(data.frame(best.dt)[,10])#8]) # best R2.ts avgs
-
+  # Best model rule: R2 or adjR2 for ordering
+  # +/- 0.05 R2 / adjR2ts --> min(RMSE)
+  # best.adjR2.ts is used for R2 or adjR2 rule
+  if (fR2rule==T) { # R2 rule for the best model (default)
+	best.adjR2.ts <- as.numeric(data.frame(best.dt)[,10]) # best R2.ts avgs
+  } else { # adjR2 rule for the best model
+	best.adjR2.ts <- as.numeric(data.frame(best.dt)[,8])  # best adjR2.ts avgs
+  }
   
-  # best model with adjR2.ts +/- 0.05 and min of RMSE for Avgs
-  #best.dt  <- dt.mean.ord[adjR2.ts.Avg %between% c(best.adjR2.ts-0.05,best.adjR2.ts+0.05)][RMSE.ts.Avg == min(RMSE.ts.Avg)]
-  #best.dt  <- dt.mean.ord[adjR2.ts.Avg %between% c(best.adjR2.ts-0.05,best.adjR2.ts+0.05)][which.min(RMSE.ts.Avg)]
-  best.dt  <- dt.mean.ord[R2.ts.Avg %between% c(best.adjR2.ts-0.05,best.adjR2.ts+0.05)][which.min(RMSE.ts.Avg)]
+  # best model with R2 or adjR2.ts +/- 0.05 and min of RMSE for Avgs
+  if (fR2rule==T) { # R2 rule for the best model (default)
+	best.dt  <- dt.mean.ord[R2.ts.Avg %between% c(best.adjR2.ts-0.05,best.adjR2.ts+0.05)][which.min(RMSE.ts.Avg)]
+  } else { # adjR2 rule for the best model
+	best.dt  <- dt.mean.ord[adjR2.ts.Avg %between% c(best.adjR2.ts-0.05,best.adjR2.ts+0.05)][which.min(RMSE.ts.Avg)]
+  }
+  
   best.reg <- paste(best.dt$RegrMeth,collapse="") # best regrression method
   cat("    -> Method:",best.reg,"\n")
 

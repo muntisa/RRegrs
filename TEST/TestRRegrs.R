@@ -24,18 +24,8 @@ source("../RRegrs/R/RRegrs_Functions.R")
 # lmFile="LM.details.csv",glmFile="GLM.details.csv",plsFile="PLS.details.csv",
 # lassoFile="Lasso.details.csv",rbfDDAFile="RBF_DDA.details.csv",negThrStep=0.5,svrmFile="SVMRadial.details.csv",
 # nnFile="NN.details.csv",rfFile="RF.details.csv",rfrfeFile="RFRFE.details.csv",svmrfeFile="SVMRFE.details.csv",
-# enetFile="ENET.details.csv"
+# enetFile="ENET.details.csv,fR2rule="T""
 
 # noCores = CPU cores: 0 = all CPU cores, 1 = no parallel, >1 = specific cores
 
-RRegrsResults = RRegrs(DataFileName="ds.MachineCPU.csv",noCores=2,iSplitTimes=2,noYrand=2,
-fLM="T",fGLM="F",fPLS="T",fLASSO="F",fRBFdda="T",fSVRM="F",fNN="F",fRF="F",fRFRFE="F",
-fSVMRFE="F",fENET="F")
-
-
-#RRegrsResults = RRegrs(DataFileName="ds.gajewicz.csv",noCores=2,iSplitTimes=2,noYrand=2,
-#fRemNear0Var="F",fRemCorr="F",iScaling=2,
-#fLM="T",fGLM="F",fPLS="F",fLASSO="F",fRBFdda="F",fSVRM="F",fNN="F",fRF="F",fRFRFE="T",
-#fSVMRFE="F",fENET="F")
-
-
+RRegrsResults = RRegrs(DataFileName="ds.House.csv",noCores=0,iSplitTimes=2,noYrand=2)
