@@ -14,7 +14,7 @@
 # Egon Willighagen: BiGCaT - Maastricht University, Netherlands, egon.willighagen@gmail.com
 # -------------------------------------------------------------------------------------------------------------
 
-library(caret)
+#library(caret)
 #======================================================================================================================
 # General functions
 #======================================================================================================================
@@ -104,7 +104,7 @@ RemNear0VarCols <- function(ds,fDet=FALSE,outFile="ds3.No0Var.csv") {
   # ------------------------------------------
   
   # default parameters are no details, with a CSV file name
-  library(caret)
+  #library(caret)
   ds.Rem0NearVar <- ds               # default output without any modification
   ds.var <- nearZeroVar(ds)          # get the near zero columns
   if (!length(ds.var) == FALSE) {    # remove the columns only if nearZeroVar identified; if no columns to remove, ds will be the same
@@ -179,8 +179,8 @@ RemCorrs <- function(ds,fDet,cutoff,outFile) {
   # pairwise test between i and j descriptors- if(r2>=0.9){remove the j descriptor}
   # using findCorelations() from caret
   
-  library(corrplot) #corrplot: the library to compute correlation matrix.
-  library(caret)
+  #library(corrplot) #corrplot: the library to compute correlation matrix.
+  #library(caret)
   
   DataSet <- ds               # input dataset
   DataSetFiltered.scale <- ds # default results without any modification
@@ -499,7 +499,7 @@ GLMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
   #   (tr = train, ts = test, both = tr+ts = full dataset)
   # -----------------------------------------------------------------------------------------------
   
-  library(caret)
+  #library(caret)
   #attach(my.datf.train)    # make available the names of variables from training dataset
   net.c = my.datf.train[,1] # dependent variable is the first column in Training set
   RegrMethod <- "glmStepAIC" # type of regression
@@ -699,7 +699,7 @@ PLSreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
   # 8.3. PLS regression (caret)
   #================================
   
-  library(caret)
+  #library(caret)
   
   net.c = my.datf.train[,1] # dependent variable is the first column in Training set
   RegrMethod <- "pls" # type of regression
@@ -891,7 +891,7 @@ LASSOreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") 
   # 8.4 Lasso Regression (caret)
   #================================
   
-  library(caret)
+  #library(caret)
   
   net.c = my.datf.train[,1] # dependent variable is the first column in Training set
   RegrMethod <- "lasso.RMSE" # type of regression
@@ -1265,8 +1265,8 @@ SVRMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="",cs
   # 8.6 SVM Radial Regression (caret)
   #====================================
   
-  library(caret)
-  library(kernlab)
+  #library(caret)
+  #library(kernlab)
 
   cs = as.numeric(cs)
 
@@ -1458,7 +1458,7 @@ NNreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
   # 8.8 Neural Network Regression (caret)
   #========================================
 
-  library(caret)
+  #library(caret)
 
   net.c = my.datf.train[,1] # dependent variable is the first column in Training set
   RegrMethod <- "nnet" # type of regression
@@ -1653,7 +1653,7 @@ PLSregWSel <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile=""
   # 8.3W. PLS regression with filter feature selection (caret)
   #====================================================================================================
 
-  library(caret)
+  #library(caret)
   
   net.c = my.datf.train[,1] # dependent variable is the first column in Training set
   RegrMethod <- "pls.WSel" # type of regression
@@ -1886,12 +1886,12 @@ Yrandom<- function(dss,trainFrac,best.reg,best.R2.ts,noYrand,ResBestF,rfe_SVM_pa
 # jseoane
 # use:
 # svmFuncsGradW: RAKOTOMAMONJY gradient w
-load("model.svmRadialReg.RData")
+# load("model.svmRadialReg.RData")
 
 svmFuncsW = caretFuncs    ## regular ranking using w
 svmFuncsW$fit=function(x,y,first,last,...,tuneGrid){
   #cat(param$sigma,"\n")
-  library(kernlab)
+  #library(kernlab)
   sigma = sigest(x)[2]  
   cs = tuneGrid$.C
   eps = tuneGrid$.epsilon
@@ -2150,7 +2150,7 @@ SVMRFEreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="",
   # SVM-RFE
   #===========================================
   
-  library(kernlab)
+  #library(kernlab)
 
   net.c = my.datf.train[,1]   # make available the names of variables from training dataset
   RegrMethod <- "svmRFE" # type of regression
@@ -2569,8 +2569,8 @@ ENETreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
   # 8.4 ElasticNet Regression (caret/glmnet)
   #================================
   
-  library(caret)
-  library(glmnet)
+  #library(caret)
+  #library(glmnet)
   load("glmnetModel.RData")
   
   net.c = my.datf.train[,1] # dependent variable is the first column in Training set
@@ -2787,7 +2787,7 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
   # ----------------------------------
   if (noCores==0 | noCores>1){ # all available CPU cores or specific no of cores (if noCores = 1, no parallel support!)
     #noCoresSys=as.numeric(Sys.getenv('NUMBER_OF_PROCESSORS')) # automatically detected no. of CPU cores
-    library(parallel)
+    #library(parallel)
     noCoresSys=detectCores()
     
     if (noCores==0 | noCores>noCoresSys){ # all available CPU cores or the specific cores is greater than the available ones
@@ -2797,14 +2797,14 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
     # parallel for Linux or Mac:
     # ------------------------------------------
     if ( Sys.info() [['sysname']] == "Linux" | Sys.info() [['sysname']] == "Darwin" ){
-      library(doMC)
+      #library(doMC)
     }
     # ------------------------------------------
     # parallel for windows:
     # ------------------------------------------
     if (Sys.info()[['sysname']]=="Windows"){
-      library(doSNOW)
-      library(foreach)
+      #library(doSNOW)
+      #library(foreach)
     }  
   }     
   
@@ -3004,7 +3004,7 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
 
   # print no of CPU cores used for calculation
   # noCoresSys=as.numeric(Sys.getenv('NUMBER_OF_PROCESSORS')) # automatically detected no. of CPU cores
-  library(parallel)
+  #library(parallel)
   noCoresSys=detectCores()
   if (noCores==0){ cat("       -> CPU Cores = ",noCoresSys,"(only complex methods)\n") }
   else{ cat("                  -> CPU Cores = ",noCores,   "(only complex methods)\n") }
@@ -3513,7 +3513,7 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
   #-------------------------------------------------------------------------------------
   cat("-> Averaged statistics ...\n")
   ResAvgsF <- file.path(PathDataSet,ResAvgs)           # the main output file with averaged statistics for each regression method
-  library(data.table)
+  #library(data.table)
   dt.res  <- data.table(df.res) # convert data frame into data table (for sorting abd averaging)
   
   # MEANS for each Regression Method & CV type
