@@ -1886,7 +1886,7 @@ Yrandom<- function(dss,trainFrac,best.reg,best.R2.ts,noYrand,ResBestF,rfe_SVM_pa
 # jseoane
 # use:
 # svmFuncsGradW: RAKOTOMAMONJY gradient w
-# load("model.svmRadialReg.RData")
+data(model.svmRadialReg)
 
 svmFuncsW = caretFuncs    ## regular ranking using w
 svmFuncsW$fit=function(x,y,first,last,...,tuneGrid){
@@ -2571,7 +2571,7 @@ ENETreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
   
   #library(caret)
   #library(glmnet)
-  load("glmnetModel.RData")
+  data(glmnetModel)
   
   net.c = my.datf.train[,1] # dependent variable is the first column in Training set
   RegrMethod <- "glmnet" # type of regression
