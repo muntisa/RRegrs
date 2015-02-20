@@ -199,7 +199,7 @@ RemCorrs <- function(ds,fDet,cutoff,outFile) {
     
     # plot the correlatio plot before correlation removal
     CorrPlotFile <-  paste(outFile,".corrs.png",sep='')
-    png(height=1200, width=1200, pointsize=25, file=CorrPlotFile)
+    png(height=1200, width=1200, pointsize=25, filename=CorrPlotFile)
     col1 <-rainbow(100, s = 1, v = 1, start = 0, end = 0.9, alpha = 1)
     corrplot(corrMat,tl.cex=3,title="Initial feature correlation matrix",
              method="circle",is.corr=FALSE,#type="full",
@@ -1661,7 +1661,7 @@ PLSregWSel <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile=""
   # Define the CV conditions
   ctrlw <- rfeControl(method = 'boot', number = 25,saveDetails=T)#number=10,repeats=10
   ctrl  <- trainControl(method = sCV, number = 10,repeats = 1,#numebr=10,repeats=10,
-                        summaryFunction = defaultSummary,savePred=T)
+                        summaryFunction = defaultSummary,savePredictions=T)
   
   subsetsx<- seq(2,dim(my.datf.train)[2]-1, by = 10)
   
