@@ -1,7 +1,17 @@
-import("caret")
-import("corrplot")
-import("data.table")
-export(
- ScalingDS,
- RemNear0VarCols
-)
+import(caret)
+import(parallel)
+import(pls)
+import(corrplot)
+import(data.table)
+import(kernlab)
+import(pls)
+import(randomForest)
+import(RSNNS)
+import(doSNOW)
+import(doMC)
+import(parallel)
+import(elasticnet)
+import(glmnet)
+import(data.table)
+
+export(RRegrs)
