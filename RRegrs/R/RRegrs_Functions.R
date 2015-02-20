@@ -3674,8 +3674,8 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
   cat("Statistics for all data set splittings/methods/CV types:", ResBySplits,"\n")
   cat("Averages by method/CV type:",ResAvgsF,"\n")
   cat("Best model statistics:",ResBestF,"\n")
-  cat("Best model plots:",paste(ResBestF,".repeatedcv.split",i,".pdf"),"\n")
-  cat("Best model Y-randomization plot:",paste(ResBestF,".Yrand.Hist.pdf"),"\n")
+  cat("Best model plots:",paste(ResBestF,".repeatedcv.split",i,".pdf",sep=""),"\n")
+  cat("Best model Y-randomization plot:",paste(ResBestF,".Yrand.Hist.pdf",sep=""),"\n")
   cat("\n* if you choose Details, additional CSV and PDF files will be create for each method.\n")
 
   return(list(BestMethod=best.reg,BestStats=my.stats.reg, Models=dfMod))
