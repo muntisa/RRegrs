@@ -20,7 +20,7 @@ fDet=F,outFile="")}
 \details{
 RMSE is the summary metric used to select the optimal model.
 
-The tuning parameters examined are the size and the decay, where size refers to the number of units in the hidden layer and decay to the weight decay. Size is set to vary in $c(1,5,10,15)$ and decay within a sequence of values in $[0,0.001]$.\par
+The tuning parameters examined are the size and the decay, where size refers to the number of units in the hidden layer and decay to the weight decay. Size is set to vary in $c(1,5,10,15)$ and decay within a sequence of values in $[0,0.001]$.
 
 To control the computational nuances of the train function, trainControl is used; number of folds or resampling iterations is set to 10, and the number of completed set of folds is set to 10 (for repeated k-fold cross-validation).
     
