@@ -8,15 +8,15 @@ Fitting Recursive Feature Elimination - Support Vector Machines Regression Model
 SVMRFEreg fits RFE SVM regression models and returns resampling based performance measure using the train function by caret package. 
 }
 \usage{
-SVMRFEreg(my.datf.train,my.datf.test,sCV,iSplit1,
-        fDet=F,outFile="",cs=c(1,5,15,50),eps=c(0.01,0.1,0.3))
+SVMRFEreg(my.datf.train,my.datf.test,sCV,iSplit=1,
+        fDet=F,outFile="",cs=c(1,5,10,15,20),eps=c(0.01,0.1,0.3))
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{my.datf.train}{the training data set; an object where samples are in rows and features are in columns. The first column should be a numeric or factor vector containing the outcome for each sample.}
   \item{my.datf.test}{the test data set.}
   \item{sCV}{A string or a character vector specifying which resampling method to use. See details below.}
-  \item{iSplit1}{a number indicating from which splitting of the data, the above train and test sets are derived. The default value is 1.}
+  \item{iSplit}{a number indicating from which splitting of the data, the above train and test sets are derived. The default value is 1.}
   \item{fDet}{A logical value for saving model statistics; the default value is FALSE. See below for details.}
   \item{outFile}{A string specifying the output file (could include path) for details (fDet=TRUE).}
   \item{cs}{A numeric vector specifying the possible values of the cost function for the SVM mimization.}

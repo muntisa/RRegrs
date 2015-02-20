@@ -7,13 +7,13 @@ Fitting Neural Network Predictive Models over Different Tuning Parameters.
 NNreg fits single-hidden-layer neural network models based on nnet function by nnet package, and returns a resampling based performance measure using the train function by caret package. 
 }
 \usage{
-NNreg(my.datf.train,my.datf.test,sCV,iSplit1,
+NNreg(my.datf.train,my.datf.test,sCV,iSplit=1,
 fDet=F,outFile="")}
 \arguments{
  \item{my.datf.train}{the training data set; an object where samples are in rows and features are in columns. The first column should be a numeric or factor vector containing the outcome for each sample.}
  \item{my.datf.test}{the test data set.}
  \item{sCV}{A string or a charcater vector specifying which resampling method to use. See details below.}
- \item{iSplit1}{a number indicating from which splitting of the data, the above train and test sets are derived. The default value is 1.}
+ \item{iSplit}{a number indicating from which splitting of the data, the above train and test sets are derived. The default value is 1.}
  \item{fDet}{A logical value for saving model' statistics; the defualt value is FALSE. See below for details.}
  \item{outFile}{A string specifying the output file (could include path) for details (fDet=TRUE).}
 }

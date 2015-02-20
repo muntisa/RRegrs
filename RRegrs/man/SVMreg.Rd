@@ -8,7 +8,7 @@ Fitting Support Vector Machines Regression Models over Different Tuning Paramete
 SVMreg fits SVM regression models and returns resampling based performance measure using the train function by caret package. 
 }
 \usage{
-SVRMreg(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="",cs=c(1,5,10,15,20))
+SVMreg(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="",cs=c(1,5,10,15,20))
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
