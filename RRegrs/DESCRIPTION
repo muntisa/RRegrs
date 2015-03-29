@@ -1,10 +1,13 @@
 Package: RRegrs
 Type: Package
 Title: RRegrs - regression model builder
-Version: 0.0.2
-Date: 2015-02-16
-Author: Cristean R Munteanu <muntisa@gmail.com>, Georgia Tsiliki <g_tsiliki@hotmail.com>
-Maintainer: Egon Willighagen <egon.willighagen@gmail.com>
+Version: 0.0.3
+Date: 2015-03-29
+Author: Cristean R Munteanu <muntisa@gmail.com>, Georgia Tsiliki <g_tsiliki@hotmail.com>,
+  Jose A. Seoane <seoane@stanford.edu>, Carlos Fernandez-Lozano <carlos.fernandez@udc.es>,
+  Haralambos Sarimveis <hsarimv@central.ntua.gr>,
+  Egon Willighagen <egon.willighagen@maastrichtuniversity.nl>
+Maintainer: Egon Willighagen <egon.willighagen@maastrichtuniversity.nl>
 Depends: R (>= 3.1.0), caret, corrplot, data.table, kernlab, pls, randomForest, RSNNS,
   doSNOW, doMC, parallel, elasticnet, glmnet
 Description: Use this package to make regression models using a wide
