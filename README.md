@@ -16,6 +16,11 @@ Outputs:
 - CSV files for statistics
 - PDF files for plots
 
+Releases
+--------
+
+* Version 0.0.3 [![DOI](https://zenodo.org/badge/6059/egonw/RRegrs.svg)](http://dx.doi.org/10.5281/zenodo.16446)
+
 Install
 -------
 
