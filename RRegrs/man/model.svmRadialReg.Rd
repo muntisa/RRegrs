@@ -1,6 +1,7 @@
 
 \name{model.svmRadialReg}
 \alias{model.svmRadialReg}
+\alias{svmRadialReg}
 \docType{model.svmRadialReg}
 
 \title{
@@ -13,9 +14,8 @@ A list of parameters needed for SVM  radial kernel regression model
 
 \usage{data("model.svmRadialReg")}
 
-\format{A list}
-
-\details{All parameters needed for svm regression model in R caret package and specification for parameter space search, specifically:
+\format{A list including all parameters needed for svm regression model in R caret package and specification for parameter space search, specifically:
+\describe{
 \item{label}{a character string specifying the model}
 \item{library}{a character string 'kernlab' to specify the library used}
 \item{type}{a charcater vector c('Regression') for SVMRFEreg function to specify the problem studied}
@@ -30,7 +30,7 @@ A list of parameters needed for SVM  radial kernel regression model
 \item{levels}{a function for S4 VIRTUAL class objects from kernlab R library}
 \item{sort}{a sort function used for parameters sigma, C, epsilon}
 }
-
+}
 \examples{
 data(model.svmRadialReg)
 

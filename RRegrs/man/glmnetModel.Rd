@@ -12,9 +12,8 @@ A list of parameters needed for glmnet model
 
 \usage{data("glmnetModel")}
 
-\format{A list}
-
-\details{All parameters needed for glmnet function in R caret package and specification for parameter space search, specifically:
+\format{A list including all parameters needed for glmnet function in R caret package and specification for parameter space search, specifically:
+\describe{
 \item{label}{a character string 'glmnet' to specify the model}
 \item{library}{a character string 'glmnet' to specify the library used}
 \item{type}{a charcater vector c('Regression', 'Classification') for NNreg function to specify the problem studied}
@@ -29,6 +28,7 @@ A list of parameters needed for glmnet model
 \item{levels}{}
 \item{tags}{a character vector including all possible models}
 \item{sort}{a sort function used for parameters alpha, lambda}
+}
 }
 
 \examples{
