@@ -19,8 +19,8 @@
 # General functions
 #======================================================================================================================
 r2.adj.t.funct<- function(obs,pred,num.pred){
-#obs==y, pred=predicted, num.pred=number of idependent variables (predictors)
-#t: traditional formula
+  #obs==y, pred=predicted, num.pred=number of idependent variables (predictors)
+  #t: traditional formula
   y.mean<- mean(obs)
   x.in<- sum((obs-pred)^2)/sum((obs-y.mean)^2)
   x.in<- 1-x.in #r squared
@@ -31,8 +31,8 @@ r2.adj.t.funct<- function(obs,pred,num.pred){
 }
 #----------------------------------------------------------------------------------------------------------------------
 r2.adj.funct<- function(obs,pred,num.pred){
-#obs==y, pred=predicted, num.pred=number of idependent variables (predictors)
- 
+  #obs==y, pred=predicted, num.pred=number of idependent variables (predictors)
+  
   x.in<- cor(obs,pred)^2
   x.in<- (1-x.in)*((length(obs)-1)/(length(obs)-num.pred-1))
   x.in<- 1 - x.in 
@@ -40,18 +40,18 @@ r2.adj.funct<- function(obs,pred,num.pred){
 }
 #----------------------------------------------------------------------------------------------------------------------
 rmse.funct<- function(obs,pred){ 
-#obs==y, pred=predicted
+  #obs==y, pred=predicted
   return(sqrt(mean((pred - obs)^2)))
 }
 #----------------------------------------------------------------------------------------------------------------------
 r2.funct<- function(obs,pred){  
-#obs==y, pred=predicted
+  #obs==y, pred=predicted
   x.in<- cor(obs,pred)^2
   return(x.in)
 }
 #----------------------------------------------------------------------------------------------------------------------
 r2.t.funct<- function(obs,pred){  
-#obs==y, pred=predicted
+  #obs==y, pred=predicted
   y.mean<- mean(obs)
   x.in<- sum((obs-pred)^2)/sum((obs-y.mean)^2)
   x.in<- 1-x.in #r squared
@@ -117,7 +117,7 @@ RemNear0VarCols <- function(ds,fDet=FALSE,outFile="ds3.No0Var.csv") {
 }
 #----------------------------------------------------------------------------------------------------------------------
 
-ScalingDS <- function(ds,s=1,c=1,fDet=FALSE,outFileName="ds4.scaled.csv") {
+ScalingDS <- function(ds,s=1,c=2,fDet=FALSE,outFileName="ds4.scaled.csv") {
   #===========================
   # Scaling dataset (Step 4)
   #===========================
@@ -136,12 +136,27 @@ ScalingDS <- function(ds,s=1,c=1,fDet=FALSE,outFileName="ds4.scaled.csv") {
   # if NORMALIZATION
   if (s==1) {
     # Scale all the features (from column c; column 1 is the predictor output)
-    DataSet.scaled <- ((ds-min(ds))/(max(ds)-min(ds))) # normalize all the columns
+    if(c==2){
+      maxs <- apply(ds[c:ncol(ds)], 2, max)
+      mins <- apply(ds[c:ncol(ds)], 2, min)
+      ds.norm.scale<-scale(ds[c:ncol(ds)], center = mins, scale = maxs - mins)
+      DataSet.scaled<-cbind(ds[,1],ds.norm.scale)
+    }else{
+      maxs <- apply(ds, 2, max)
+      mins <- apply(ds, 2, min)
+      DataSet.scaled<-scale(ds, center = mins, scale = maxs - mins)
+    }
+    
   }
   # if STADARDIZATION
   if (s==2) {
     # Scale all the features (from column c; column 1 is the predictor output)
-    DataSet.scaled <- scale(ds[c:ncol(ds)],center=TRUE,scale=TRUE)  
+    if(c==2){
+      DataSet.scaled <- scale(ds[c:ncol(ds)],center=TRUE,scale=TRUE)
+      DataSet.scaled<-cbind(ds[,1],DataSet.scaled)
+    }else{
+      DataSet.scaled<-scale(ds,center=TRUE,scale=TRUE)
+    }
   }
   
   # if other scaling
@@ -215,7 +230,7 @@ RemCorrs <- function(ds,fDet,cutoff,outFile) {
   if (length(highlyCor) == 0){
     return (ds)
   }
-
+  
   # Apply correlation filter with the cutoff only if exists!
   # by removing all the variable correlated with more than cutoff
   DataSetFiltered.scale <- DataSet[,-highlyCor]
@@ -289,7 +304,6 @@ LMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
   #==================
   # 8.1. Basic LM
   #==================
-
   net.c = my.datf.train[,1]   # make available the names of variables from training dataset
   RegrMethod <- "lm" # type of regression
   
@@ -402,7 +416,7 @@ LMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
     # =============================================================================
     # Assessment of Applicability Domain (plot leverage)
     # =============================================================================
-  
+    
     # Residuals
     resids <- residuals(fitModel) # residuals
     write.table("Residuals of the fitted model: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
@@ -451,8 +465,8 @@ LMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
     plot(my.datf.train[,1],pred.tr,xlab="Yobs", ylab="Ypred", type="b", main="Train Yobs-Ypred") # plot 1
     plot(my.datf.test[,1], pred.ts,xlab="Yobs", ylab="Ypred", type="b", main="Test Yobs-Ypred")  # plot 2
     if(length(is.na(c(FeatImp$importance$Overall)))<=(length(c(FeatImp$importance$Overall))-3)){  
-     dotchart(as.matrix(FeatImp$importance),main="Feature Importance")}                          # plot 3    
-  
+      dotchart(as.matrix(FeatImp$importance),main="Feature Importance")}                          # plot 3    
+    
     # Fitted vs Residuals - plot 4
     plot(fitted(fitModel),residuals(fitModel),
          main="Fitted vs. Residuals for Fitted Model",
@@ -467,18 +481,18 @@ LMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
     
     # Cook's distance - plot 6
     if(length(is.na(cook.dists))<=(length(cook.dists)-3)){  
-    	   plot(cook.dists,
-         main="Cook's Distance for Fitted Model",
-         xlab="Index", ylab="Cook Distance")
-    
-         for (p in 1:6) {
-           plot(fitModel, which=p, cook.levels=cutoff.Cook) # 6 standard fitting plots
-         }
+      plot(cook.dists,
+           main="Cook's Distance for Fitted Model",
+           xlab="Index", ylab="Cook Distance")
+      
+      for (p in 1:6) {
+        plot(fitModel, which=p, cook.levels=cutoff.Cook) # 6 standard fitting plots
+      }
     }    
     # plot(FeatImp, top = components,main="Feature Importance") # ERROR !
     dev.off()
     # --------------------------------------------------------------
-
+    
   }
   return(list(stat.values=my.stats, model=lm.fit))  # return a list with statistics and the full model
 }
@@ -662,7 +676,7 @@ GLMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
     plot(my.datf.train[,1],pred.tr,xlab="Yobs", ylab="Ypred", type="b", main="Train Yobs-Ypred") # plot 1
     plot(my.datf.test[,1], pred.ts,xlab="Yobs", ylab="Ypred", type="b", main="Test Yobs-Ypred")  # plot 2
     if(length(is.na(c(FeatImp$importance$Overall)))<=(length(c(FeatImp$importance$Overall))-3)){  
-     dotchart(as.matrix(FeatImp$importance),main="Feature Importance")}                          # plot 3
+      dotchart(as.matrix(FeatImp$importance),main="Feature Importance")}                          # plot 3
     
     # Fitted vs Residuals - plot 4
     plot(fitted(fitModel),residuals(fitModel),
@@ -678,13 +692,13 @@ GLMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
     
     # Cook's distance - plot 6
     if(length(is.na(cook.dists))<=(length(cook.dists)-3)){  
-    	   plot(cook.dists,
-         main="Cook's Distance for Fitted Model",
-         xlab="Index", ylab="Cook Distance")
-    
-         for (p in 1:6) {
-           plot(fitModel, which=p, cook.levels=cutoff.Cook) # 6 standard fitting plots
-         }
+      plot(cook.dists,
+           main="Cook's Distance for Fitted Model",
+           xlab="Index", ylab="Cook Distance")
+      
+      for (p in 1:6) {
+        plot(fitModel, which=p, cook.levels=cutoff.Cook) # 6 standard fitting plots
+      }
     }    
     # plot(FeatImp, top = components,main="Feature Importance") # ERROR !
     dev.off()
@@ -712,12 +726,12 @@ PLSreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
   set.seed(iSplit)
   floor.param<- floor((dim(my.datf.train)[2]-1)/5)
   if(floor.param<1){floor.param <- 1}  
-
+  
   pls.fit<- train(net.c~.,data=my.datf.train,
                   method = 'pls', tuneLength = 10, trControl = ctrl,
                   metric = 'RMSE',
                   tuneGrid=expand.grid(.ncomp=c(1:floor.param)))
-
+  
   #------------------------------
   # Training RESULTS
   #------------------------------
@@ -829,33 +843,33 @@ PLSreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
     Testd.pls = as.matrix(my.datf.test)
     mat.Traind.pls<- t(Traind.pls) %*%(Traind.pls) 
     det.Traind.pls<- det(mat.Traind.pls)
-
+    
     if(det.Traind.pls!=0){
-     Hat.train = diag(Traind.pls %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Traind.pls))
-     Hat.test  = diag(Testd.pls  %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Testd.pls))  
-     
-     # Leverage / Hat values
-     hat.fit <- Hat.test          # hat values
-     hat.fit.df <- as.data.frame(hat.fit)    # hat data frame
-     hat.mean <- mean(hat.fit)               # mean hat values
-     hat.fit.df$warn <- ifelse(hat.fit.df[, 'hat.fit']>3*hat.mean, 'x3',ifelse(hat.fit.df[, 'hat.fit']>2*hat.mean, 'x2', '-' ))
-     
-     write.table("Leverage output: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-     write.table(paste("Mean of hat values: ", hat.mean), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-     write.table("Leverage / Hat values with warnings (X3 & X2 = values 3 & 2 times than hat mean): ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-     write.table(hat.fit.df, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F) # write hat values and the levels X3, X2 (of hat mean)
-     
-     #THRESHOLD values: 3m/n, where m is the number of parameters, and n number of observations
-     thresh.lever<- (3*(dim(my.datf.train)[2]-1))/dim(my.datf.train)[1] # leverage thresh
-     hat.problems<- data.frame(hat.fit[hat.fit>thresh.lever]) # points with high leverage
-     
-     write.table(paste("Leverage Threshold: ", thresh.lever), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-     write.table("Points with leverage > threshold: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-     write.table(hat.problems, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F)
-     
-     # Cook's distance ?
+      Hat.train = diag(Traind.pls %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Traind.pls))
+      Hat.test  = diag(Testd.pls  %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Testd.pls))  
+      
+      # Leverage / Hat values
+      hat.fit <- Hat.test          # hat values
+      hat.fit.df <- as.data.frame(hat.fit)    # hat data frame
+      hat.mean <- mean(hat.fit)               # mean hat values
+      hat.fit.df$warn <- ifelse(hat.fit.df[, 'hat.fit']>3*hat.mean, 'x3',ifelse(hat.fit.df[, 'hat.fit']>2*hat.mean, 'x2', '-' ))
+      
+      write.table("Leverage output: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+      write.table(paste("Mean of hat values: ", hat.mean), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+      write.table("Leverage / Hat values with warnings (X3 & X2 = values 3 & 2 times than hat mean): ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+      write.table(hat.fit.df, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F) # write hat values and the levels X3, X2 (of hat mean)
+      
+      #THRESHOLD values: 3m/n, where m is the number of parameters, and n number of observations
+      thresh.lever<- (3*(dim(my.datf.train)[2]-1))/dim(my.datf.train)[1] # leverage thresh
+      hat.problems<- data.frame(hat.fit[hat.fit>thresh.lever]) # points with high leverage
+      
+      write.table(paste("Leverage Threshold: ", thresh.lever), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+      write.table("Points with leverage > threshold: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+      write.table(hat.problems, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F)
+      
+      # Cook's distance ?
     }
-
+    
     # Influence ?
     
     # PDF plots
@@ -873,10 +887,10 @@ PLSreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
     
     # Leverage plots
     if(det.Traind.pls!=0){
-     plot(hat.fit, type = "h",
-          main="Leverage for Fitted Model",
-          xlab="Index", ylab="Hat")
-     abline(h = thresh.lever, lty = 2, col="red") # leverage thresh
+      plot(hat.fit, type = "h",
+           main="Leverage for Fitted Model",
+           xlab="Index", ylab="Hat")
+      abline(h = thresh.lever, lty = 2, col="red") # leverage thresh
     }
     dev.off()
     # --------------------------------------------------------------
@@ -957,7 +971,7 @@ LASSOreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") 
                    "R2.tr"     = as.numeric(R2.tr[which.min(RMSE.tr)]),  
                    "RMSEsd.tr" = as.numeric(RMSEsd.tr[which.min(RMSE.tr)]),
                    "R2sd.tr"   = as.numeric(R2sd.tr[which.min(RMSE.tr)]),
-           
+                   
                    "adjR2.ts"= as.numeric(adjR2.ts),
                    "RMSE.ts" = as.numeric((lm.test.res["RMSE"][[1]])),
                    "R2.ts"   = as.numeric((lm.test.res["Rsquared"][[1]])),
@@ -1018,31 +1032,31 @@ LASSOreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") 
     Testd.pls = as.matrix(my.datf.test)
     mat.Traind.pls<- t(Traind.pls) %*%(Traind.pls) 
     det.Traind.pls<- det(mat.Traind.pls)
-
-    if(det.Traind.pls!=0){
-     Hat.train = diag(Traind.pls %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Traind.pls))
-     Hat.test  = diag(Testd.pls  %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Testd.pls))  
-     
-     # Leverage / Hat values
-     hat.fit <- Hat.test          # hat values
-     hat.fit.df <- as.data.frame(hat.fit)    # hat data frame
-     hat.mean <- mean(hat.fit)               # mean hat values
-     hat.fit.df$warn <- ifelse(hat.fit.df[, 'hat.fit']>3*hat.mean, 'x3',ifelse(hat.fit.df[, 'hat.fit']>2*hat.mean, 'x2', '-' ))
-     
-     write.table("Leverage output: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-     write.table(paste("Mean of hat values: ", hat.mean), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-     write.table("Leverage / Hat values with warnings (X3 & X2 = values 3 & 2 times than hat mean): ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-     write.table(hat.fit.df, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F) # write hat values and the levels X3, X2 (of hat mean)
-     
-     #THRESHOLD values: 3m/n, where m is the number of parameters, and n number of observations
-     thresh.lever<- (3*(dim(my.datf.train)[2]-1))/dim(my.datf.train)[1] # leverage thresh
-     hat.problems<- data.frame(hat.fit[hat.fit>thresh.lever]) # points with high leverage
-     
-     write.table(paste("Leverage Threshold: ", thresh.lever), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-     write.table("Points with leverage > threshold: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-     write.table(hat.problems, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F)
     
-     # Cook's distance ?
+    if(det.Traind.pls!=0){
+      Hat.train = diag(Traind.pls %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Traind.pls))
+      Hat.test  = diag(Testd.pls  %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Testd.pls))  
+      
+      # Leverage / Hat values
+      hat.fit <- Hat.test          # hat values
+      hat.fit.df <- as.data.frame(hat.fit)    # hat data frame
+      hat.mean <- mean(hat.fit)               # mean hat values
+      hat.fit.df$warn <- ifelse(hat.fit.df[, 'hat.fit']>3*hat.mean, 'x3',ifelse(hat.fit.df[, 'hat.fit']>2*hat.mean, 'x2', '-' ))
+      
+      write.table("Leverage output: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+      write.table(paste("Mean of hat values: ", hat.mean), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+      write.table("Leverage / Hat values with warnings (X3 & X2 = values 3 & 2 times than hat mean): ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+      write.table(hat.fit.df, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F) # write hat values and the levels X3, X2 (of hat mean)
+      
+      #THRESHOLD values: 3m/n, where m is the number of parameters, and n number of observations
+      thresh.lever<- (3*(dim(my.datf.train)[2]-1))/dim(my.datf.train)[1] # leverage thresh
+      hat.problems<- data.frame(hat.fit[hat.fit>thresh.lever]) # points with high leverage
+      
+      write.table(paste("Leverage Threshold: ", thresh.lever), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+      write.table("Points with leverage > threshold: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+      write.table(hat.problems, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F)
+      
+      # Cook's distance ?
     }
     # Influence ?
     
@@ -1061,10 +1075,10 @@ LASSOreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") 
     
     # Leverage plots
     if(det.Traind.pls!=0){
-     plot(hat.fit, type = "h",
-          main="Leverage for Fitted Model",
-          xlab="Index", ylab="Hat")
-     abline(h = thresh.lever, lty = 2, col="red") # leverage thresh
+      plot(hat.fit, type = "h",
+           main="Leverage for Fitted Model",
+           xlab="Index", ylab="Hat")
+      abline(h = thresh.lever, lty = 2, col="red") # leverage thresh
     }
     dev.off()
     # --------------------------------------------------------------
@@ -1267,16 +1281,16 @@ SVRMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="",cs
   
   #library(caret)
   #library(kernlab)
-
+  
   cs = as.numeric(cs)
-
+  
   net.c = my.datf.train[,1] # dependent variable is the first column in Training set
   RegrMethod <- "svmRadial" # type of regression
   
   # Define the CV conditions
   ctrl<- trainControl(method=sCV,number=10,repeats=10,
                       summaryFunction=defaultSummary)
-
+  
   # Train the model using only training set
   set.seed(iSplit)
   sigma = sigest (as.matrix(my.datf.train[,-1]))[2]
@@ -1380,7 +1394,7 @@ SVRMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="",cs
     AppendList2CSv(FeatImp,outFile)
     
     fitModel <- svmL.fit$finalModel
-       
+    
     # =============================================================================
     # Assessment of Applicability Domain (plot leverage)
     # =============================================================================
@@ -1395,33 +1409,33 @@ SVRMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="",cs
     Testd.pls = as.matrix(my.datf.test)
     mat.Traind.pls<- t(Traind.pls) %*%(Traind.pls) 
     det.Traind.pls<- det(mat.Traind.pls)
-
+    
     if(det.Traind.pls!=0){
-     Hat.train = diag(Traind.pls %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Traind.pls))
-     Hat.test  = diag(Testd.pls  %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Testd.pls))  
-     
-     # Leverage / Hat values
-     hat.fit <- Hat.test          # hat values
-     hat.fit.df <- as.data.frame(hat.fit)    # hat data frame
-     hat.mean <- mean(hat.fit)               # mean hat values
-     hat.fit.df$warn <- ifelse(hat.fit.df[, 'hat.fit']>3*hat.mean, 'x3',ifelse(hat.fit.df[, 'hat.fit']>2*hat.mean, 'x2', '-' ))
-     
-     write.table("Leverage output: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-     write.table(paste("Mean of hat values: ", hat.mean), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-     write.table("Leverage / Hat values with warnings (X3 & X2 = values 3 & 2 times than hat mean): ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-     write.table(hat.fit.df, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F) # write hat values and the levels X3, X2 (of hat mean)
-     
-     #THRESHOLD values: 3m/n, where m is the number of parameters, and n number of observations
-     thresh.lever<- (3*(dim(my.datf.train)[2]-1))/dim(my.datf.train)[1] # leverage thresh
-     hat.problems<- data.frame(hat.fit[hat.fit>thresh.lever]) # points with high leverage
-     
-     write.table(paste("Leverage Threshold: ", thresh.lever), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-     write.table("Points with leverage > threshold: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-     write.table(hat.problems, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F)
-     
-     # Cook's distance ?
+      Hat.train = diag(Traind.pls %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Traind.pls))
+      Hat.test  = diag(Testd.pls  %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Testd.pls))  
+      
+      # Leverage / Hat values
+      hat.fit <- Hat.test          # hat values
+      hat.fit.df <- as.data.frame(hat.fit)    # hat data frame
+      hat.mean <- mean(hat.fit)               # mean hat values
+      hat.fit.df$warn <- ifelse(hat.fit.df[, 'hat.fit']>3*hat.mean, 'x3',ifelse(hat.fit.df[, 'hat.fit']>2*hat.mean, 'x2', '-' ))
+      
+      write.table("Leverage output: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+      write.table(paste("Mean of hat values: ", hat.mean), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+      write.table("Leverage / Hat values with warnings (X3 & X2 = values 3 & 2 times than hat mean): ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+      write.table(hat.fit.df, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F) # write hat values and the levels X3, X2 (of hat mean)
+      
+      #THRESHOLD values: 3m/n, where m is the number of parameters, and n number of observations
+      thresh.lever<- (3*(dim(my.datf.train)[2]-1))/dim(my.datf.train)[1] # leverage thresh
+      hat.problems<- data.frame(hat.fit[hat.fit>thresh.lever]) # points with high leverage
+      
+      write.table(paste("Leverage Threshold: ", thresh.lever), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+      write.table("Points with leverage > threshold: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+      write.table(hat.problems, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F)
+      
+      # Cook's distance ?
     }
-
+    
     # Influence ?
     
     # PDF plots
@@ -1439,16 +1453,16 @@ SVRMreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="",cs
     
     # Leverage plots
     if(det.Traind.pls!=0){
-     plot(hat.fit, type = "h",
-          main="Leverage for Fitted Model",
-          xlab="Index", ylab="Hat")
-     abline(h = thresh.lever, lty = 2, col="red") # leverage thresh
+      plot(hat.fit, type = "h",
+           main="Leverage for Fitted Model",
+           xlab="Index", ylab="Hat")
+      abline(h = thresh.lever, lty = 2, col="red") # leverage thresh
     }
-
+    
     dev.off()
     # --------------------------------------------------------------
   }
-
+  
   return(list(stat.values=my.stats, model=svmL.fit))  # return a list with statistics and the full model
 }
 #----------------------------------------------------------------------------------------------------------------------
@@ -1457,9 +1471,9 @@ NNreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
   #========================================
   # 8.8 Neural Network Regression (caret)
   #========================================
-
+  
   #library(caret)
-
+  
   net.c = my.datf.train[,1] # dependent variable is the first column in Training set
   RegrMethod <- "nnet" # type of regression
   
@@ -1587,31 +1601,31 @@ NNreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
     Testd.pls = as.matrix(my.datf.test)
     mat.Traind.pls<- t(Traind.pls) %*%(Traind.pls) 
     det.Traind.pls<- det(mat.Traind.pls)
-
+    
     if(det.Traind.pls!=0){
-     Hat.train = diag(Traind.pls %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Traind.pls))
-     Hat.test  = diag(Testd.pls  %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Testd.pls))  
-     
-     # Leverage / Hat values
-     hat.fit <- Hat.test          # hat values
-     hat.fit.df <- as.data.frame(hat.fit)    # hat data frame
-     hat.mean <- mean(hat.fit)               # mean hat values
-     hat.fit.df$warn <- ifelse(hat.fit.df[, 'hat.fit']>3*hat.mean, 'x3',ifelse(hat.fit.df[, 'hat.fit']>2*hat.mean, 'x2', '-' ))
-     
-     write.table("Leverage output: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-     write.table(paste("Mean of hat values: ", hat.mean), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-     write.table("Leverage / Hat values with warnings (X3 & X2 = values 3 & 2 times than hat mean): ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-     write.table(hat.fit.df, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F) # write hat values and the levels X3, X2 (of hat mean)
-     
-     #THRESHOLD values: 3m/n, where m is the number of parameters, and n number of observations
-     thresh.lever<- (3*(dim(my.datf.train)[2]-1))/dim(my.datf.train)[1] # leverage thresh
-     hat.problems<- data.frame(hat.fit[hat.fit>thresh.lever]) # points with high leverage
-     
-     write.table(paste("Leverage Threshold: ", thresh.lever), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-     write.table("Points with leverage > threshold: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-     write.table(hat.problems, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F)
-     
-     # Cook's distance ?
+      Hat.train = diag(Traind.pls %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Traind.pls))
+      Hat.test  = diag(Testd.pls  %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Testd.pls))  
+      
+      # Leverage / Hat values
+      hat.fit <- Hat.test          # hat values
+      hat.fit.df <- as.data.frame(hat.fit)    # hat data frame
+      hat.mean <- mean(hat.fit)               # mean hat values
+      hat.fit.df$warn <- ifelse(hat.fit.df[, 'hat.fit']>3*hat.mean, 'x3',ifelse(hat.fit.df[, 'hat.fit']>2*hat.mean, 'x2', '-' ))
+      
+      write.table("Leverage output: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+      write.table(paste("Mean of hat values: ", hat.mean), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+      write.table("Leverage / Hat values with warnings (X3 & X2 = values 3 & 2 times than hat mean): ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+      write.table(hat.fit.df, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F) # write hat values and the levels X3, X2 (of hat mean)
+      
+      #THRESHOLD values: 3m/n, where m is the number of parameters, and n number of observations
+      thresh.lever<- (3*(dim(my.datf.train)[2]-1))/dim(my.datf.train)[1] # leverage thresh
+      hat.problems<- data.frame(hat.fit[hat.fit>thresh.lever]) # points with high leverage
+      
+      write.table(paste("Leverage Threshold: ", thresh.lever), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+      write.table("Points with leverage > threshold: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+      write.table(hat.problems, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F)
+      
+      # Cook's distance ?
     }
     # Influence ?
     
@@ -1630,16 +1644,16 @@ NNreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
     
     # Leverage plots
     if(det.Traind.pls!=0){
-     plot(hat.fit, type = "h",
-          main="Leverage for Fitted Model",
-          xlab="Index", ylab="Hat")
-     abline(h = thresh.lever, lty = 2, col="red") # leverage thresh
+      plot(hat.fit, type = "h",
+           main="Leverage for Fitted Model",
+           xlab="Index", ylab="Hat")
+      abline(h = thresh.lever, lty = 2, col="red") # leverage thresh
     }
-
+    
     dev.off()
     # --------------------------------------------------------------
   }
-
+  
   return(list(stat.values=my.stats, model=nn.fit))  # return a list with statistics and the full model
 }
 
@@ -1652,7 +1666,7 @@ PLSregWSel <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile=""
   #====================================================================================================
   # 8.3W. PLS regression with filter feature selection (caret)
   #====================================================================================================
-
+  
   #library(caret)
   
   net.c = my.datf.train[,1] # dependent variable is the first column in Training set
@@ -1847,25 +1861,25 @@ Yrandom<- function(dss,trainFrac,best.reg,best.R2.ts,noYrand,ResBestF,rfe_SVM_pa
     #     if (best.reg=="rbfDDA") {  
     #       my.stats.reg  <- RBF_DDAreg(ds.train,ds.test,"repeatedcv",negThrStep,i,F,ResBestF)$stat.values # run SVRM Radial for each CV and regr method
     #    }
-
+    
     Yrand.R2.ts <- c(Yrand.R2.ts,my.stats.reg$R2.ts) # adding test R2 value Y randomization
   }
   
   R2diffsPerBestR2 <- NULL
-
+  
   if (is.na(my.stats.reg$R2.ts)) { # check for NA values 
     cat("       --> Y-Randomization error due to NA values!\n")
     write("Y-Randomization error due to NA values!", file=ResBestF,append=T)
-    }
+  }
   else{
     # get histogram for differences between best R2 and the values for each Y randomization
     R2diffs          <- abs(Yrand.R2.ts - best.R2.ts) # absolute differences between R2 values (best model vs Y randomized results)
     R2diffsPerBestR2 <- abs(R2diffs/best.R2.ts)            # the same difference in percents
-  
+    
     pdf(file=paste(ResBestF,".Yrand.Hist.pdf",sep=""))    # save histogram if ratio diffs R2 into PDF for Y random
     Yrand.hist  <- hist(R2diffsPerBestR2)         # draw histogram of the ratio diffs/Best R2 for Y random
     dev.off()
-  
+    
     write.table("Y randomization test: ",file=ResBestF,append=T,sep=",",col.names=F,row.names=F,quote=F)
     write.table("=====================", file=ResBestF,append=T,sep=",",col.names=F,row.names=F,quote=F)
     write.table("Diffs R2 (Best Model - Y rand):",file=ResBestF,append=T,sep=",",col.names=F,row.names=F,quote=F)
@@ -1886,7 +1900,7 @@ Yrandom<- function(dss,trainFrac,best.reg,best.R2.ts,noYrand,ResBestF,rfe_SVM_pa
 # jseoane
 # use:
 # svmFuncsGradW: RAKOTOMAMONJY gradient w
-data(model.svmRadialReg)
+load(system.file("models", "model.svmRadialReg.RData", package = "RRegrs"))
 
 svmFuncsW = caretFuncs    ## regular ranking using w
 svmFuncsW$fit=function(x,y,first,last,...,tuneGrid){
@@ -1918,7 +1932,7 @@ svmFuncsW$pred= function(object, x)
 {
   tmp = predict(object, newdata=x)
   if(object$modelType == "Classification" &
-       !is.null(object$modelInfo$prob))
+     !is.null(object$modelInfo$prob))
   {
     out1 =cbind(data.frame(pred = tmp),
                 as.data.frame(predict(object$finalModel, newdata=x, type = "prob")))
@@ -2088,32 +2102,32 @@ RFreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
     Testd.pls = as.matrix(my.datf.test)
     mat.Traind.pls<- t(Traind.pls) %*%(Traind.pls) 
     det.Traind.pls<- det(mat.Traind.pls)
-
+    
     if(det.Traind.pls!=0){
-     Hat.train = diag(Traind.pls %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Traind.pls))
-     Hat.test  = diag(Testd.pls  %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Testd.pls))  
-     
-     # Leverage / Hat values
-     hat.fit <- Hat.test          # hat values
-     hat.fit.df <- as.data.frame(hat.fit)    # hat data frame
-     hat.mean <- mean(hat.fit)               # mean hat values
-     hat.fit.df$warn <- ifelse(hat.fit.df[, 'hat.fit']>3*hat.mean, 'x3',ifelse(hat.fit.df[, 'hat.fit']>2*hat.mean, 'x2', '-' ))
-     
-     write.table("Leverage output: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-     write.table(paste("Mean of hat values: ", hat.mean), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-     write.table("Leverage / Hat values with warnings (X3 & X2 = values 3 & 2 times than hat mean): ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-     write.table(hat.fit.df, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F) # write hat values and the levels X3, X2 (of hat mean)
-     
-     #THRESHOLD values: 3m/n, where m is the number of parameters, and n number of observations
-     thresh.lever<- (3*(dim(my.datf.train)[2]-1))/dim(my.datf.train)[1] # leverage thresh
-     hat.problems<- data.frame(hat.fit[hat.fit>thresh.lever]) # points with high leverage
-     
-     write.table(paste("Leverage Threshold: ", thresh.lever), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-     write.table("Points with leverage > threshold: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-     write.table(hat.problems, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F)
+      Hat.train = diag(Traind.pls %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Traind.pls))
+      Hat.test  = diag(Testd.pls  %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Testd.pls))  
+      
+      # Leverage / Hat values
+      hat.fit <- Hat.test          # hat values
+      hat.fit.df <- as.data.frame(hat.fit)    # hat data frame
+      hat.mean <- mean(hat.fit)               # mean hat values
+      hat.fit.df$warn <- ifelse(hat.fit.df[, 'hat.fit']>3*hat.mean, 'x3',ifelse(hat.fit.df[, 'hat.fit']>2*hat.mean, 'x2', '-' ))
+      
+      write.table("Leverage output: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+      write.table(paste("Mean of hat values: ", hat.mean), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+      write.table("Leverage / Hat values with warnings (X3 & X2 = values 3 & 2 times than hat mean): ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+      write.table(hat.fit.df, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F) # write hat values and the levels X3, X2 (of hat mean)
+      
+      #THRESHOLD values: 3m/n, where m is the number of parameters, and n number of observations
+      thresh.lever<- (3*(dim(my.datf.train)[2]-1))/dim(my.datf.train)[1] # leverage thresh
+      hat.problems<- data.frame(hat.fit[hat.fit>thresh.lever]) # points with high leverage
+      
+      write.table(paste("Leverage Threshold: ", thresh.lever), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+      write.table("Points with leverage > threshold: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+      write.table(hat.problems, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F)
     } 
-     # PDF with 12 plots
-     # --------------------------------------------------------------
+    # PDF with 12 plots
+    # --------------------------------------------------------------
     pdf(file=paste(outFile,".",sCV,".","split",iSplit,".pdf",sep=""))
     # par(mfrow = c(3, 4)) # all plots into one page!
     
@@ -2129,29 +2143,29 @@ RFreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
     
     # Leverage plots - plot 5
     if(det.Traind.pls!=0){
-     plot(hat.fit, type = "h",
-          main="Leverage for Fitted Model",
-          xlab="Index", ylab="Hat")
-     abline(h = thresh.lever, lty = 2, col="red") # leverage thresh
+      plot(hat.fit, type = "h",
+           main="Leverage for Fitted Model",
+           xlab="Index", ylab="Hat")
+      abline(h = thresh.lever, lty = 2, col="red") # leverage thresh
     }
     # plot(FeatImp, top = components,main="Feature Importance") # ERROR !
     dev.off()
     # --------------------------------------------------------------
   }
-
+  
   return(list(stat.values=my.stats, model=rf.fit))  # return a list with statistics and the full model
 }
 #----------------------------------------------------------------------------------------------------------------------
 
 SVMRFEreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="",cs=c(1,5,10,15,20),eps=c(0.01,0.1,0.3)) {
-#SVMRFEreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="",cs=c(1:10),eps=c(0.01,0.1,0.3),noCores=1) {
+  #SVMRFEreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="",cs=c(1:10),eps=c(0.01,0.1,0.3),noCores=1) {
   
   #===========================================
   # SVM-RFE
   #===========================================
   
   #library(kernlab)
-
+  
   net.c = my.datf.train[,1]   # make available the names of variables from training dataset
   RegrMethod <- "svmRFE" # type of regression
   
@@ -2288,29 +2302,29 @@ SVMRFEreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="",
     Testd.pls = as.matrix(my.datf.test)
     mat.Traind.pls<- t(Traind.pls) %*%(Traind.pls) 
     det.Traind.pls<- det(mat.Traind.pls)
-
+    
     if(det.Traind.pls!=0){
-     Hat.train = diag(Traind.pls %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Traind.pls))
-     Hat.test  = diag(Testd.pls  %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Testd.pls))  
-     
-     # Leverage / Hat values
-     hat.fit <- Hat.test          # hat values
-     hat.fit.df <- as.data.frame(hat.fit)    # hat data frame
-     hat.mean <- mean(hat.fit)               # mean hat values
-     hat.fit.df$warn <- ifelse(hat.fit.df[, 'hat.fit']>3*hat.mean, 'x3',ifelse(hat.fit.df[, 'hat.fit']>2*hat.mean, 'x2', '-' ))
-     
-     write.table("Leverage output: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-     write.table(paste("Mean of hat values: ", hat.mean), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-     write.table("Leverage / Hat values with warnings (X3 & X2 = values 3 & 2 times than hat mean): ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-     write.table(hat.fit.df, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F) # write hat values and the levels X3, X2 (of hat mean)
-     
-     #THRESHOLD values: 3m/n, where m is the number of parameters, and n number of observations
-     thresh.lever<- (3*(dim(my.datf.train)[2]-1))/dim(my.datf.train)[1] # leverage thresh
-     hat.problems<- data.frame(hat.fit[hat.fit>thresh.lever]) # points with high leverage
-     
-     write.table(paste("Leverage Threshold: ", thresh.lever), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-     write.table("Points with leverage > threshold: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-     write.table(hat.problems, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F)
+      Hat.train = diag(Traind.pls %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Traind.pls))
+      Hat.test  = diag(Testd.pls  %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Testd.pls))  
+      
+      # Leverage / Hat values
+      hat.fit <- Hat.test          # hat values
+      hat.fit.df <- as.data.frame(hat.fit)    # hat data frame
+      hat.mean <- mean(hat.fit)               # mean hat values
+      hat.fit.df$warn <- ifelse(hat.fit.df[, 'hat.fit']>3*hat.mean, 'x3',ifelse(hat.fit.df[, 'hat.fit']>2*hat.mean, 'x2', '-' ))
+      
+      write.table("Leverage output: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+      write.table(paste("Mean of hat values: ", hat.mean), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+      write.table("Leverage / Hat values with warnings (X3 & X2 = values 3 & 2 times than hat mean): ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+      write.table(hat.fit.df, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F) # write hat values and the levels X3, X2 (of hat mean)
+      
+      #THRESHOLD values: 3m/n, where m is the number of parameters, and n number of observations
+      thresh.lever<- (3*(dim(my.datf.train)[2]-1))/dim(my.datf.train)[1] # leverage thresh
+      hat.problems<- data.frame(hat.fit[hat.fit>thresh.lever]) # points with high leverage
+      
+      write.table(paste("Leverage Threshold: ", thresh.lever), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+      write.table("Points with leverage > threshold: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+      write.table(hat.problems, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F)
     } 
     # PDF with 12 plots
     # --------------------------------------------------------------
@@ -2331,16 +2345,16 @@ SVMRFEreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="",
     
     # Leverage plots - plot 5
     if(det.Traind.pls!=0){ 
-     plot(hat.fit, type = "h",
-          main="Leverage for Fitted Model",
-          xlab="Index", ylab="Hat")
-     abline(h = thresh.lever, lty = 2, col="red") # leverage thresh
+      plot(hat.fit, type = "h",
+           main="Leverage for Fitted Model",
+           xlab="Index", ylab="Hat")
+      abline(h = thresh.lever, lty = 2, col="red") # leverage thresh
     }
     # plot(FeatImp, top = components,main="Feature Importance") # ERROR !
     dev.off()
     # --------------------------------------------------------------
   }
-
+  
   return(list(stat.values=my.stats, model=rfesvm.fit))  # return a list with statistics and the full model
 }
 #----------------------------------------------------------------------------------------------------------------------
@@ -2477,30 +2491,30 @@ RFRFEreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") 
     Testd.pls = as.matrix(my.datf.test)
     mat.Traind.pls<- t(Traind.pls) %*%(Traind.pls) 
     det.Traind.pls<- det(mat.Traind.pls)
-
+    
     if(det.Traind.pls!=0){
-
-    Hat.train = diag(Traind.pls %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Traind.pls))
-    Hat.test  = diag(Testd.pls  %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Testd.pls))  
-    
-    # Leverage / Hat values
-    hat.fit <- Hat.test          # hat values
-    hat.fit.df <- as.data.frame(hat.fit)    # hat data frame
-    hat.mean <- mean(hat.fit)               # mean hat values
-    hat.fit.df$warn <- ifelse(hat.fit.df[, 'hat.fit']>3*hat.mean, 'x3',ifelse(hat.fit.df[, 'hat.fit']>2*hat.mean, 'x2', '-' ))
-    
-    write.table("Leverage output: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-    write.table(paste("Mean of hat values: ", hat.mean), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-    write.table("Leverage / Hat values with warnings (X3 & X2 = values 3 & 2 times than hat mean): ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-    write.table(hat.fit.df, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F) # write hat values and the levels X3, X2 (of hat mean)
-    
-    #THRESHOLD values: 3m/n, where m is the number of parameters, and n number of observations
-    thresh.lever<- (3*(dim(my.datf.train)[2]-1))/dim(my.datf.train)[1] # leverage thresh
-    hat.problems<- data.frame(hat.fit[hat.fit>thresh.lever]) # points with high leverage
-    
-    write.table(paste("Leverage Threshold: ", thresh.lever), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-    write.table("Points with leverage > threshold: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-    write.table(hat.problems, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F)
+      
+      Hat.train = diag(Traind.pls %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Traind.pls))
+      Hat.test  = diag(Testd.pls  %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Testd.pls))  
+      
+      # Leverage / Hat values
+      hat.fit <- Hat.test          # hat values
+      hat.fit.df <- as.data.frame(hat.fit)    # hat data frame
+      hat.mean <- mean(hat.fit)               # mean hat values
+      hat.fit.df$warn <- ifelse(hat.fit.df[, 'hat.fit']>3*hat.mean, 'x3',ifelse(hat.fit.df[, 'hat.fit']>2*hat.mean, 'x2', '-' ))
+      
+      write.table("Leverage output: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+      write.table(paste("Mean of hat values: ", hat.mean), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+      write.table("Leverage / Hat values with warnings (X3 & X2 = values 3 & 2 times than hat mean): ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+      write.table(hat.fit.df, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F) # write hat values and the levels X3, X2 (of hat mean)
+      
+      #THRESHOLD values: 3m/n, where m is the number of parameters, and n number of observations
+      thresh.lever<- (3*(dim(my.datf.train)[2]-1))/dim(my.datf.train)[1] # leverage thresh
+      hat.problems<- data.frame(hat.fit[hat.fit>thresh.lever]) # points with high leverage
+      
+      write.table(paste("Leverage Threshold: ", thresh.lever), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+      write.table("Points with leverage > threshold: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+      write.table(hat.problems, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F)
     }
     
     # PDF with 12 plots
@@ -2521,16 +2535,16 @@ RFRFEreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") 
     
     # Leverage plots - plot 5
     if(det.Traind.pls!=0){
-    plot(hat.fit, type = "h",
-         main="Leverage for Fitted Model",
-         xlab="Index", ylab="Hat")
-    abline(h = thresh.lever, lty = 2, col="red") # leverage thresh
+      plot(hat.fit, type = "h",
+           main="Leverage for Fitted Model",
+           xlab="Index", ylab="Hat")
+      abline(h = thresh.lever, lty = 2, col="red") # leverage thresh
     }
     # plot(FeatImp, top = components,main="Feature Importance") # ERROR !
     dev.off()
     # --------------------------------------------------------------
   }
-
+  
   return(list(stat.values=my.stats, model=rferf.fit))  # return a list with statistics and the full model
 }
 
@@ -2540,9 +2554,9 @@ findResamps.funct<- function(caret.obj){
   # from caret package 
   #=============================================================================
   #caret.obj== caret object of class train, rfe or sbf 
-
-	in.caret.obj<- caret.obj$control$index
-	return(length(in.caret.obj))
+  
+  in.caret.obj<- caret.obj$control$index
+  return(length(in.caret.obj))
 }
 
 impute.funct<- function(ds,FUN=mean){
@@ -2551,17 +2565,17 @@ impute.funct<- function(ds,FUN=mean){
   # using the mean value as the default 
   #=============================================================================
   #ds== data.frame or matrix to be imputed 
-
-	sum.na <- apply(ds,2,sum)
-	ind.na <- which(is.na(sum.na)!=FALSE)
-
-	ds.imputeV <- apply(as.matrix(ds[,ind.na]),2,function(x)FUN(x,na.rm=T))
-	ds.imputeI <- apply(as.matrix(ds[,ind.na]),2,function(x)which(is.na(x)))
-
-	if(is.list(ds.imputeI)!=TRUE){ds.imputI<- list(ds.imputeI)}
-
-	for(i in 1:length(ds.imputI)){ds[ds.imputI[[i]],ind.na[i]]<- ds.imputeV[i]}
-	return(ds)
+  
+  sum.na <- apply(ds,2,sum)
+  ind.na <- which(is.na(sum.na)!=FALSE)
+  
+  ds.imputeV <- apply(as.matrix(ds[,ind.na]),2,function(x)FUN(x,na.rm=T))
+  ds.imputeI <- apply(as.matrix(ds[,ind.na]),2,function(x)which(is.na(x)))
+  
+  if(is.list(ds.imputeI)!=TRUE){ds.imputI<- list(ds.imputeI)}
+  
+  for(i in 1:length(ds.imputI)){ds[ds.imputI[[i]],ind.na[i]]<- ds.imputeV[i]}
+  return(ds)
 }
 
 ENETreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
@@ -2571,7 +2585,7 @@ ENETreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
   
   #library(caret)
   #library(glmnet)
-  data(glmnetModel)
+  load(system.file("models", "glmnetModel.RData", package = "RRegrs"))
   
   net.c = my.datf.train[,1] # dependent variable is the first column in Training set
   RegrMethod <- "glmnet" # type of regression
@@ -2700,31 +2714,31 @@ ENETreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
     Testd.pls = as.matrix(my.datf.test)
     mat.Traind.pls<- t(Traind.pls) %*%(Traind.pls) 
     det.Traind.pls<- det(mat.Traind.pls)
-
+    
     if(det.Traind.pls!=0){
-     Hat.train = diag(Traind.pls %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Traind.pls))
-     Hat.test  = diag(Testd.pls  %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Testd.pls))  
-     
-     # Leverage / Hat values
-     hat.fit <- Hat.test          # hat values
-     hat.fit.df <- as.data.frame(hat.fit)    # hat data frame
-     hat.mean <- mean(hat.fit)               # mean hat values
-     hat.fit.df$warn <- ifelse(hat.fit.df[, 'hat.fit']>3*hat.mean, 'x3',ifelse(hat.fit.df[, 'hat.fit']>2*hat.mean, 'x2', '-' ))
-     
-     write.table("Leverage output: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-     write.table(paste("Mean of hat values: ", hat.mean), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-     write.table("Leverage / Hat values with warnings (X3 & X2 = values 3 & 2 times than hat mean): ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-     write.table(hat.fit.df, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F) # write hat values and the levels X3, X2 (of hat mean)
-     
-     #THRESHOLD values: 3m/n, where m is the number of parameters, and n number of observations
-     thresh.lever<- (3*(dim(my.datf.train)[2]-1))/dim(my.datf.train)[1] # leverage thresh
-     hat.problems<- data.frame(hat.fit[hat.fit>thresh.lever]) # points with high leverage
-     
-     write.table(paste("Leverage Threshold: ", thresh.lever), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-     write.table("Points with leverage > threshold: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
-     write.table(hat.problems, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F)
-     
-     # Cook's distance ?
+      Hat.train = diag(Traind.pls %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Traind.pls))
+      Hat.test  = diag(Testd.pls  %*% solve(t(Traind.pls) %*%(Traind.pls), tol=1e-40)  %*% t(Testd.pls))  
+      
+      # Leverage / Hat values
+      hat.fit <- Hat.test          # hat values
+      hat.fit.df <- as.data.frame(hat.fit)    # hat data frame
+      hat.mean <- mean(hat.fit)               # mean hat values
+      hat.fit.df$warn <- ifelse(hat.fit.df[, 'hat.fit']>3*hat.mean, 'x3',ifelse(hat.fit.df[, 'hat.fit']>2*hat.mean, 'x2', '-' ))
+      
+      write.table("Leverage output: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+      write.table(paste("Mean of hat values: ", hat.mean), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+      write.table("Leverage / Hat values with warnings (X3 & X2 = values 3 & 2 times than hat mean): ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+      write.table(hat.fit.df, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F) # write hat values and the levels X3, X2 (of hat mean)
+      
+      #THRESHOLD values: 3m/n, where m is the number of parameters, and n number of observations
+      thresh.lever<- (3*(dim(my.datf.train)[2]-1))/dim(my.datf.train)[1] # leverage thresh
+      hat.problems<- data.frame(hat.fit[hat.fit>thresh.lever]) # points with high leverage
+      
+      write.table(paste("Leverage Threshold: ", thresh.lever), file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+      write.table("Points with leverage > threshold: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
+      write.table(hat.problems, file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F)
+      
+      # Cook's distance ?
     }
     # Influence ?
     
@@ -2743,15 +2757,15 @@ ENETreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
     
     # Leverage plots
     if(det.Traind.pls!=0){
-     plot(hat.fit, type = "h",
-          main="Leverage for Fitted Model",
-          xlab="Index", ylab="Hat")
-     abline(h = thresh.lever, lty = 2, col="red") # leverage thresh
+      plot(hat.fit, type = "h",
+           main="Leverage for Fitted Model",
+           xlab="Index", ylab="Hat")
+      abline(h = thresh.lever, lty = 2, col="red") # leverage thresh
     }
     dev.off()
     # --------------------------------------------------------------
   }
-
+  
   return(list(stat.values=my.stats, model=enet.fit))  # return a list with statistics and the full model
 }
 
@@ -2760,18 +2774,32 @@ ENETreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") {
 # RRegrs MAIN FUNCTION 
 ###############################################################################################
 
-RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=1,
-  ResAvgs="RRegsResAvgs.csv",ResBySplits="RRegrsResAllSplits.csv",ResBest="RRegrsResBest.csv",
-  fDet="T",fFilters="F",fScaling="T",fRemNear0Var="T",fRemCorr="T",
-  fLM="T",fGLM="T",fPLS="T",fLASSO="T",fSVRM="T",fNN="T",fRF="T",fRFRFE="T",fSVMRFE="T",fENET="T",
-  RFE_SVM_C="1;5;10;15;20",RFE_SVM_epsilon="0.01;0.1;0.3",
-  cutoff=0.9,iScaling=1,iScalCol=1,trainFrac=0.75,iSplitTimes=10,noYrand=100,
-  CVtypes="repeatedcv;LOOCV",NoNAValFile="ds.NoNA.csv",
-  No0NearVarFile="ds.No0Var.csv",ScaledFile="ds.scaled.csv",NoCorrFile="ds.scaled.NoCorrs.csv",
-  lmFile="LM.details.csv",glmFile="GLM.details.csv",plsFile="PLS.details.csv",
-  lassoFile="Lasso.details.csv",svrmFile="SVMRadial.details.csv",
-  nnFile="NN.details.csv",rfFile="RF.details.csv",rfrfeFile="RFRFE.details.csv",svmrfeFile="SVMRFE.details.csv",
-  enetFile="ENET.details.csv",fR2rule="T") { # input = file with all parameters
+RRegrs <- function(DataFileName="ds.House.csv",DataFileSep=",",PathDataSet="DataResults",noCores=1,
+                   ResAvgs="RRegsResAvgs.csv",ResBySplits="RRegrsResAllSplits.csv",ResBest="RRegrsResBest.csv",
+                   fDet="T",fFilters="F",fScaling="T",fRemNear0Var="T",fRemCorr="T",
+                   fLM="T",fGLM="T",fPLS="T",fLASSO="T",fSVRM="T",fNN="T",fRF="T",fRFRFE="T",fSVMRFE="T",fENET="T",
+                   RFE_SVM_C="1;5;10;15;20",RFE_SVM_epsilon="0.01;0.1;0.3",
+                   cutoff=0.9,iScaling=1,iScalCol=1,trainFrac=0.75,iSplitTimes=10,noYrand=100,
+                   CVtypes="repeatedcv;LOOCV",NoNAValFile="ds.NoNA.csv",
+                   No0NearVarFile="ds.No0Var.csv",ScaledFile="ds.scaled.csv",NoCorrFile="ds.scaled.NoCorrs.csv",
+                   lmFile="LM.details.csv",glmFile="GLM.details.csv",plsFile="PLS.details.csv",
+                   lassoFile="Lasso.details.csv",svrmFile="SVMRadial.details.csv",
+                   nnFile="NN.details.csv",rfFile="RF.details.csv",rfrfeFile="RFRFE.details.csv",svmrfeFile="SVMRFE.details.csv",
+                   enetFile="ENET.details.csv",fR2rule="T") { # input = file with all parameters
+  
+  methodCount = 0;
+  if (fLM=="T") methodCount = methodCount + 1;
+  if (fGLM=="T") methodCount = methodCount + 1;
+  if (fPLS=="T") methodCount = methodCount + 1;
+  if (fLASSO=="T") methodCount = methodCount + 1;
+  if (fSVRM=="T") methodCount = methodCount + 1;
+  if (fNN=="T") methodCount = methodCount + 1;
+  if (fRF=="T") methodCount = methodCount + 1;
+  if (fRFRFE=="T") methodCount = methodCount + 1;
+  if (fSVMRFE=="T") methodCount = methodCount + 1;
+  if (fENET=="T") methodCount = methodCount + 1;
+  
+  if (methodCount < 2) stop("You must select at least two modelling methods to compare.");
   
   # fRBFdda="T", rbfDDAFile="RBF_DDA.details.csv",negThrStep=0.5
   
@@ -2781,7 +2809,7 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
   # RRegrs(DataFileName="MyDataSet.csv",PathDataSet="MyResultsFolder")
   # Default: all methods, no feature selection
   ptmTot <- proc.time() # total time
-
+  
   # ----------------------------------
   # Parallel support
   # ----------------------------------
@@ -2793,7 +2821,7 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
     if (noCores==0 | noCores>noCoresSys){ # all available CPU cores or the specific cores is greater than the available ones
       noCores=noCoresSys # use the available no of cores
     }
-
+    
     # parallel for Linux or Mac:
     # ------------------------------------------
     if ( Sys.info() [['sysname']] == "Linux" | Sys.info() [['sysname']] == "Darwin" ){
@@ -2816,10 +2844,11 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
   #------------------------------------------
   # Write parameter file
   #------------------------------------------
+  dir.create(PathDataSet, showWarnings = FALSE)
   ParamFile <- file.path(PathDataSet, "Parameters.csv") # file to output the parameters
-
+  
   # define a data frame with all parameters of the current calculation
-  Params.df=data.frame(RRegrs.Parameters="DataFileName",Parameter.Value=as.character(DataFileName),Description="Input dataset file (Step 1)") # data frame with used parameters
+  Params.df = data.frame(RRegrs.Parameters="DataFileName",Parameter.Value=as.character(DataFileName),Description="Input dataset file (Step 1)") # data frame with used parameters
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="PathDataSet",Parameter.Value=as.character(PathDataSet),Description="Working folder for all input and output files"))
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="noCores",Parameter.Value=as.character(noCores),Description="No of CPU cores (0=all available; 1=no parallel; >1 = specific no. of cores)"))
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="ResAvgs",Parameter.Value=as.character(ResAvgs),Description="Output file averaged statistics (by splits) for each regression method"))
@@ -2837,7 +2866,7 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="fENET",Parameter.Value=as.character(fENET),Description="If run ENET (Step 8.5)"))
   # Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="fRBFdda",Parameter.Value=as.character(fRBFdda),Description="If run RBF DDA (Step 8.6)"))
   # Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="negThrStep",Parameter.Value=as.character(negThrStep),Description="Negative Threshold step parameter for RBF DDA (Step 8.6)"))
-
+  
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="fSVRM",Parameter.Value=as.character(fSVRM),Description="If run svmRadial.RMSE (Step 8.7)"))
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="fNN",Parameter.Value=as.character(fNN),Description="If run Neural Networks (Step 8.8)"))
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="fRF",Parameter.Value=as.character(fRF),Description="If run Random Forest (Step 8.9)"))
@@ -2869,9 +2898,9 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="svmrfeFile",Parameter.Value=as.character(svmrfeFile),Description="SVM-RFE output"))
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="enetFile",Parameter.Value=as.character(enetFile),Description="ENET output"))
   Params.df = rbind(Params.df,data.frame(RRegrs.Parameters="fR2rule",Parameter.Value=as.character(fR2rule),Description="Best model rule: R2 (default = T) or adjR2 (F)"))
-
+  
   write.csv(Params.df,file=ParamFile,row.names=F,quote=F) # write parameters to a CSV in the working folder
-
+  
   # Get calculation parameters 
   fDet         = as.logical(fDet)         # flag to calculate and print details for all the functions
   fFilters     = as.logical(fFilters)     # flag to apply filters                          (2)
@@ -2895,35 +2924,39 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
   rfe_SVM_param_c   = strsplit(as.character(RFE_SVM_C),";")[[1]] # values of C for SVM RFE
   rfe_SVM_param_eps = strsplit(as.character(RFE_SVM_epsilon),";")[[1]] # values of epsilon for SVM RFE
   # negThrStep
-
+  
   fR2rule = as.logical(fR2rule) # flag to decide order rule for the best model (True for R2 and False for adjR2, default = True)
   # ----------------------------------------------------------------------------------------
   trainFrac   = as.numeric(as.character(trainFrac))   # the fraction of training set from the entire dataset; trainFrac = the rest of dataset, the test set
- 
+  
   CVtypes = strsplit(as.character(CVtypes),";")[[1]] # types of cross-validation methods
   CVtypes2 = c("repeatedcv") # for complex methods we run only 10-fold CV even the user is using other parameters!
   
   # Generate path + file name = original dataset
-  inFile <- file.path(PathDataSet, DataFileName)
+  if (file.exists(DataFileName)) { # is it a full path already?
+    inFile <- DataFileName
+  } else {
+    inFile <- file.path(PathDataSet, DataFileName)
+  }
   
   sDescription=paste("=======================================================================================================",
-    "RRegrs - R Regression Models",
-    "Get the best regression models for one dataset using R caret methods", "eNanoMapper.net","AUTHORS:",
-    "Georgia Tsiliki: ChemEng - NTUA, Greece, g_tsiliki@hotmail.com",
-    "Cristian R. Munteanu: RNASA-IMEDIR, University of A Coruna, Spain, muntisa@gmail.com",
-    "Jose A. Seoane: Stanford Cancer Institute, USA, seoane@stanford.edu",
-    "Carlos Fernandez-Lozano: RNASA-IMEDIR, University of A Coruna, Spain, carlos.fernandez@udc.es",
-    "Haralambos Sarimveis: ChemEng - NTUA, Greece, hsarimv@central.ntua.gr",
-    "Egon Willighagen: BiGCaT - Maastricht University, The Netherlands, egon.willighagen@gmail.com",
-    "=======================================================================================================",sep="\n")
+                     "RRegrs - R Regression Models",
+                     "Get the best regression models for one dataset using R caret methods", "eNanoMapper.net","AUTHORS:",
+                     "Georgia Tsiliki: ChemEng - NTUA, Greece, g_tsiliki@hotmail.com",
+                     "Cristian R. Munteanu: RNASA-IMEDIR, University of A Coruna, Spain, muntisa@gmail.com",
+                     "Jose A. Seoane: Stanford Cancer Institute, USA, seoane@stanford.edu",
+                     "Carlos Fernandez-Lozano: RNASA-IMEDIR, University of A Coruna, Spain, carlos.fernandez@udc.es",
+                     "Haralambos Sarimveis: ChemEng - NTUA, Greece, hsarimv@central.ntua.gr",
+                     "Egon Willighagen: BiGCaT - Maastricht University, The Netherlands, egon.willighagen@gmail.com",
+                     "=======================================================================================================",sep="\n")
   cat(sDescription) # print package header information
-
+  
   # -----------------------------------
   # (1.2) Load the ORIGINAL DATASET
   # -----------------------------------
   cat("\n-> Loading original dataset ...\n")  # it can contain errors, correlations, near zero variance columns
   cat("      ---> ",inFile,"\n")
-  ds.dat0 <- read.csv(inFile,header=T)          # original dataset frame
+  ds.dat0 <- read.csv(inFile,header=T,sep=DataFileSep)          # original dataset frame
   
   # resolving the text to number errors for future calculations
   ds.indx<- colnames(ds.dat0)[2:dim(ds.dat0)[2]]                    # FEATURE names (no dependent variable)
@@ -2945,7 +2978,7 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
   # 2.3 Processing of missing values - use of preProcess();
   #     caret employs knnImpute algorithm to impute values from a neighborhood of k
   # TO BE IMPLEMENTED
-
+  
   # -----------------------------------------------------------------------
   # (2) Remove NA values
   # -----------------------------------------------------------------------
@@ -2956,9 +2989,9 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
     # get the ds without NA values-- currently use the default function (mean) 
     ds <- impute.funct(ds)
     if (fDet == TRUE){   # write as details the corrected ds file
-     write.csv(ds, outFile,row.names=F, quote=F)}
+      write.csv(ds, outFile,row.names=F, quote=F)}
   }
- 
+  
   # -----------------------------------------------------------------------
   # (3) Remove near zero variance columns
   # -----------------------------------------------------------------------
@@ -2998,10 +3031,10 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
   
   # Check data has at least 5 columns for meaningful analysis
   if(dim(ds)[2] < 5 || dim(ds)[1] < 3){
-  print(c(dim(ds)))
-  stop(paste("Your corrected data set has dimensions:", paste(as.character(dim(ds)),collapse=', '),". Try repeating analysis without filtering options.",sep=''))
+    print(c(dim(ds)))
+    stop(paste("Your corrected data set has dimensions:", paste(as.character(dim(ds)),collapse=', '),". Try repeating analysis without filtering options.",sep=''))
   }
-
+  
   # print no of CPU cores used for calculation
   # noCoresSys=as.numeric(Sys.getenv('NUMBER_OF_PROCESSORS')) # automatically detected no. of CPU cores
   #library(parallel)
@@ -3038,7 +3071,7 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
     # -----------------------------------------------------------------------
     cat("-> Splitting dataset in Training and Test sets ...\n")
     cat(paste("--> Split No.",i,"from",iSplitTimes,"\n"))
-
+    
     # Initialize the list with the statistical models for all types of CV; per iSplitTimes
     dfMod <- sapply(CVtypes,function(x) NULL)
     for(cv in 1:length(CVtypes)){class(dfMod[[cv]])<- 'list'; names(dfMod)[[cv]]<- CVtypes[cv]}
@@ -3074,7 +3107,7 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
       # parallel for windows:
       # ------------------------------------------
       if (Sys.info()[['sysname']]=="Windows"){
-       cl<-makeCluster(noCores,outfile="") 
+        cl<-makeCluster(noCores,outfile="") 
         registerDoSNOW(cl)
       }   
     }
@@ -3118,61 +3151,61 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
       outFile.GLM <- file.path(PathDataSet,glmFile)   # the same folder as the input is used for the output
       
       cat("-> GLM : Generalized Linear Model stepwise - based on AIC ...\n")
-		  # For each type of CV do all the statistics
-		  # -----------------------------------------------------
-		  for (cv in 1:length(CVtypes)) {
-		    cat("    -->",CVtypes[cv],"\n")
-		    ptmGLM <- proc.time()
-		    glm.model  <- GLMreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.GLM) # run GLM for each CV and regr method
-		    print(proc.time() - ptmGLM) # print running time
-		    
-		    my.stats.GLM <- glm.model$stat.values # stat values
-		    my.model.GLM <- glm.model$model # model
-		    #my.stats.split <- c(my.stats.dsInfo,my.stats.GLM) # merge the ds info with statistics results for each Cv & reg method
-		    
-		    #-------------------------------------------------------
-		    # Add output from GLM to the list of results
-		    #-------------------------------------------------------
-		    # List of results for each splitting, CV type & regression method
-		    dfRes = mapply(c, my.stats.GLM, dfRes, SIMPLIFY=F)
-		    
-		    # List of models for each splitting, CV type & regression method
-		    names1 <- strsplit(deparse(quote(my.model.GLM)),'my.model.')[[1]][2]
-		    dfMod[[cv]]$names1 <- my.model.GLM  
-		    names(dfMod[[cv]])[mod.ind[cv]] <- names1[1]
-		    mod.ind[cv] <- mod.ind[cv] +1 # update mod.ind indicator variable
-		  } # end CV types  
+      # For each type of CV do all the statistics
+      # -----------------------------------------------------
+      for (cv in 1:length(CVtypes)) {
+        cat("    -->",CVtypes[cv],"\n")
+        ptmGLM <- proc.time()
+        glm.model  <- GLMreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.GLM) # run GLM for each CV and regr method
+        print(proc.time() - ptmGLM) # print running time
+        
+        my.stats.GLM <- glm.model$stat.values # stat values
+        my.model.GLM <- glm.model$model # model
+        #my.stats.split <- c(my.stats.dsInfo,my.stats.GLM) # merge the ds info with statistics results for each Cv & reg method
+        
+        #-------------------------------------------------------
+        # Add output from GLM to the list of results
+        #-------------------------------------------------------
+        # List of results for each splitting, CV type & regression method
+        dfRes = mapply(c, my.stats.GLM, dfRes, SIMPLIFY=F)
+        
+        # List of models for each splitting, CV type & regression method
+        names1 <- strsplit(deparse(quote(my.model.GLM)),'my.model.')[[1]][2]
+        dfMod[[cv]]$names1 <- my.model.GLM  
+        names(dfMod[[cv]])[mod.ind[cv]] <- names1[1]
+        mod.ind[cv] <- mod.ind[cv] +1 # update mod.ind indicator variable
+      } # end CV types  
     } # end GLM
     
     # --------------------------------------------
     # 8.3. PLS
     # --------------------------------------------
     if (fPLS==T) {   # if PLS was selected, run the method
-		outFile.PLS <- file.path(PathDataSet,plsFile)   # the same folder as the input is used for the output
+      outFile.PLS <- file.path(PathDataSet,plsFile)   # the same folder as the input is used for the output
       
-		cat("-> PLS : Partial Least Squares Regression ...\n")
-		# For each type of CV do all the statistics
-		# -----------------------------------------------------
-		for (cv in 1:length(CVtypes)) {
-			cat("    -->",CVtypes[cv],"\n")
-			ptmPLS <- proc.time()
-			pls.model <- PLSreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.PLS) # run PLS for each CV and regr method
-			print(proc.time() - ptmPLS) # print running time
+      cat("-> PLS : Partial Least Squares Regression ...\n")
+      # For each type of CV do all the statistics
+      # -----------------------------------------------------
+      for (cv in 1:length(CVtypes)) {
+        cat("    -->",CVtypes[cv],"\n")
+        ptmPLS <- proc.time()
+        pls.model <- PLSreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.PLS) # run PLS for each CV and regr method
+        print(proc.time() - ptmPLS) # print running time
         
-			my.stats.PLS <- pls.model$stat.values
-			my.model.PLS <- pls.model$model
-			#-------------------------------------------------------
-			# Add output from PLS to the list of results
-			#-------------------------------------------------------
-			# List of results for each splitting, CV type & regression method
-			dfRes = mapply(c, my.stats.PLS, dfRes, SIMPLIFY=F)
+        my.stats.PLS <- pls.model$stat.values
+        my.model.PLS <- pls.model$model
+        #-------------------------------------------------------
+        # Add output from PLS to the list of results
+        #-------------------------------------------------------
+        # List of results for each splitting, CV type & regression method
+        dfRes = mapply(c, my.stats.PLS, dfRes, SIMPLIFY=F)
         
-			# List of models for each splitting, CV type & regression method
-			names1 <- strsplit(deparse(quote(my.model.PLS)),'my.model.')[[1]][2]
-			dfMod[[cv]]$names1 <- my.model.PLS  
-			names(dfMod[[cv]])[mod.ind[cv]] <- names1[1]
-			mod.ind[cv] <- mod.ind[cv] +1 # update mod.ind indicator variable
-		} # end CV types
+        # List of models for each splitting, CV type & regression method
+        names1 <- strsplit(deparse(quote(my.model.PLS)),'my.model.')[[1]][2]
+        dfMod[[cv]]$names1 <- my.model.PLS  
+        names(dfMod[[cv]])[mod.ind[cv]] <- names1[1]
+        mod.ind[cv] <- mod.ind[cv] +1 # update mod.ind indicator variable
+      } # end CV types
     } # end PLS
     
     #cat("-> PLS Wrapper Feature Selection ...\n")
@@ -3198,123 +3231,123 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
     # 8.4. LASSO regression
     # --------------------------------------------
     if (fLASSO==T) {   # if LASSO was selected, run the method
-		outFile.LASSO <- file.path(PathDataSet,lassoFile)   # the same folder as the input is used for the output
+      outFile.LASSO <- file.path(PathDataSet,lassoFile)   # the same folder as the input is used for the output
       
-		cat("-> Lasso ...\n")
-		# For each type of CV do all the statistics
-		# -----------------------------------------------------
-		for (cv in 1:length(CVtypes2)) {
-			cat("    -->",CVtypes2[cv],"\n")
-			ptmLASSO <- proc.time()
-			lasso.model <- LASSOreg(ds.train,ds.test,CVtypes2[cv],i,fDet,outFile.LASSO) # run LASSO for each CV and regr method
-			print(proc.time() - ptmLASSO) # print running time
-
-			my.stats.LASSO <- lasso.model$stat.values
-			my.model.LASSO <- lasso.model$model
-			#-------------------------------------------------------
-			# Add output from Lasso to the list of results
-			#-------------------------------------------------------
-			# List of results for each splitting, CV type & regression method
-			dfRes = mapply(c, my.stats.LASSO, dfRes, SIMPLIFY=F)
-			# List of models for each splitting, CV type & regression method
-			names1 <- strsplit(deparse(quote(my.model.LASSO)),'my.model.')[[1]][2]
-			dfMod[[cv]]$names1 <- my.model.LASSO  
-			names(dfMod[[cv]])[mod.ind[cv]] <- names1[1]
-			mod.ind[cv] <- mod.ind[cv] +1 # update mod.ind indicator variable
-		} # end CV types
+      cat("-> Lasso ...\n")
+      # For each type of CV do all the statistics
+      # -----------------------------------------------------
+      for (cv in 1:length(CVtypes2)) {
+        cat("    -->",CVtypes2[cv],"\n")
+        ptmLASSO <- proc.time()
+        lasso.model <- LASSOreg(ds.train,ds.test,CVtypes2[cv],i,fDet,outFile.LASSO) # run LASSO for each CV and regr method
+        print(proc.time() - ptmLASSO) # print running time
+        
+        my.stats.LASSO <- lasso.model$stat.values
+        my.model.LASSO <- lasso.model$model
+        #-------------------------------------------------------
+        # Add output from Lasso to the list of results
+        #-------------------------------------------------------
+        # List of results for each splitting, CV type & regression method
+        dfRes = mapply(c, my.stats.LASSO, dfRes, SIMPLIFY=F)
+        # List of models for each splitting, CV type & regression method
+        names1 <- strsplit(deparse(quote(my.model.LASSO)),'my.model.')[[1]][2]
+        dfMod[[cv]]$names1 <- my.model.LASSO  
+        names(dfMod[[cv]])[mod.ind[cv]] <- names1[1]
+        mod.ind[cv] <- mod.ind[cv] +1 # update mod.ind indicator variable
+      } # end CV types
     } # end Lasso
     
     # --------------------------------------------
     # 8.5. Elastic Net regression
     # --------------------------------------------
     if (fenet==T) {   # if ENET was selected, run the method
-		outFile.ENET <- file.path(PathDataSet,enetFile)   # the same folder as the input is used for the output
+      outFile.ENET <- file.path(PathDataSet,enetFile)   # the same folder as the input is used for the output
       
-		cat("-> ENET : Elastic Nets ...\n")
-		# For each type of CV do all the statistics
-		# -----------------------------------------------------
-		for (cv in 1:length(CVtypes)) {
-			cat("    -->",CVtypes[cv],"\n")
-			ptmENET <- proc.time()
-			enet.model <- ENETreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.ENET) # run elastic net for each CV and regr method
-			print(proc.time() - ptmENET) # print running time
+      cat("-> ENET : Elastic Nets ...\n")
+      # For each type of CV do all the statistics
+      # -----------------------------------------------------
+      for (cv in 1:length(CVtypes)) {
+        cat("    -->",CVtypes[cv],"\n")
+        ptmENET <- proc.time()
+        enet.model <- ENETreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.ENET) # run elastic net for each CV and regr method
+        print(proc.time() - ptmENET) # print running time
         
-			my.stats.ENET <- enet.model$stat.values
-			my.model.ENET <- enet.model$model 
+        my.stats.ENET <- enet.model$stat.values
+        my.model.ENET <- enet.model$model 
         
-			#-------------------------------------------------------
-			# Add output from ENET to the list of results
-			#-------------------------------------------------------
-			# List of results for each splitting, CV type & regression method
-			dfRes = mapply(c, my.stats.ENET, dfRes, SIMPLIFY=F)
-			# List of models for each splitting, CV type & regression method
-			names1 <- strsplit(deparse(quote(my.model.ENET)),'my.model.')[[1]][2]
-			dfMod[[cv]]$names1 <- my.model.ENET  
-			names(dfMod[[cv]])[mod.ind[cv]] <- names1[1]
-			mod.ind[cv] <- mod.ind[cv] +1 # update mod.ind indicator variable
-		} # end CV types  
+        #-------------------------------------------------------
+        # Add output from ENET to the list of results
+        #-------------------------------------------------------
+        # List of results for each splitting, CV type & regression method
+        dfRes = mapply(c, my.stats.ENET, dfRes, SIMPLIFY=F)
+        # List of models for each splitting, CV type & regression method
+        names1 <- strsplit(deparse(quote(my.model.ENET)),'my.model.')[[1]][2]
+        dfMod[[cv]]$names1 <- my.model.ENET  
+        names(dfMod[[cv]])[mod.ind[cv]] <- names1[1]
+        mod.ind[cv] <- mod.ind[cv] +1 # update mod.ind indicator variable
+      } # end CV types  
     } # end enet
-
-#     # ----------------------------------------------------------------
-#     # 8.6. RBF network with the DDA algorithm regression (caret)
-#     # ----------------------------------------------------------------
-#     if (fRBFdda==T) {   # if RBF-DDA was selected, run the method
-# 		outFile.rbfDDA <- file.path(PathDataSet,rbfDDAFile)   # the same folder as the input is used for the output
-# 		  
-# 		cat("-> RBF-DDA : Radial Basis Functions - Dynamic Decay Adjustment ...\n")
-# 		# For each type of CV do all the statistics
-# 		# -----------------------------------------------------
-# 		for (cv in 1:length(CVtypes2)) {
-# 		    cat("    -->",CVtypes2[cv],"\n")
-# 		    ptmRBF_DDA <- proc.time()
-# 		    rbfDDA.model <- RBF_DDAreg(ds.train,ds.test,CVtypes2[cv],negThrStep,i,fDet,outFile.rbfDDA) # run rbfDDA for each CV and regr method
-# 		    print(proc.time() - ptmRBF_DDA) # print running time
-# 		    
-# 		    my.stats.rbfDDA <- rbfDDA.model$stat.values
-# 		    my.model.rbfDDA <- rbfDDA.model$model 
-# 		    #-------------------------------------------------------
-# 		    # Add output from RBF-DDA to the list of results
-# 		    #-------------------------------------------------------
-# 		    # List of results for each splitting, CV type & regression method
-# 		    dfRes = mapply(c, my.stats.rbfDDA, dfRes, SIMPLIFY=F)
-# 		    
-# 		    # List of models for each splitting, CV type & regression method
-# 		    names1 <- strsplit(deparse(quote(my.model.rbfDDA)),'my.model.')[[1]][2]
-# 		    dfMod[[cv]]$names1 <- my.model.rbfDDA  
-# 		    names(dfMod[[cv]])[mod.ind[cv]] <- names1[1]
-# 		    mod.ind[cv] <- mod.ind[cv] +1 # update mod.ind indicator variable
-# 		} # end CV types
-#     } # end rbfDDA
+    
+    #     # ----------------------------------------------------------------
+    #     # 8.6. RBF network with the DDA algorithm regression (caret)
+    #     # ----------------------------------------------------------------
+    #     if (fRBFdda==T) {   # if RBF-DDA was selected, run the method
+    # 		outFile.rbfDDA <- file.path(PathDataSet,rbfDDAFile)   # the same folder as the input is used for the output
+    # 		  
+    # 		cat("-> RBF-DDA : Radial Basis Functions - Dynamic Decay Adjustment ...\n")
+    # 		# For each type of CV do all the statistics
+    # 		# -----------------------------------------------------
+    # 		for (cv in 1:length(CVtypes2)) {
+    # 		    cat("    -->",CVtypes2[cv],"\n")
+    # 		    ptmRBF_DDA <- proc.time()
+    # 		    rbfDDA.model <- RBF_DDAreg(ds.train,ds.test,CVtypes2[cv],negThrStep,i,fDet,outFile.rbfDDA) # run rbfDDA for each CV and regr method
+    # 		    print(proc.time() - ptmRBF_DDA) # print running time
+    # 		    
+    # 		    my.stats.rbfDDA <- rbfDDA.model$stat.values
+    # 		    my.model.rbfDDA <- rbfDDA.model$model 
+    # 		    #-------------------------------------------------------
+    # 		    # Add output from RBF-DDA to the list of results
+    # 		    #-------------------------------------------------------
+    # 		    # List of results for each splitting, CV type & regression method
+    # 		    dfRes = mapply(c, my.stats.rbfDDA, dfRes, SIMPLIFY=F)
+    # 		    
+    # 		    # List of models for each splitting, CV type & regression method
+    # 		    names1 <- strsplit(deparse(quote(my.model.rbfDDA)),'my.model.')[[1]][2]
+    # 		    dfMod[[cv]]$names1 <- my.model.rbfDDA  
+    # 		    names(dfMod[[cv]])[mod.ind[cv]] <- names1[1]
+    # 		    mod.ind[cv] <- mod.ind[cv] +1 # update mod.ind indicator variable
+    # 		} # end CV types
+    #     } # end rbfDDA
     
     # --------------------------------------------
     # 8.7. SVM radial regression
     # --------------------------------------------
     if (fSVRM==T) {   # if SVM Radial was selected, run the method
-		outFile.SVRM <- file.path(PathDataSet,svrmFile)   # the same folder as the input is used for the output
+      outFile.SVRM <- file.path(PathDataSet,svrmFile)   # the same folder as the input is used for the output
       
-		cat("-> SVM radial : Support vector machine using radial functions ...\n")
-		# For each type of CV do all the statistics
-		# -----------------------------------------------------
-		for (cv in 1:length(CVtypes)) {
-		    cat("    -->",CVtypes[cv],"\n")
-		    ptmSVRM <- proc.time()
-		    SVRM.model <- SVRMreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.SVRM,rfe_SVM_param_c) # run SVRM Radial for each CV and regr method
-		    print(proc.time() - ptmSVRM) # print running time
-		    
-		    my.stats.SVRM <- SVRM.model$stat.values
-		    my.model.SVRM <- SVRM.model$model 
-		    
-		    #-------------------------------------------------------
-		    # Add output from SVM Radial to the list of results
-		    #-------------------------------------------------------
-		    # List of results for each splitting, CV type & regression method
-		    dfRes = mapply(c, my.stats.SVRM, dfRes, SIMPLIFY=F)
-		    # List of models for each splitting, CV type & regression method
-		    names1 <- strsplit(deparse(quote(my.model.SVRM)),'my.model.')[[1]][2]
-		    dfMod[[cv]]$names1 <- my.model.SVRM  
-		    names(dfMod[[cv]])[mod.ind[cv]] <- names1[1]
-		    mod.ind[cv] <- mod.ind[cv] +1 # update mod.ind indicator variable
-		} # end CV types
+      cat("-> SVM radial : Support vector machine using radial functions ...\n")
+      # For each type of CV do all the statistics
+      # -----------------------------------------------------
+      for (cv in 1:length(CVtypes)) {
+        cat("    -->",CVtypes[cv],"\n")
+        ptmSVRM <- proc.time()
+        SVRM.model <- SVRMreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.SVRM,rfe_SVM_param_c) # run SVRM Radial for each CV and regr method
+        print(proc.time() - ptmSVRM) # print running time
+        
+        my.stats.SVRM <- SVRM.model$stat.values
+        my.model.SVRM <- SVRM.model$model 
+        
+        #-------------------------------------------------------
+        # Add output from SVM Radial to the list of results
+        #-------------------------------------------------------
+        # List of results for each splitting, CV type & regression method
+        dfRes = mapply(c, my.stats.SVRM, dfRes, SIMPLIFY=F)
+        # List of models for each splitting, CV type & regression method
+        names1 <- strsplit(deparse(quote(my.model.SVRM)),'my.model.')[[1]][2]
+        dfMod[[cv]]$names1 <- my.model.SVRM  
+        names(dfMod[[cv]])[mod.ind[cv]] <- names1[1]
+        mod.ind[cv] <- mod.ind[cv] +1 # update mod.ind indicator variable
+      } # end CV types
     } # end SVRM
     
     # --------------------------------------------
@@ -3323,121 +3356,121 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
     if (fNN==T) {   # if NNet was selected, run the method
       outFile.NN <- file.path(PathDataSet,nnFile)   # the same folder as the input is used for the output
       
-		 cat("-> NN : Neural Networks ...\n")
-		 # For each type of CV do all the statistics
-		 # -----------------------------------------------------
-		 for (cv in 1:length(CVtypes)) {
-			cat("    -->",CVtypes[cv],"\n")
-		    ptmNN <- proc.time()
-		    nn.model <- NNreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.NN) # run NNet for each CV and regr method
-		    print(proc.time() - ptmNN) # print running time
-		    
-		    my.stats.NN <- nn.model$stat.values
-		    my.model.NN <- nn.model$model
-		    
-		    #-------------------------------------------------------
-		    # Add output from NNet to the list of results
-		    #-------------------------------------------------------
-		    # List of results for each splitting, CV type & regression method
-		    dfRes = mapply(c, my.stats.NN, dfRes, SIMPLIFY=F)
-		    # List of models for each splitting, CV type & regression method
-		    names1 <- strsplit(deparse(quote(my.model.NN)),'my.model.')[[1]][2]
-		    dfMod[[cv]]$names1 <- my.model.NN  
-		    names(dfMod[[cv]])[mod.ind[cv]] <- names1[1]
-		    mod.ind[cv] <- mod.ind[cv] +1 # update mod.ind indicator variable
-		} # end CV types  
+      cat("-> NN : Neural Networks ...\n")
+      # For each type of CV do all the statistics
+      # -----------------------------------------------------
+      for (cv in 1:length(CVtypes)) {
+        cat("    -->",CVtypes[cv],"\n")
+        ptmNN <- proc.time()
+        nn.model <- NNreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.NN) # run NNet for each CV and regr method
+        print(proc.time() - ptmNN) # print running time
+        
+        my.stats.NN <- nn.model$stat.values
+        my.model.NN <- nn.model$model
+        
+        #-------------------------------------------------------
+        # Add output from NNet to the list of results
+        #-------------------------------------------------------
+        # List of results for each splitting, CV type & regression method
+        dfRes = mapply(c, my.stats.NN, dfRes, SIMPLIFY=F)
+        # List of models for each splitting, CV type & regression method
+        names1 <- strsplit(deparse(quote(my.model.NN)),'my.model.')[[1]][2]
+        dfMod[[cv]]$names1 <- my.model.NN  
+        names(dfMod[[cv]])[mod.ind[cv]] <- names1[1]
+        mod.ind[cv] <- mod.ind[cv] +1 # update mod.ind indicator variable
+      } # end CV types  
     } # end NNet
     
     # --------------------------------------------
     # 8.9. Random Forest Regression (RF)
     # --------------------------------------------
     if (fRF==T) {   # if RF was selected, run the method
-		outFile.RF <- file.path(PathDataSet,rfFile)   # the same folder as the input is used for the output
-		cat("-> RF : Random Forest ...\n")
-		# For each type of CV do all the statistics
-		# -----------------------------------------------------
-		for (cv in 1:length(CVtypes2)) {
-			cat("    -->",CVtypes2[cv],"\n")
-			ptmRF <- proc.time()
-			rf.model <- RFreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.RF) # run RF for each CV and regr method
-			print(proc.time() - ptmRF) # print running time
-		   
-			my.stats.RF <- rf.model$stat.values
-			my.model.RF <- rf.model$model
-		  
-			#-------------------------------------------------------
-			# Add output from RF to the list of results
-			#-------------------------------------------------------
-			# List of results for each splitting, CV type & regression method
-			dfRes = mapply(c, my.stats.RF, dfRes, SIMPLIFY=F)
-			# List of models for each splitting, CV type & regression method
-			names1 <- strsplit(deparse(quote(my.model.RF)),'my.model.')[[1]][2]
-			dfMod[[cv]]$names1 <- my.model.RF  
-			names(dfMod[[cv]])[mod.ind[cv]] <- names1[1]
-			mod.ind[cv] <- mod.ind[cv] +1 # update mod.ind indicator variable
-		} # end CV types
-	}
-      
-	# --------------------------------------------
-	# 8.10. RF-RFE: Random Forest Regression Recursive Feature Elimination
-	# --------------------------------------------
-	if (fRFRFE==T) {   # if RF-RFE was selected, run the method
-		outFile.RFRFE <- file.path(PathDataSet,rfrfeFile)   # the same folder as the input is used for the output
-      
-		cat("-> RF-RFE: Random Forest-Recursive Feature Elimination ...\n")
-		# For each type of CV do all the statistics
-		# -----------------------------------------------------
-		for (cv in 1:length(CVtypes2)) {
-			cat("    -->",CVtypes2[cv],"\n")
-			ptmRFRFE <- proc.time()
-			rfrfe.model <- RFRFEreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.RFRFE) # run RF for each CV and regr method
-			print(proc.time() - ptmRFRFE) # print running time
+      outFile.RF <- file.path(PathDataSet,rfFile)   # the same folder as the input is used for the output
+      cat("-> RF : Random Forest ...\n")
+      # For each type of CV do all the statistics
+      # -----------------------------------------------------
+      for (cv in 1:length(CVtypes2)) {
+        cat("    -->",CVtypes2[cv],"\n")
+        ptmRF <- proc.time()
+        rf.model <- RFreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.RF) # run RF for each CV and regr method
+        print(proc.time() - ptmRF) # print running time
         
-			my.stats.RFRFE <- rfrfe.model$stat.values
-			my.model.RFRFE <- rfrfe.model$model
-			
-			#-------------------------------------------------------
-			# Add output from RF to the list of results
-			#-------------------------------------------------------
-			# List of results for each splitting, CV type & regression method
-			dfRes = mapply(c, my.stats.RFRFE, dfRes, SIMPLIFY=F)
-			# List of models for each splitting, CV type & regression method
-			names1 <- strsplit(deparse(quote(my.model.RFRFE)),'my.model.')[[1]][2]
-			dfMod[[cv]]$names1 <- my.model.RFRFE  
-			names(dfMod[[cv]])[mod.ind[cv]] <- names1[1]
-			mod.ind[cv] <- mod.ind[cv] +1 # update mod.ind indicator variable
-		} # end CV types
+        my.stats.RF <- rf.model$stat.values
+        my.model.RF <- rf.model$model
+        
+        #-------------------------------------------------------
+        # Add output from RF to the list of results
+        #-------------------------------------------------------
+        # List of results for each splitting, CV type & regression method
+        dfRes = mapply(c, my.stats.RF, dfRes, SIMPLIFY=F)
+        # List of models for each splitting, CV type & regression method
+        names1 <- strsplit(deparse(quote(my.model.RF)),'my.model.')[[1]][2]
+        dfMod[[cv]]$names1 <- my.model.RF  
+        names(dfMod[[cv]])[mod.ind[cv]] <- names1[1]
+        mod.ind[cv] <- mod.ind[cv] +1 # update mod.ind indicator variable
+      } # end CV types
+    }
+    
+    # --------------------------------------------
+    # 8.10. RF-RFE: Random Forest Regression Recursive Feature Elimination
+    # --------------------------------------------
+    if (fRFRFE==T) {   # if RF-RFE was selected, run the method
+      outFile.RFRFE <- file.path(PathDataSet,rfrfeFile)   # the same folder as the input is used for the output
+      
+      cat("-> RF-RFE: Random Forest-Recursive Feature Elimination ...\n")
+      # For each type of CV do all the statistics
+      # -----------------------------------------------------
+      for (cv in 1:length(CVtypes2)) {
+        cat("    -->",CVtypes2[cv],"\n")
+        ptmRFRFE <- proc.time()
+        rfrfe.model <- RFRFEreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.RFRFE) # run RF for each CV and regr method
+        print(proc.time() - ptmRFRFE) # print running time
+        
+        my.stats.RFRFE <- rfrfe.model$stat.values
+        my.model.RFRFE <- rfrfe.model$model
+        
+        #-------------------------------------------------------
+        # Add output from RF to the list of results
+        #-------------------------------------------------------
+        # List of results for each splitting, CV type & regression method
+        dfRes = mapply(c, my.stats.RFRFE, dfRes, SIMPLIFY=F)
+        # List of models for each splitting, CV type & regression method
+        names1 <- strsplit(deparse(quote(my.model.RFRFE)),'my.model.')[[1]][2]
+        dfMod[[cv]]$names1 <- my.model.RFRFE  
+        names(dfMod[[cv]])[mod.ind[cv]] <- names1[1]
+        mod.ind[cv] <- mod.ind[cv] +1 # update mod.ind indicator variable
+      } # end CV types
     } # end RF-REF
-
+    
     # --------------------------------------------
     # 8.11. SVM-RFE
     # --------------------------------------------
     if (fSVMRFE==T) {   # if SVM-RFE was selected, run the method
-		outFile.SVMRFE <- file.path(PathDataSet,svmrfeFile)   # the same folder as the input is used for the output
+      outFile.SVMRFE <- file.path(PathDataSet,svmrfeFile)   # the same folder as the input is used for the output
       
-		cat("-> SVM-RFE : Support Vector Machines Recursive Feature Elimination ...\n")
-		# For each type of CV do all the statistics
-		# -----------------------------------------------------
-		for (cv in 1:length(CVtypes2)) {
-		    cat("    -->",CVtypes2[cv],"\n")
-		    ptmSVMRFE <- proc.time()
-		    svmrfe.model <- SVMRFEreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.SVMRFE,rfe_SVM_param_c,rfe_SVM_param_eps) # run SVM RFEet for each CV and regr method
-		    print(proc.time() - ptmSVMRFE) # print running time
-		    
-		    my.stats.SVMRFE <- svmrfe.model$stat.values
-		    my.model.SVMRFE <- svmrfe.model$model 
-		    
-		    #-------------------------------------------------------
-		    # Add output from SVM RFE to the list of results
-		    #-------------------------------------------------------
-		    # List of results for each splitting, CV type & regression method
-		    dfRes = mapply(c, my.stats.SVMRFE, dfRes, SIMPLIFY=F)
-		    # List of models for each splitting, CV type & regression method
-		    names1 <- strsplit(deparse(quote(my.model.SVMRFE)),'my.model.')[[1]][2]
-		    dfMod[[cv]]$names1 <- my.model.SVMRFE  
-		    names(dfMod[[cv]])[mod.ind[cv]] <- names1[1]
-		    mod.ind[cv] <- mod.ind[cv] +1 # update mod.ind indicator variable
-		  } # end CV types  
+      cat("-> SVM-RFE : Support Vector Machines Recursive Feature Elimination ...\n")
+      # For each type of CV do all the statistics
+      # -----------------------------------------------------
+      for (cv in 1:length(CVtypes2)) {
+        cat("    -->",CVtypes2[cv],"\n")
+        ptmSVMRFE <- proc.time()
+        svmrfe.model <- SVMRFEreg(ds.train,ds.test,CVtypes[cv],i,fDet,outFile.SVMRFE,rfe_SVM_param_c,rfe_SVM_param_eps) # run SVM RFEet for each CV and regr method
+        print(proc.time() - ptmSVMRFE) # print running time
+        
+        my.stats.SVMRFE <- svmrfe.model$stat.values
+        my.model.SVMRFE <- svmrfe.model$model 
+        
+        #-------------------------------------------------------
+        # Add output from SVM RFE to the list of results
+        #-------------------------------------------------------
+        # List of results for each splitting, CV type & regression method
+        dfRes = mapply(c, my.stats.SVMRFE, dfRes, SIMPLIFY=F)
+        # List of models for each splitting, CV type & regression method
+        names1 <- strsplit(deparse(quote(my.model.SVMRFE)),'my.model.')[[1]][2]
+        dfMod[[cv]]$names1 <- my.model.SVMRFE  
+        names(dfMod[[cv]])[mod.ind[cv]] <- names1[1]
+        mod.ind[cv] <- mod.ind[cv] +1 # update mod.ind indicator variable
+      } # end CV types  
     } # end SVM RFE
     
     
@@ -3453,13 +3486,13 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
     }
     # ------------------------
     
-
+    
     # END OF REGRESSION METHODS/FUNCTIONS
-
+    
     # -----------------------------------------------------------------------
     # (8.final) Produce comparison plots amongst models 
     # -----------------------------------------------------------------------
-
+    
     for(cv in 1:length(CVtypes)){
       dfMod.n<- dfMod[[cv]]# keep only models with the same number of resamples
       dfMod.ind<- unlist(lapply(dfMod[[cv]],findResamps.funct))
@@ -3472,7 +3505,7 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
       
       if(CVtypes[cv]!='LOOCV' && length(dfMod.n)>=2 && dfMod.flag!=1){ 
         cat("-> Comparisons plots for multiple regression methods ...\n")
-
+        
         resamps <- resamples(dfMod.n)#,modelNames=names(dfMod[[cv]]))  
         # calculate their differences in terms of R2 and RMSE values
         difValues <- diff(resamps)
@@ -3481,7 +3514,7 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
         pdf(file=paste(PathDataSet,"/ModelsComp.","iSplits.",i,".pdf",sep=""))
         print(bwplot(resamps, layout = c(2, 1),main=paste('Resampling results on the training set',' (data split ',i,')',sep='')))
         dev.off()    
-
+        
         #plot differences of models in terms of R2 adn RMSE values in the training set 
         pdf(file=paste(PathDataSet,"/DifModels.R2.","iSplits.",i,".pdf",sep=""))
         print(dotplot(difValues,metric='Rsquared',main=paste('Models` differences on the training set',' (data split ',i,')',sep='')))
@@ -3489,11 +3522,11 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
         
         pdf(file=paste(PathDataSet,"/DifModels.RMSE.","iSplits.",i,".pdf",sep=""))
         print(dotplot(difValues,metric='RMSE',main=paste('Models` differences on the training set',' (data split ',i,')',sep='')))
-
+        
         dev.off()
       }
     }
-   
+    
   } # END SPLITTING
   
   #------------------------------------------------------------------------------
@@ -3528,9 +3561,9 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
   dt.mean     <- dt.mean[dt.mean$CVtype=="repeatedcv",]   # keep only the 10CV results to be used to find the best model
   
   if (fR2rule==T) { # R2 rule for the best model (default)
-	dt.mean.ord <- dt.mean[order(-rank(R2.ts.Avg))]     # descendent order the averages by R2.ts.Avg
+    dt.mean.ord <- dt.mean[order(-rank(R2.ts.Avg))]     # descendent order the averages by R2.ts.Avg
   } else { # adjR2 rule for the best model
-	dt.mean.ord <- dt.mean[order(-rank(adjR2.ts.Avg))]  # descendent order the averages by adjR2.ts.Avg
+    dt.mean.ord <- dt.mean[order(-rank(adjR2.ts.Avg))]  # descendent order the averages by adjR2.ts.Avg
   }
   
   # Write averages descendent ordered by R2.ts.Avg / adjR2.ts.Avg
@@ -3546,28 +3579,28 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
   # -> from the best ones (+/- 0.05 of R2 / adjR2), chose the one with less variables, after that the one with min RMSE
   
   best.dt  <- dt.mean.ord[1] # the best model (R2.ts / adjR2.ts) should be the first value in the descendent ordered results
-
+  
   # best.reg <- paste(best.dt$RegrMeth,collapse="") # best regression method
   
   # Best model rule: R2 or adjR2 for ordering
   # +/- 0.05 R2 / adjR2ts --> min(RMSE)
   # best.adjR2.ts is used for R2 or adjR2 rule
   if (fR2rule==T) { # R2 rule for the best model (default)
-	best.adjR2.ts <- as.numeric(data.frame(best.dt)[,10]) # best R2.ts avgs
+    best.adjR2.ts <- as.numeric(data.frame(best.dt)[,10]) # best R2.ts avgs
   } else { # adjR2 rule for the best model
-	best.adjR2.ts <- as.numeric(data.frame(best.dt)[,8])  # best adjR2.ts avgs
+    best.adjR2.ts <- as.numeric(data.frame(best.dt)[,8])  # best adjR2.ts avgs
   }
   
   # best model with R2 or adjR2.ts +/- 0.05 and min of RMSE for Avgs
   if (fR2rule==T) { # R2 rule for the best model (default)
-	best.dt  <- dt.mean.ord[R2.ts.Avg %between% c(best.adjR2.ts-0.05,best.adjR2.ts+0.05)][which.min(RMSE.ts.Avg)]
+    best.dt  <- dt.mean.ord[R2.ts.Avg %between% c(best.adjR2.ts-0.05,best.adjR2.ts+0.05)][which.min(RMSE.ts.Avg)]
   } else { # adjR2 rule for the best model
-	best.dt  <- dt.mean.ord[adjR2.ts.Avg %between% c(best.adjR2.ts-0.05,best.adjR2.ts+0.05)][which.min(RMSE.ts.Avg)]
+    best.dt  <- dt.mean.ord[adjR2.ts.Avg %between% c(best.adjR2.ts-0.05,best.adjR2.ts+0.05)][which.min(RMSE.ts.Avg)]
   }
   
   best.reg <- paste(best.dt$RegrMeth,collapse="") # best regrression method
   cat("    -> Method:",best.reg,"\n")
-
+  
   # best model non-averaged ? no. of features
   # -----------------------------------------------
   # best.method <- dt.res[CVtype == "repeatedcv"][RegrMeth == best.reg] # best modes corresponding with the avg best values
@@ -3602,11 +3635,11 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
     # parallel for windows:
     # ------------------------------------------
     if (Sys.info()[['sysname']]=="Windows"){
-     cl<-makeCluster(noCores,outfile="") 
+      cl<-makeCluster(noCores,outfile="") 
       registerDoSNOW(cl)
     }   
   }
-
+  
   if (best.reg=="lm") {
     my.stats.reg  <- LMreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF)$stat.values # run GLM for each CV and regr method
   }
@@ -3637,19 +3670,24 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
   if (best.reg=="rfRFE") {  
     my.stats.reg  <- RFRFEreg(ds.train,ds.test,"repeatedcv",i,T,ResBestF)$stat.values # run RF RFE for each CV and regr method
   }
-
-#   if (best.reg=="rbfDDA") {  
-#     my.stats.reg  <- RBF_DDAreg(ds.train,ds.test,"repeatedcv",negThrStep,i,T,ResBestF)$stat.values # run rbfDDA for each CV and regr method
-#  }
-
+  
+  #   if (best.reg=="rbfDDA") {  
+  #     my.stats.reg  <- RBF_DDAreg(ds.train,ds.test,"repeatedcv",negThrStep,i,T,ResBestF)$stat.values # run rbfDDA for each CV and regr method
+  #  }
+  
   #--------------------------------------------------------------------------------------
   # 12. Test best model with test dataset + Y randomization
   #--------------------------------------------------------------------------------------
   # ratios Yrand R2 - Best model R2 / Best model R2
-  R2Diff.Yrand <- Yrandom(ds,trainFrac,best.reg,my.stats.reg$R2.ts,noYrand,ResBestF,rfe_SVM_param_c,rfe_SVM_param_eps) # mean value of ratio (deatails are printed to output file)
+  R2Diff.Yrand = NA
+  if (noYrand >  0) {
+    R2Diff.Yrand <- Yrandom(
+      ds,trainFrac,best.reg,my.stats.reg$R2.ts,noYrand,ResBestF,rfe_SVM_param_c,rfe_SVM_param_eps
+    ) # mean value of ratio (deatails are printed to output file)
+  }
   
   # (ex param: negThrStep) 
-
+  
   # Kill parallel server
   # ------------------------
   if (noCores!=1){
@@ -3665,7 +3703,7 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
   # Print total execution time
   cat("\nRRegrs total execution time\n")
   print(proc.time() - ptmTot) # print running time
-
+  
   #----------------------------
   # Indicate main result files
   #----------------------------
@@ -3675,9 +3713,9 @@ RRegrs<- function(DataFileName="ds.House.csv",PathDataSet="DataResults",noCores=
   cat("Averages by method/CV type:",ResAvgsF,"\n")
   cat("Best model statistics:",ResBestF,"\n")
   cat("Best model plots:",paste(ResBestF,".repeatedcv.split",i,".pdf",sep=""),"\n")
-  cat("Best model Y-randomization plot:",paste(ResBestF,".Yrand.Hist.pdf",sep=""),"\n")
+  if (noYrand > 0) cat("Best model Y-randomization plot:",paste(ResBestF,".Yrand.Hist.pdf",sep=""),"\n")
   cat("\n* if you choose Details, additional CSV and PDF files will be create for each method.\n")
-
+  
   return(list(BestMethod=best.reg,BestStats=my.stats.reg, Models=dfMod))
   # return a list with 3 items: the name of the best method, the statistics for the best model, the list with all the fitted models (including the best one)
 }
