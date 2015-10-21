@@ -1023,7 +1023,7 @@ LASSOreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") 
     # =============================================================================
     
     # Residuals
-    resids <- abs(pred.both - ds.full[,1]) # residuals
+    resids <- pred.both - ds.full[,1] # residuals
     write.table("Residuals of the fitted model: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
     write.table(data.frame(resids), file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F) # write residuals
     
@@ -2293,7 +2293,7 @@ SVMRFEreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="",
     # =============================================================================
     
     # Residuals
-    resids <- pred.tr-my.datf.train[,1]    # residuals
+    resids <- pred.both-ds.full[,1]    # residuals
     write.table("Residuals of the fitted model: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
     write.table(data.frame(resids), file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F) # write residuals
     
@@ -2338,7 +2338,7 @@ SVMRFEreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="",
     dotchart(fi,main="Feature Importance") # plot 3
     
     # Fitted vs Residuals - plot 4
-    plot(fitted(fitModel),resids,
+    plot(pred.both,resids,
          main="Fitted vs. Residuals for Fitted Model",
          xlab="Fitted", ylab="Residuals")
     abline(h = 0, lty = 2)
@@ -2482,7 +2482,7 @@ RFRFEreg <- function(my.datf.train,my.datf.test,sCV,iSplit=1,fDet=F,outFile="") 
     # =============================================================================
     
     # Residuals
-    resids <- abs(pred.both-ds.full[,1])    # residuals
+    resids <- pred.both-ds.full[,1]    # residuals
     write.table("Residuals of the fitted model: ",file=outFile,append=T,sep=",",col.names=F,row.names=F,quote=F)
     write.table(data.frame(resids), file=outFile,append=T,sep=",",col.names=T,row.names=T, quote=F) # write residuals
     
