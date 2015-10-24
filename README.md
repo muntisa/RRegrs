@@ -18,7 +18,12 @@ Outputs:
 
 Releases
 --------
-
+* Version 0.0.5 [![DOI](https://zenodo.org/badge/doi/10.5281/zenodo.32580.svg)](http://dx.doi.org/10.5281/zenodo.32580)
+  * Bug in function ScalingDS: normalization
+  * Incomplete option in function ScalingDS: standarization
+  * Bug in plot 4, function SVMRFEreg
+  * Bug in function RFRFEreg, removed abs() from resids calculation
+  * Bug in function LASSOreg, removed abs() from resids calculation
 * Version 0.0.4 [![DOI](https://zenodo.org/badge/doi/10.5281/zenodo.21946.svg)](http://dx.doi.org/10.5281/zenodo.21946)
   * adds testing using the testthat package
   * removed the dependency on doMC so that it should install on Windows now (where doMC is not available)
