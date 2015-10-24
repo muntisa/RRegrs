@@ -49,5 +49,11 @@ Compile from source
     $ R CMD build RRegrs
     $ R CMD check --as-cran RRegrs_0.0.4.tar.gz
 
+Notes for Windows
+-------------------
+
+Before installing RRegrs:
+* Update R to 3.2.2
+* Install Rtools with the default configuration options from [https://cran.r-project.org/bin/windows/Rtools/] (https://cran.r-project.org/bin/windows/Rtools/). 
 
 
