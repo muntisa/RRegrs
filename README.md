@@ -3,6 +3,9 @@ RRegrs
 
 eNanoMapper Developers |  [eNanoMapper Project] (http://www.enanomapper.net/)
 
+* Portable version of a previous version could be downloaded as [RRegrs_Portable(muntisa2015.02.09).zip](https://goo.gl/ZQnQWF) or from the folder Portable of the current repo.
+
+* The last updated version of RRegrs package is maintained by [enanomapper](https://github.com/enanomapper/RRegrs/).
 
 The current tool is a collection of regression tools from R that could be used to search the best regression models for any dataset. The initial use of the script is aimed at finding QSAR models for chemoinformatics / nanotoxicology.
 
