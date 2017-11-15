@@ -3,7 +3,7 @@ RRegrs
 
 eNanoMapper Developers |  [eNanoMapper Project] (http://www.enanomapper.net/)
 
-* Portable version of a previous version could be downloaded as [RRegrs_Portable(muntisa2015.02.09).zip](https://goo.gl/ZQnQWF) or from the folder Portable of the current repo.
+* Portable version of a previous version could be downloaded as [RRegrs_Portable(muntisa2015.02.09).zip](https://goo.gl/ZQnQWF).
 
 * The last updated version of RRegrs package is maintained by [enanomapper](https://github.com/enanomapper/RRegrs/).
 
